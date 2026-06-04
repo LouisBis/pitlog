@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Environment variables
+client/.env
+server/.env
+
+# Build output
+client/dist/
+client/build/
+server/dist/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# SQLite
+*.sqlite
+*.db
