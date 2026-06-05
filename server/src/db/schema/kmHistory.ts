@@ -1,1 +1,1 @@
-// schema to be defined
+export {}
