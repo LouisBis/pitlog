@@ -1,6 +1,4 @@
-import { defineConfig } from '@lingui/conf'
-
-export default defineConfig({
+export default {
   sourceLocale: 'fr',
   locales: ['fr'],
   catalogs: [
@@ -10,4 +8,4 @@ export default defineConfig({
     },
   ],
   format: 'po',
-})
+}
