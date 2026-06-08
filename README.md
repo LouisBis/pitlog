@@ -8,14 +8,16 @@ Pitlog is a mobile-first PWA that turns your maintenance schedule into an action
 
 ## Modules
 
-**Module 1 — Maintenance Kanban (core)**
+### **Module 1 — Maintenance Kanban (core)**
+
 - Board with columns: `To do` / `In progress` / `Part ordered` / `Done`
 - Tickets color-coded by urgency: 🔴 < 200km or < 30d / 🟠 < 500km or < 90d / 🟢 > 500km
 - Predictive mileage: estimates due dates based on your riding velocity
 - Auto-regeneration: completing a ticket creates the next one automatically
 - Drag & drop + mobile swipe
 
-**Module 2 — LLM Diagnostics (Phase 3)**
+### **Module 2 — LLM Diagnostics (Phase 3)**
+
 - Natural language chat: "metallic noise on acceleration"
 - Voice input via Web Speech API
 - Motorcycle context injected automatically into the prompt
@@ -72,17 +74,17 @@ erDiagram
 
 ## Stack
 
-| Layer | Tool |
-| --- | --- |
-| Frontend | React 19 + TypeScript, Vite |
-| State | Zustand + TanStack Query |
-| i18n | Lingui |
-| Drag & drop | dnd-kit |
-| Backend | Express 5 + Node.js |
-| Database | SQLite + Drizzle ORM |
-| Logging | loglevel (client) + Pino (server) |
-| Mocks | MSW |
-| Dev environment | Docker |
+| Layer           | Tool                              |
+| --------------- | --------------------------------- |
+| Frontend        | React 19 + TypeScript, Vite       |
+| State           | Zustand + TanStack Query          |
+| i18n            | Lingui                            |
+| Drag & drop     | dnd-kit                           |
+| Backend         | Express 5 + Node.js               |
+| Database        | SQLite + Drizzle ORM              |
+| Logging         | loglevel (client) + Pino (server) |
+| Mocks           | MSW                               |
+| Dev environment | Docker                            |
 
 ## Structure
 
@@ -102,4 +104,4 @@ docker compose up --build
 
 ---
 
-*Pitlog — "Journal de bord de tes révisions"*
+_Pitlog — "Journal de bord de tes révisions"_
