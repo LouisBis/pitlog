@@ -1,4 +1,5 @@
 export * from './motorcycles.js'
-export * from './tickets.js'
+export * from './intervals.js'
+export * from './userMotorcycles.js'
 export * from './kmHistory.js'
-
+export * from './tickets.js'
