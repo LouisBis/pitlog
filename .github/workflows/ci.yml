@@ -41,6 +41,21 @@ jobs:
         run: npx tsc --noEmit
         working-directory: server
 
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install server dependencies
+        run: npm ci
+        working-directory: server
+      - name: Run tests
+        run: npm test
+        working-directory: server
+
   docker-health:
     name: Docker health
     runs-on: ubuntu-latest
