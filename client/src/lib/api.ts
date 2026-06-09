@@ -1,0 +1,32 @@
+import type { CreateTicketPayload, Ticket, TicketStatus, UserMotorcycle } from '@/types'
+
+const BASE = import.meta.env.VITE_API_URL ?? ''
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, {
+    headers: { 'Content-Type': 'application/json', ...init?.headers },
+    ...init,
+  })
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+  return res.json() as Promise<T>
+}
+
+export const api = {
+  getUserMotorcycles: () =>
+    request<UserMotorcycle[]>('/api/v1/user-motorcycles'),
+
+  getTickets: (userMotorcycleId: number) =>
+    request<Ticket[]>(`/api/v1/tickets?userMotorcycleId=${userMotorcycleId}`),
+
+  createTicket: (data: CreateTicketPayload) =>
+    request<Ticket>('/api/v1/tickets', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  patchTicketStatus: (id: number, status: TicketStatus) =>
+    request<Ticket>(`/api/v1/tickets/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status }),
+    }),
+}

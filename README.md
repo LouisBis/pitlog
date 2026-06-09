@@ -10,7 +10,7 @@ Pitlog is a mobile-first PWA that turns your maintenance schedule into an action
 
 ### **Module 1 — Maintenance Kanban (core)**
 
-- Board with columns: `To do` / `In progress` / `Part ordered` / `Done`
+- Board with columns: `To do` / `Part ordered` / `In progress` / `Done`
 - Tickets color-coded by urgency: 🔴 < 200km or < 30d / 🟠 < 500km or < 90d / 🟢 > 500km
 - Predictive mileage: estimates due dates based on your riding velocity
 - Auto-regeneration: completing a ticket creates the next one automatically
@@ -98,9 +98,27 @@ pitlog/
 
 ## Getting started
 
+**Requirements**: Docker + Docker Compose.
+
 ```bash
-docker compose up --build
+git clone git@github.com:LouisBis/pitlog.git
+cd pitlog
+./dev.sh
 ```
+
+The script opens an interactive menu. To start the full stack:
+
+```text
+1) Start   →  docker compose up -d
+```
+
+|URL|Service|
+|---|-------|
+|[localhost:5173](http://localhost:5173)|React client|
+|[localhost:3001](http://localhost:3001)|Express API|
+|[localhost:3001/health](http://localhost:3001/health)|Health check|
+
+To run server tests, use option `7` from the menu.
 
 ---
 
