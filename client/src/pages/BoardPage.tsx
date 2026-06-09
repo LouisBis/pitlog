@@ -37,7 +37,7 @@ export default function BoardPage() {
         )}
         {isError && <span style={{ color: 'var(--color-danger)', fontSize: '13px' }}>Erreur de connexion au serveur</span>}
       </header>
-      <KanbanBoard userMotoId={userMotoId} />
+      {moto && <KanbanBoard userMotoId={userMotoId} currentKm={moto.currentKm} />}
     </div>
   )
 }

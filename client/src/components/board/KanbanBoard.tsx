@@ -6,9 +6,10 @@ import styles from './KanbanBoard.module.css'
 
 interface Props {
   userMotoId: number
+  currentKm: number
 }
 
-export default function KanbanBoard({ userMotoId }: Props) {
+export default function KanbanBoard({ userMotoId, currentKm }: Props) {
   const { data: tickets, isLoading, isError } = useTickets(userMotoId)
   const { mutate: patchStatus } = usePatchTicketStatus(userMotoId)
 
@@ -36,7 +37,7 @@ export default function KanbanBoard({ userMotoId }: Props) {
     <DndContext onDragEnd={handleDragEnd}>
       <div className={styles.board}>
         {TICKET_STATUSES.map((status) => (
-          <KanbanColumn key={status} status={status} tickets={byStatus[status]} />
+          <KanbanColumn key={status} status={status} tickets={byStatus[status]} currentKm={currentKm} />
         ))}
       </div>
     </DndContext>

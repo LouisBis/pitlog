@@ -13,9 +13,10 @@ const COLUMN_LABELS: Record<TicketStatus, string> = {
 interface Props {
   status: TicketStatus
   tickets: Ticket[]
+  currentKm: number
 }
 
-export default function KanbanColumn({ status, tickets }: Props) {
+export default function KanbanColumn({ status, tickets, currentKm }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
 
   return (
@@ -26,7 +27,7 @@ export default function KanbanColumn({ status, tickets }: Props) {
       </div>
       <div ref={setNodeRef} className={styles.dropZone}>
         {tickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} />
+          <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} />
         ))}
       </div>
     </div>
