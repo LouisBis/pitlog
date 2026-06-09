@@ -17,10 +17,11 @@ interface Props {
   status: TicketStatus
   tickets: Ticket[]
   currentKm: number
+  kmPerDay: number | null
   userMotoId: number
 }
 
-export default function KanbanColumn({ status, tickets, currentKm, userMotoId }: Props) {
+export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, userMotoId }: Props) {
   const { setNodeRef, isOver } = useDroppable({ id: status })
   const [showForm, setShowForm] = useState(false)
 
@@ -32,7 +33,7 @@ export default function KanbanColumn({ status, tickets, currentKm, userMotoId }:
       </div>
       <div ref={setNodeRef} className={styles.dropZone}>
         {tickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} />
+          <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} kmPerDay={kmPerDay} />
         ))}
       </div>
       {status === 'todo' && (

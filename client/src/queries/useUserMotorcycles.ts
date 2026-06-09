@@ -6,3 +6,10 @@ export const useUserMotorcycles = () =>
     queryKey: ['user-motorcycles'],
     queryFn: api.getUserMotorcycles,
   })
+
+export const useVelocity = (userMotorcycleId: number) =>
+  useQuery({
+    queryKey: ['velocity', userMotorcycleId],
+    queryFn: () => api.getVelocity(userMotorcycleId),
+    enabled: userMotorcycleId > 0,
+  })
