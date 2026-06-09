@@ -37,7 +37,7 @@ export default function KanbanBoard({ userMotoId, currentKm }: Props) {
     <DndContext onDragEnd={handleDragEnd}>
       <div className={styles.board}>
         {TICKET_STATUSES.map((status) => (
-          <KanbanColumn key={status} status={status} tickets={byStatus[status]} currentKm={currentKm} />
+          <KanbanColumn key={status} status={status} tickets={byStatus[status]} currentKm={currentKm} userMotoId={userMotoId} />
         ))}
       </div>
     </DndContext>
