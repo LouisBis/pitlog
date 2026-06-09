@@ -31,9 +31,9 @@ banner() {
   local running
   running=$(docker compose ps --quiet 2>/dev/null | wc -l | tr -d ' ')
   if [[ "$running" -gt 0 ]]; then
-    echo -e "    ${GREEN}● Stack en ligne${RESET}${DIM}  ($running container(s))${RESET}"
+    echo -e "    ${GREEN}● Stack running${RESET}${DIM}  ($running container(s))${RESET}"
   else
-    echo -e "    ${RED}○ Stack arrêté${RESET}"
+    echo -e "    ${RED}○ Stack stopped${RESET}"
   fi
   echo ""
 }
@@ -82,7 +82,7 @@ menu() {
 # ── Main loop ──────────────────────────────────────────────────────────────────
 while true; do
   menu
-  read -rp "    Choix : " choice
+  read -rp "    Choice: " choice
   echo ""
   case "$choice" in
     1)  run docker compose up -d ;;
@@ -98,9 +98,9 @@ while true; do
     11) run docker compose build server && docker compose up -d server ;;
     12) docker compose exec client sh ;;
     13) docker compose exec server sh ;;
-    q|Q) echo -e "\n    ${YELLOW}À bientôt.${RESET}\n"; exit 0 ;;
-    *)  echo -e "    ${YELLOW}Option inconnue : $choice${RESET}" ;;
+    q|Q) echo -e "\n    ${YELLOW}Bye.${RESET}\n"; exit 0 ;;
+    *)  echo -e "    ${YELLOW}Unknown option: $choice${RESET}" ;;
   esac
   echo ""
-  read -rp "    Entrée pour revenir au menu…" _
+  read -rp "    Press Enter to return to menu…" _
 done

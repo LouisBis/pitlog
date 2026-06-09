@@ -98,7 +98,7 @@ pitlog/
 
 ## Getting started
 
-**Prérequis** : Docker + Docker Compose.
+**Requirements**: Docker + Docker Compose.
 
 ```bash
 git clone git@github.com:LouisBis/pitlog.git
@@ -106,7 +106,7 @@ cd pitlog
 ./dev.sh
 ```
 
-Le script lance un menu interactif. Pour démarrer le stack complet :
+The script opens an interactive menu. To start the full stack:
 
 ```text
 1) Start   →  docker compose up -d
@@ -114,11 +114,11 @@ Le script lance un menu interactif. Pour démarrer le stack complet :
 
 |URL|Service|
 |---|-------|
-|[localhost:5173](http://localhost:5173)|Client React|
-|[localhost:3001](http://localhost:3001)|API Express|
+|[localhost:5173](http://localhost:5173)|React client|
+|[localhost:3001](http://localhost:3001)|Express API|
 |[localhost:3001/health](http://localhost:3001/health)|Health check|
 
-Pour lancer les tests serveur, utiliser l'option `7` du menu.
+To run server tests, use option `7` from the menu.
 
 ---
 
