@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import { migrate } from "drizzle-orm/better-sqlite3/migrator";
-import { motorcycles, intervals } from "./schema/index.js";
+import { motorcycles, intervals, userMotorcycles, kmHistory, tickets } from "./schema/index.js";
 
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
@@ -258,4 +258,60 @@ db.insert(intervals)
   ])
   .run();
 
-console.log("Seed complete — 3 motorcycles, intervals loaded.");
+// --- User motorcycle: GSF 600 Bandit at 15 200 km ---
+const [userGsf] = db
+  .insert(userMotorcycles)
+  .values({
+    motorcycleId: gsf600.id,
+    currentKm: 15200,
+    acquiredAt: new Date("2021-03-15"),
+  })
+  .returning()
+  .all();
+
+db.insert(kmHistory)
+  .values([
+    { userMotorcycleId: userGsf.id, km: 12000, recordedAt: new Date("2023-01-10") },
+    { userMotorcycleId: userGsf.id, km: 13500, recordedAt: new Date("2023-06-20") },
+    { userMotorcycleId: userGsf.id, km: 14800, recordedAt: new Date("2024-01-05") },
+    { userMotorcycleId: userGsf.id, km: 15200, recordedAt: new Date("2024-04-12") },
+  ])
+  .run();
+
+db.insert(tickets)
+  .values([
+    {
+      userMotorcycleId: userGsf.id,
+      operation: "Engine oil change",
+      status: "todo",
+      targetKm: 18000,
+    },
+    {
+      userMotorcycleId: userGsf.id,
+      operation: "Drive chain lubrication",
+      status: "todo",
+      targetKm: 16000,
+    },
+    {
+      userMotorcycleId: userGsf.id,
+      operation: "Spark plugs replacement",
+      status: "part_ordered",
+      targetKm: 18000,
+    },
+    {
+      userMotorcycleId: userGsf.id,
+      operation: "Air filter inspection",
+      status: "in_progress",
+      targetKm: 18000,
+    },
+    {
+      userMotorcycleId: userGsf.id,
+      operation: "Brake fluid replacement",
+      status: "done",
+      doneKm: 14800,
+      doneAt: new Date("2024-01-05"),
+    },
+  ])
+  .run();
+
+console.log("Seed complete — 3 motorcycles, intervals, 1 user motorcycle, 5 tickets loaded.");
