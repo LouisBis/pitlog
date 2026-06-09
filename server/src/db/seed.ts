@@ -280,30 +280,40 @@ db.insert(kmHistory)
 
 db.insert(tickets)
   .values([
+    // ── todo ──────────────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
       operation: "Engine oil change",
       status: "todo",
-      targetKm: 18000,
+      targetKm: 18000,           // 2 800 km remaining → green
     },
     {
       userMotorcycleId: userGsf.id,
       operation: "Drive chain lubrication",
       status: "todo",
-      targetKm: 16000,
+      targetKm: 15350,           // 150 km remaining → red
     },
+    {
+      userMotorcycleId: userGsf.id,
+      operation: "Valve clearance check",
+      status: "todo",
+      targetKm: 15550,           // 350 km remaining → orange
+    },
+    // ── part_ordered ──────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
       operation: "Spark plugs replacement",
       status: "part_ordered",
-      targetKm: 18000,
+      targetKm: 15500,           // 300 km remaining → orange
     },
+    // ── in_progress ───────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
       operation: "Air filter inspection",
       status: "in_progress",
-      targetKm: 18000,
+      targetKm: 14900,           // overdue by 300 km → red
     },
+    // ── done ──────────────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
       operation: "Brake fluid replacement",
@@ -314,4 +324,4 @@ db.insert(tickets)
   ])
   .run();
 
-console.log("Seed complete — 3 motorcycles, intervals, 1 user motorcycle, 5 tickets loaded.");
+console.log("Seed complete — 3 motorcycles, intervals, 1 user motorcycle, 6 tickets loaded.");

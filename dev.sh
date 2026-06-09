@@ -63,16 +63,20 @@ menu() {
   opt  7  "Server tests           vitest inside container"
   echo ""
 
+  section "Database"
+  opt  8  "Reset DB + re-seed     wipe pitlog.db and run seed"
+  echo ""
+
   section "Packages"
-  opt  8  "Install client deps    npm install --legacy-peer-deps"
-  opt  9  "Install server deps    npm install"
-  opt 10  "Rebuild client image"
-  opt 11  "Rebuild server image"
+  opt  9  "Install client deps    npm install --legacy-peer-deps"
+  opt 10  "Install server deps    npm install"
+  opt 11  "Rebuild client image"
+  opt 12  "Rebuild server image"
   echo ""
 
   section "Shell"
-  opt 12  "Shell → client"
-  opt 13  "Shell → server"
+  opt 13  "Shell → client"
+  opt 14  "Shell → server"
   echo ""
 
   opt  q  "Quit"
@@ -92,12 +96,13 @@ while true; do
     5)  docker compose logs client -f ;;
     6)  docker compose logs server -f ;;
     7)  run docker compose exec server sh -c "npm test" ;;
-    8)  run docker compose exec client npm install --legacy-peer-deps ;;
-    9)  run docker compose exec server npm install ;;
-    10) run docker compose build client && docker compose up -d client ;;
-    11) run docker compose build server && docker compose up -d server ;;
-    12) docker compose exec client sh ;;
-    13) docker compose exec server sh ;;
+    8)  run docker compose exec server sh -c "rm -f data/pitlog.db data/pitlog.db-shm data/pitlog.db-wal && npm run seed" && run docker compose restart server ;;
+    9)  run docker compose exec client npm install --legacy-peer-deps ;;
+    10) run docker compose exec server npm install ;;
+    11) run docker compose build client && docker compose up -d client ;;
+    12) run docker compose build server && docker compose up -d server ;;
+    13) docker compose exec client sh ;;
+    14) docker compose exec server sh ;;
     q|Q) echo -e "\n    ${YELLOW}Bye.${RESET}\n"; exit 0 ;;
     *)  echo -e "    ${YELLOW}Unknown option: $choice${RESET}" ;;
   esac
