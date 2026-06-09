@@ -2,7 +2,7 @@ import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 import { intervals } from './intervals.js'
 import { userMotorcycles } from './userMotorcycles.js'
 
-export const TICKET_STATUSES = ['todo', 'in_progress', 'part_ordered', 'done'] as const
+export const TICKET_STATUSES = ['todo', 'part_ordered', 'in_progress', 'done'] as const
 export type TicketStatus = typeof TICKET_STATUSES[number]
 
 export const tickets = sqliteTable('tickets', {
