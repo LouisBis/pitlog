@@ -2,6 +2,7 @@ import { DndContext, type DragEndEvent } from '@dnd-kit/core'
 import { TICKET_STATUSES, type Ticket, type TicketStatus } from '@/types'
 import { useTickets, usePatchTicketStatus } from '@/queries/useTickets'
 import KanbanColumn from './KanbanColumn'
+import styles from './KanbanBoard.module.css'
 
 interface Props {
   userMotoId: number
@@ -33,7 +34,7 @@ export default function KanbanBoard({ userMotoId }: Props) {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
-      <div style={{ display: 'flex', gap: '12px', padding: '16px', overflowX: 'auto' }}>
+      <div className={styles.board}>
         {TICKET_STATUSES.map((status) => (
           <KanbanColumn key={status} status={status} tickets={byStatus[status]} />
         ))}

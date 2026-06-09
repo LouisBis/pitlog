@@ -1,0 +1,32 @@
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  border-color: var(--text-muted);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card.dragging {
+  cursor: grabbing;
+  opacity: 0.4;
+}
+
+.operation {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.targetKm {
+  font-size: 12px;
+  color: var(--text-muted);
+}
