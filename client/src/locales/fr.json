@@ -1,0 +1,47 @@
+{
+  "common": {
+    "loading": "Chargement…",
+    "error.loading": "Erreur de chargement.",
+    "error.server": "Erreur de connexion au serveur",
+    "km": "{{count, number}} km"
+  },
+  "nav": {
+    "back_to_garage": "← Mes motos",
+    "back_to_home": "← Retour à l'accueil"
+  },
+  "garage": {
+    "title": "Mes motos",
+    "subtitle": "Sélectionne une moto pour accéder à son tableau de bord.",
+    "tagline": "Journal de bord de tes révisions",
+    "empty": "Aucune moto enregistrée."
+  },
+  "board": {
+    "column": {
+      "todo": "À faire",
+      "part_ordered": "Pièces commandées",
+      "in_progress": "En cours",
+      "done": "Terminé"
+    }
+  },
+  "ticket": {
+    "action": {
+      "new": "+ Nouveau ticket",
+      "add": "Ajouter",
+      "cancel": "Annuler"
+    },
+    "form": {
+      "operation.placeholder": "Opération (ex. : vidange)",
+      "target_km.placeholder": "Km cible (optionnel)"
+    },
+    "urgency": {
+      "overdue": "Dépassé de {{count, number}} km",
+      "remaining": "{{count, number}} km restants",
+      "estimated_days": "~{{count}} j"
+    }
+  },
+  "not_found": {
+    "code": "404",
+    "title": "Page introuvable",
+    "subtitle": "Cette URL n'existe pas."
+  }
+}

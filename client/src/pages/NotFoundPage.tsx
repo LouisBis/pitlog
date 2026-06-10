@@ -1,16 +1,18 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import styles from './NotFoundPage.module.css'
 
 export default function NotFoundPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
 
   return (
     <div className={styles.page}>
-      <span className={styles.code}>404</span>
-      <p className={styles.title}>Page introuvable</p>
-      <p className={styles.subtitle}>Cette URL n'existe pas.</p>
+      <span className={styles.code}>{t('not_found.code')}</span>
+      <p className={styles.title}>{t('not_found.title')}</p>
+      <p className={styles.subtitle}>{t('not_found.subtitle')}</p>
       <button type="button" className={styles.back} onClick={() => navigate('/')}>
-        ← Retour à l'accueil
+        {t('nav.back_to_home')}
       </button>
     </div>
   )

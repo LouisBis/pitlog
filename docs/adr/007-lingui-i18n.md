@@ -1,34 +1,57 @@
-# ADR-007 — Lingui for i18n and label management
+# ADR-007 — react-i18next for i18n and label management
+
+## Status
+
+Amended — replaced Lingui with react-i18next (see context below).
 
 ## Context
 
-The app UI is in French. Rather than hardcoding strings directly in components, we use a key-based i18n system from the start. This enforces a clean separation between UI logic and copy, makes future language additions trivial, and avoids scattered string literals across the codebase.
+The app UI is in French. All user-facing strings must live in external resource files, not in source code. The core requirement: code contains only keys, business copy is centralised in a JSON file that can be edited without touching any component.
+
+Lingui was the original choice. It was replaced after implementation revealed a mismatch: Lingui is designed for the **message-based** workflow (source text is the key, extracted from code). Forcing it into a **key-based** workflow requires verbose explicit-ID syntax and a mandatory compile step (`lingui compile`) after every translation change. The tool works against the requirement rather than with it.
 
 ## Decision
 
-Use **Lingui** (`@lingui/react` + `@lingui/macro`) for all UI labels and user-facing strings.
+Use **react-i18next** (`i18next` + `react-i18next`) for all UI labels and user-facing strings.
 
-No string is hardcoded in a component. Every label goes through a Lingui key:
+Keys in components, text in `src/locales/fr.json`:
 
-```tsx
-import { t } from '@lingui/macro'
+```typescript
+// In a component
+const { t } = useTranslation()
+t('board.column.todo')
 
-<button>{t`ticket.action.markDone`}</button>
+// In a pure function
+import i18n from '@/lib/i18n'
+i18n.t('ticket.urgency.remaining', { count: remaining })
 ```
 
-## Why not react-i18next
+```json
+// src/locales/fr.json
+{
+  "board": {
+    "column": {
+      "todo": "À faire"
+    }
+  }
+}
+```
 
-**react-i18next** is the most widely used option and a safe choice. Lingui is preferred here because:
+No string is hardcoded in a component. Every label references a key. The JSON file is the single point of truth for business copy.
 
-- Compile-time extraction: unused keys are caught at build time, not at runtime
-- Better TypeScript integration — keys are typed, no string typos at runtime
-- Cleaner macro syntax vs `t('key')` string calls
-- Smaller runtime bundle
+## Why react-i18next over Lingui
+
+- **Key-based by design** — `t('some.key')` with no text in code, exactly matching the requirement
+- **No compile step** — edit `fr.json`, reload, done
+- **JSON resource files** — familiar format, editable by anyone
+- **Most widely adopted** React i18n library — established patterns, extensive docs
+
+## Key naming convention
+
+`<domain>.<entity>.<qualifier>` — e.g. `board.column.todo`, `ticket.urgency.overdue`, `common.error.loading`
 
 ## Consequences
 
-- All French copy lives in `client/src/locales/fr.po`
-- Adding a second language requires only a new `.po` file — no component changes
-- Lingui CLI extracts keys automatically from source: `lingui extract`
-- Slight learning curve vs react-i18next, but the pattern is simpler once set up
-- Key naming convention: `<domain>.<entity>.<action>` — e.g. `ticket.status.done`, `board.column.inProgress`
+- All French copy lives in `client/src/locales/fr.json`
+- Adding a second language requires a new `en.json` and one line in `i18n.ts` — no component changes
+- i18next is initialised in `src/lib/i18n.ts` and imported once in `main.tsx`

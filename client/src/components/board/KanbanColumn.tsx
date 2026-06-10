@@ -1,17 +1,11 @@
 import { useState } from 'react'
 import { useDroppable } from '@dnd-kit/core'
+import { useTranslation } from 'react-i18next'
 import type { Ticket, TicketStatus } from '@/types'
 import TicketCard from './TicketCard'
 import CreateTicketForm from './CreateTicketForm'
 import styles from './KanbanColumn.module.css'
 import formStyles from './CreateTicketForm.module.css'
-
-const COLUMN_LABELS: Record<TicketStatus, string> = {
-  todo: 'À faire',
-  part_ordered: 'Pièces commandées',
-  in_progress: 'En cours',
-  done: 'Terminé',
-}
 
 interface Props {
   status: TicketStatus
@@ -22,13 +16,14 @@ interface Props {
 }
 
 export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, userMotoId }: Props) {
+  const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({ id: status })
   const [showForm, setShowForm] = useState(false)
 
   return (
     <div className={`${styles.column}${isOver ? ` ${styles.over}` : ''}`}>
       <div className={styles.header}>
-        {COLUMN_LABELS[status]}
+        {t(`board.column.${status}`)}
         <span className={styles.count}>{tickets.length}</span>
       </div>
       <div ref={setNodeRef} className={styles.dropZone}>
@@ -40,7 +35,7 @@ export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, use
         showForm
           ? <CreateTicketForm userMotoId={userMotoId} onClose={() => setShowForm(false)} />
           : <button type="button" className={formStyles.addButton} onClick={() => setShowForm(true)}>
-              + Nouveau ticket
+              {t('ticket.action.new')}
             </button>
       )}
     </div>

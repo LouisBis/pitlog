@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles, useVelocity } from '@/queries/useUserMotorcycles'
 import KanbanBoard from '@/components/board/KanbanBoard'
 import styles from './BoardPage.module.css'
 
 export default function BoardPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const userMotoId = Number(id)
@@ -28,15 +30,15 @@ export default function BoardPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <button type="button" className={styles.back} onClick={() => navigate('/')}>
-          ← Mes motos
+          {t('nav.back_to_garage')}
         </button>
         {moto && (
           <>
             <span className={styles.motoName}>{moto.brand} {moto.model} ({moto.year})</span>
-            <span className={styles.km}>{moto.currentKm.toLocaleString('fr-FR')} km</span>
+            <span className={styles.km}>{t('common.km', { count: moto.currentKm })}</span>
           </>
         )}
-        {isError && <span style={{ color: 'var(--color-danger)', fontSize: '13px' }}>Erreur de connexion au serveur</span>}
+        {isError && <span style={{ color: 'var(--color-danger)', fontSize: '13px' }}>{t('common.error.server')}</span>}
       </header>
       {moto && <KanbanBoard userMotoId={userMotoId} currentKm={moto.currentKm} kmPerDay={velocity?.kmPerDay ?? null} />}
     </div>

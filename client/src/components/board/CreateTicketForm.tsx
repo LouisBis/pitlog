@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useCreateTicket } from '@/queries/useTickets'
 import styles from './CreateTicketForm.module.css'
 
@@ -8,6 +9,7 @@ interface Props {
 }
 
 export default function CreateTicketForm({ userMotoId, onClose }: Props) {
+  const { t } = useTranslation()
   const [operation, setOperation] = useState('')
   const [targetKm, setTargetKm] = useState('')
   const { mutate: createTicket, isPending } = useCreateTicket(userMotoId)
@@ -28,7 +30,7 @@ export default function CreateTicketForm({ userMotoId, onClose }: Props) {
     <form className={styles.form} onSubmit={handleSubmit}>
       <input
         className={styles.input}
-        placeholder="Opération (ex. : vidange)"
+        placeholder={t('ticket.form.operation.placeholder')}
         value={operation}
         onChange={(e) => setOperation(e.target.value)}
         autoFocus
@@ -36,17 +38,17 @@ export default function CreateTicketForm({ userMotoId, onClose }: Props) {
       <input
         className={styles.input}
         type="number"
-        placeholder="Km cible (optionnel)"
+        placeholder={t('ticket.form.target_km.placeholder')}
         value={targetKm}
         onChange={(e) => setTargetKm(e.target.value)}
         min={0}
       />
       <div className={styles.actions}>
         <button type="submit" className={styles.submit} disabled={!operation.trim() || isPending}>
-          Ajouter
+          {t('ticket.action.add')}
         </button>
         <button type="button" className={styles.cancel} onClick={onClose}>
-          Annuler
+          {t('ticket.action.cancel')}
         </button>
       </div>
     </form>
