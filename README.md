@@ -11,10 +11,10 @@ Pitlog is a mobile-first PWA that turns your maintenance schedule into an action
 ### **Module 1 — Maintenance Kanban (core)**
 
 - Board with columns: `To do` / `Part ordered` / `In progress` / `Done`
-- Tickets color-coded by urgency: 🔴 < 200km or < 30d / 🟠 < 500km or < 90d / 🟢 > 500km
-- Predictive mileage: estimates due dates based on your riding velocity
+- Tickets color-coded by urgency: 🔴 ≤ 200 km or ≤ 14 days / 🟠 ≤ 500 km or ≤ 30 days / 🟢 otherwise
+- Predictive mileage: estimates due dates based on your riding velocity (sliding window km/day)
 - Auto-regeneration: completing a ticket creates the next one automatically
-- Drag & drop + mobile swipe
+- Drag & drop between columns
 
 ### **Module 2 — LLM Diagnostics (Phase 3)**
 
@@ -78,7 +78,7 @@ erDiagram
 | --------------- | --------------------------------- |
 | Frontend        | React 19 + TypeScript, Vite       |
 | State           | Zustand + TanStack Query          |
-| i18n            | Lingui                            |
+| i18n            | react-i18next                     |
 | Drag & drop     | dnd-kit                           |
 | Backend         | Express 5 + Node.js               |
 | Database        | SQLite + Drizzle ORM              |
