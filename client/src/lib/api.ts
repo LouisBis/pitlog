@@ -1,3 +1,4 @@
+import log from './logger'
 import type { CreateTicketPayload, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
@@ -7,7 +8,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     headers: { 'Content-Type': 'application/json', ...init?.headers },
     ...init,
   })
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
+  if (!res.ok) {
+    log.error(`[api] ${init?.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`)
+    throw new Error(`${res.status} ${res.statusText}`)
+  }
   return res.json() as Promise<T>
 }
 
