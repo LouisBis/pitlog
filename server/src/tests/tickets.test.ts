@@ -155,4 +155,63 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
       .send({ status: 'invalid_status' })
     expect(res.status).toBe(400)
   })
+
+  it('regenerates next ticket when done and intervalId is set', async () => {
+    const [interval] = db
+      .insert(intervals)
+      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
+      .returning()
+      .all()
+
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo' })
+      .returning()
+      .all()
+
+    await request(app).patch(`/api/v1/tickets/${ticket.id}/status`).send({ status: 'done' })
+
+    const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
+    expect(all).toHaveLength(2)
+
+    const next = all.find((t) => t.id !== ticket.id)!
+    expect(next.status).toBe('todo')
+    expect(next.operation).toBe('Oil change')
+    expect(next.targetKm).toBe(8500 + 6000) // doneKm + intervalKm
+    expect(next.intervalId).toBe(interval.id)
+  })
+
+  it('regenerates with targetDate when interval has intervalDays', async () => {
+    const [interval] = db
+      .insert(intervals)
+      .values({ motorcycleId: motoId, operation: 'Brake fluid', intervalKm: null, intervalDays: 730 })
+      .returning()
+      .all()
+
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Brake fluid', intervalId: interval.id, status: 'todo' })
+      .returning()
+      .all()
+
+    await request(app).patch(`/api/v1/tickets/${ticket.id}/status`).send({ status: 'done' })
+
+    const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
+    const next = all.find((t) => t.id !== ticket.id)!
+    expect(next.targetKm).toBeNull()
+    expect(next.targetDate).toBeTruthy()
+  })
+
+  it('does not regenerate when ticket has no intervalId', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Custom check', status: 'todo' })
+      .returning()
+      .all()
+
+    await request(app).patch(`/api/v1/tickets/${ticket.id}/status`).send({ status: 'done' })
+
+    const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
+    expect(all).toHaveLength(1)
+  })
 })
