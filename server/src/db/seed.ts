@@ -27,70 +27,23 @@ const [gsf600] = db
   .returning()
   .all();
 
-db.insert(intervals)
+const gsf600Intervals = db.insert(intervals)
   .values([
-    {
-      motorcycleId: gsf600.id,
-      operation: "Engine oil change",
-      intervalKm: 6000,
-      intervalDays: 365,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Engine oil filter",
-      intervalKm: 12000,
-      intervalDays: 730,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Air filter inspection",
-      intervalKm: 6000,
-      intervalDays: 365,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Air filter replacement",
-      intervalKm: 18000,
-      intervalDays: 1095,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Spark plugs replacement",
-      intervalKm: 12000,
-      intervalDays: 730,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Drive chain lubrication",
-      intervalKm: 1000,
-      intervalDays: null,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Valve clearance check",
-      intervalKm: 48000,
-      intervalDays: null,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Brake fluid replacement",
-      intervalKm: null,
-      intervalDays: 730,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Brake hose replacement",
-      intervalKm: null,
-      intervalDays: 1460,
-    },
-    {
-      motorcycleId: gsf600.id,
-      operation: "Fuel line replacement",
-      intervalKm: null,
-      intervalDays: 1460,
-    },
+    { motorcycleId: gsf600.id, operation: "Engine oil change",       intervalKm: 6000,  intervalDays: 365  },
+    { motorcycleId: gsf600.id, operation: "Engine oil filter",       intervalKm: 12000, intervalDays: 730  },
+    { motorcycleId: gsf600.id, operation: "Air filter inspection",   intervalKm: 6000,  intervalDays: 365  },
+    { motorcycleId: gsf600.id, operation: "Air filter replacement",  intervalKm: 18000, intervalDays: 1095 },
+    { motorcycleId: gsf600.id, operation: "Spark plugs replacement", intervalKm: 12000, intervalDays: 730  },
+    { motorcycleId: gsf600.id, operation: "Drive chain lubrication", intervalKm: 1000,  intervalDays: null },
+    { motorcycleId: gsf600.id, operation: "Valve clearance check",   intervalKm: 48000, intervalDays: null },
+    { motorcycleId: gsf600.id, operation: "Brake fluid replacement", intervalKm: null,  intervalDays: 730  },
+    { motorcycleId: gsf600.id, operation: "Brake hose replacement",  intervalKm: null,  intervalDays: 1460 },
+    { motorcycleId: gsf600.id, operation: "Fuel line replacement",   intervalKm: null,  intervalDays: 1460 },
   ])
-  .run();
+  .returning()
+  .all();
+
+const gsf600i = Object.fromEntries(gsf600Intervals.map((i) => [i.operation, i.id]));
 
 // --- Honda CB500 ---
 const [cb500] = db
@@ -283,18 +236,21 @@ db.insert(tickets)
     // ── todo ──────────────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
+      intervalId: gsf600i["Engine oil change"],
       operation: "Engine oil change",
       status: "todo",
       targetKm: 18000,           // 2 800 km remaining → green
     },
     {
       userMotorcycleId: userGsf.id,
+      intervalId: gsf600i["Drive chain lubrication"],
       operation: "Drive chain lubrication",
       status: "todo",
       targetKm: 15350,           // 150 km remaining → red
     },
     {
       userMotorcycleId: userGsf.id,
+      intervalId: gsf600i["Valve clearance check"],
       operation: "Valve clearance check",
       status: "todo",
       targetKm: 15550,           // 350 km remaining → orange
@@ -302,6 +258,7 @@ db.insert(tickets)
     // ── part_ordered ──────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
+      intervalId: gsf600i["Spark plugs replacement"],
       operation: "Spark plugs replacement",
       status: "part_ordered",
       targetKm: 15500,           // 300 km remaining → orange
@@ -309,6 +266,7 @@ db.insert(tickets)
     // ── in_progress ───────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
+      intervalId: gsf600i["Air filter inspection"],
       operation: "Air filter inspection",
       status: "in_progress",
       targetKm: 14900,           // overdue by 300 km → red
@@ -316,6 +274,7 @@ db.insert(tickets)
     // ── done ──────────────────────────────────────────────
     {
       userMotorcycleId: userGsf.id,
+      intervalId: gsf600i["Brake fluid replacement"],
       operation: "Brake fluid replacement",
       status: "done",
       doneKm: 14800,
