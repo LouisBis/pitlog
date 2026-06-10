@@ -39,6 +39,13 @@
       "estimated_days": "~{{count}} j"
     }
   },
+  "km_update": {
+    "label": "Mettre à jour le compteur",
+    "placeholder": "Nouveau km",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "error.lower": "La valeur doit être supérieure au compteur actuel"
+  },
   "not_found": {
     "code": "404",
     "title": "Page introuvable",

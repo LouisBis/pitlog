@@ -32,4 +32,10 @@ export const api = {
 
   getVelocity: (userMotorcycleId: number) =>
     request<VelocityResult | null>(`/api/v1/user-motorcycles/${userMotorcycleId}/velocity`),
+
+  updateKm: (userMotorcycleId: number, km: number) =>
+    request<{ id: number; currentKm: number }>(`/api/v1/user-motorcycles/${userMotorcycleId}/km`, {
+      method: 'PATCH',
+      body: JSON.stringify({ km }),
+    }),
 }

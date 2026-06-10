@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles, useVelocity } from '@/queries/useUserMotorcycles'
 import KanbanBoard from '@/components/board/KanbanBoard'
+import KmUpdateForm from '@/components/board/KmUpdateForm'
 import styles from './BoardPage.module.css'
 
 export default function BoardPage() {
@@ -11,6 +12,7 @@ export default function BoardPage() {
   const navigate = useNavigate()
   const userMotoId = Number(id)
   const isValidId = Number.isInteger(userMotoId) && userMotoId > 0
+  const [editingKm, setEditingKm] = useState(false)
 
   const { data: motos, isError } = useUserMotorcycles()
   const moto = motos?.find((m) => m.id === userMotoId)
@@ -35,7 +37,12 @@ export default function BoardPage() {
         {moto && (
           <>
             <span className={styles.motoName}>{moto.brand} {moto.model} ({moto.year})</span>
-            <span className={styles.km}>{t('common.km', { count: moto.currentKm })}</span>
+            {editingKm
+              ? <KmUpdateForm userMotoId={userMotoId} currentKm={moto.currentKm} onClose={() => setEditingKm(false)} />
+              : <button type="button" className={styles.km} onClick={() => setEditingKm(true)} title={t('km_update.label')}>
+                  {t('common.km', { count: moto.currentKm })} ✎
+                </button>
+            }
           </>
         )}
         {isError && <span style={{ color: 'var(--color-danger)', fontSize: '13px' }}>{t('common.error.server')}</span>}
