@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { tickets, userMotorcycles, TICKET_STATUSES } from '../db/schema/index.js'
+import { tickets, userMotorcycles, intervals, TICKET_STATUSES } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 
 const router = Router()
@@ -95,6 +95,28 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
     .where(eq(tickets.id, parsedId.data))
     .returning()
     .all()
+
+  if (status === 'done' && ticket.intervalId && updated.doneKm !== null && updated.doneAt !== null) {
+    const interval = db.select().from(intervals).where(eq(intervals.id, ticket.intervalId)).get()
+    if (interval) {
+      const nextTargetKm = interval.intervalKm !== null ? updated.doneKm + interval.intervalKm : null
+      const nextTargetDate =
+        interval.intervalDays !== null
+          ? new Date(updated.doneAt.getTime() + interval.intervalDays * 24 * 60 * 60 * 1000)
+          : null
+
+      db.insert(tickets)
+        .values({
+          userMotorcycleId: ticket.userMotorcycleId,
+          intervalId: ticket.intervalId,
+          operation: ticket.operation,
+          status: 'todo',
+          targetKm: nextTargetKm,
+          targetDate: nextTargetDate,
+        })
+        .run()
+    }
+  }
 
   res.json(updated)
 })
