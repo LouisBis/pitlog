@@ -1,4 +1,4 @@
-import type { CreateTicketPayload, Ticket, TicketStatus, UserMotorcycle } from '@/types'
+import type { CreateTicketPayload, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
@@ -29,4 +29,7 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     }),
+
+  getVelocity: (userMotorcycleId: number) =>
+    request<VelocityResult | null>(`/api/v1/user-motorcycles/${userMotorcycleId}/velocity`),
 }

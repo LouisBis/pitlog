@@ -24,6 +24,12 @@ export interface Ticket {
   doneAt: string | null
 }
 
+export interface VelocityResult {
+  kmPerDay: number
+  dataPoints: number
+  periodDays: number
+}
+
 export interface CreateTicketPayload {
   userMotorcycleId: number
   operation: string

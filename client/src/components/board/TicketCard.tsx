@@ -1,21 +1,23 @@
 import { useDraggable } from '@dnd-kit/core'
 import type { Ticket } from '@/types'
-import { getUrgency, formatKmRemaining } from '@/lib/urgency'
+import { getUrgency, formatKmRemaining, formatEstimatedDays } from '@/lib/urgency'
 import styles from './TicketCard.module.css'
 
 interface Props {
   ticket: Ticket
   currentKm: number
+  kmPerDay: number | null
 }
 
-export default function TicketCard({ ticket, currentKm }: Props) {
+export default function TicketCard({ ticket, currentKm, kmPerDay }: Props) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: ticket.id,
     data: { status: ticket.status },
   })
 
-  const urgency = getUrgency(ticket, currentKm)
+  const urgency = getUrgency(ticket, currentKm, kmPerDay)
   const kmLabel = formatKmRemaining(ticket, currentKm)
+  const daysLabel = kmPerDay ? formatEstimatedDays(ticket, currentKm, kmPerDay) : null
 
   const className = [
     styles.card,
@@ -32,8 +34,11 @@ export default function TicketCard({ ticket, currentKm }: Props) {
       {...attributes}
     >
       <p className={styles.operation}>{ticket.operation}</p>
-      {kmLabel && (
-        <span className={`${styles.kmRemaining} ${styles[urgency]}`}>{kmLabel}</span>
+      {(kmLabel || daysLabel) && (
+        <div className={styles.badges}>
+          {kmLabel && <span className={`${styles.badge} ${styles[urgency]}`}>{kmLabel}</span>}
+          {daysLabel && <span className={`${styles.badge} ${styles.days}`}>{daysLabel}</span>}
+        </div>
       )}
     </div>
   )

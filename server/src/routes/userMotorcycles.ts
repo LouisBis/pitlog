@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { db } from '../db/index.js'
 import { userMotorcycles, motorcycles, kmHistory } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
+import { computeVelocity } from '../lib/velocity.js'
 
 const router = Router()
 
@@ -63,6 +64,34 @@ router.post('/', validateBody(createSchema), (req, res) => {
     .run()
 
   res.status(201).json({ ...created, brand: motorcycle.brand, model: motorcycle.model, year: motorcycle.year })
+})
+
+router.get('/:id/velocity', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const userMoto = db
+    .select()
+    .from(userMotorcycles)
+    .where(eq(userMotorcycles.id, parsedId.data))
+    .get()
+
+  if (!userMoto) {
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+
+  const entries = db
+    .select({ km: kmHistory.km, recordedAt: kmHistory.recordedAt })
+    .from(kmHistory)
+    .where(eq(kmHistory.userMotorcycleId, parsedId.data))
+    .all()
+
+  const result = computeVelocity(entries)
+  res.json(result)
 })
 
 router.patch('/:id/km', validateBody(updateKmSchema), (req, res) => {

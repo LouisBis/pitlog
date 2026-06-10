@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
+import { useUserMotorcycles, useVelocity } from '@/queries/useUserMotorcycles'
 import KanbanBoard from '@/components/board/KanbanBoard'
 import styles from './BoardPage.module.css'
 
@@ -12,6 +12,7 @@ export default function BoardPage() {
 
   const { data: motos, isError } = useUserMotorcycles()
   const moto = motos?.find((m) => m.id === userMotoId)
+  const { data: velocity } = useVelocity(userMotoId)
 
   useEffect(() => {
     if (!isValidId) navigate('/', { replace: true })
@@ -37,7 +38,7 @@ export default function BoardPage() {
         )}
         {isError && <span style={{ color: 'var(--color-danger)', fontSize: '13px' }}>Erreur de connexion au serveur</span>}
       </header>
-      {moto && <KanbanBoard userMotoId={userMotoId} currentKm={moto.currentKm} />}
+      {moto && <KanbanBoard userMotoId={userMotoId} currentKm={moto.currentKm} kmPerDay={velocity?.kmPerDay ?? null} />}
     </div>
   )
 }
