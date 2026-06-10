@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
 import type { UserMotorcycle } from '@/types'
 import styles from './SelectMotoPage.module.css'
 
 function MotoCard({ moto, onClick }: { moto: UserMotorcycle; onClick: () => void }) {
+  const { t } = useTranslation()
   return (
     <button type="button" onClick={onClick} className={styles.card}>
       <div className={styles.cardInner}>
@@ -12,7 +14,7 @@ function MotoCard({ moto, onClick }: { moto: UserMotorcycle; onClick: () => void
           <h2 className={styles.model}>{moto.model}</h2>
           <div className={styles.badges}>
             <span className={styles.badgeYear}>{moto.year}</span>
-            <span className={styles.badgeKm}>{moto.currentKm.toLocaleString('fr-FR')} km</span>
+            <span className={styles.badgeKm}>{t('common.km', { count: moto.currentKm })}</span>
           </div>
         </div>
         <span className={styles.arrow}>→</span>
@@ -22,6 +24,7 @@ function MotoCard({ moto, onClick }: { moto: UserMotorcycle; onClick: () => void
 }
 
 export default function SelectMotoPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const { data: motos, isLoading, isError } = useUserMotorcycles()
 
@@ -29,16 +32,16 @@ export default function SelectMotoPage() {
     <div className={styles.page}>
       <header className={styles.header}>
         <span className={styles.logo}>Pitlog</span>
-        <span className={styles.tagline}>Journal de bord de tes révisions</span>
+        <span className={styles.tagline}>{t('garage.tagline')}</span>
       </header>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>Mes motos</h1>
-        <p className={styles.subtitle}>Sélectionne une moto pour accéder à son tableau de bord.</p>
+        <h1 className={styles.title}>{t('garage.title')}</h1>
+        <p className={styles.subtitle}>{t('garage.subtitle')}</p>
 
-        {isLoading && <p>Chargement…</p>}
-        {isError && <p className={styles.error}>Erreur de chargement.</p>}
-        {motos?.length === 0 && <p className={styles.empty}>Aucune moto enregistrée.</p>}
+        {isLoading && <p>{t('common.loading')}</p>}
+        {isError && <p className={styles.error}>{t('common.error.loading')}</p>}
+        {motos?.length === 0 && <p className={styles.empty}>{t('garage.empty')}</p>}
 
         <div className={styles.list}>
           {motos?.map((moto) => (
