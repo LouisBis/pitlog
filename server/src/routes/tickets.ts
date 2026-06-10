@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { db } from '../db/index.js'
 import { tickets, userMotorcycles, intervals, TICKET_STATUSES } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
+import logger from '../lib/logger.js'
 
 const router = Router()
 
@@ -47,6 +48,7 @@ router.post('/', validateBody(createSchema), (req, res) => {
     .get()
 
   if (!userMoto) {
+    logger.warn({ userMotorcycleId: body.userMotorcycleId }, 'User motorcycle not found')
     res.status(404).json({ error: 'User motorcycle not found' })
     return
   }
@@ -76,6 +78,7 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
     .get()
 
   if (!ticket) {
+    logger.warn({ ticketId: parsedId.data }, 'Ticket not found')
     res.status(404).json({ error: 'Ticket not found' })
     return
   }
@@ -115,6 +118,8 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
           targetDate: nextTargetDate,
         })
         .run()
+
+      logger.info({ ticketId: updated.id, operation: ticket.operation, nextTargetKm }, 'Ticket regenerated')
     }
   }
 

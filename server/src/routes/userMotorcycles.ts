@@ -5,6 +5,7 @@ import { db } from '../db/index.js'
 import { userMotorcycles, motorcycles, kmHistory } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
+import logger from '../lib/logger.js'
 
 const router = Router()
 
@@ -49,6 +50,7 @@ router.post('/', validateBody(createSchema), (req, res) => {
     .get()
 
   if (!motorcycle) {
+    logger.warn({ motorcycleId }, 'Motorcycle not found in catalogue')
     res.status(404).json({ error: 'Motorcycle not found in catalogue' })
     return
   }
@@ -115,6 +117,7 @@ router.patch('/:id/km', validateBody(updateKmSchema), (req, res) => {
   }
 
   if (km <= userMoto.currentKm) {
+    logger.warn({ userMotoId: parsedId.data, currentKm: userMoto.currentKm, attempted: km }, 'Km update rejected')
     res.status(422).json({ error: `New km (${km}) must be greater than current km (${userMoto.currentKm})` })
     return
   }
