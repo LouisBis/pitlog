@@ -74,7 +74,7 @@ jobs:
         run: docker compose down
 
   build-pages:
-    name: Build (GitHub Pages)
+    name: Build + smoke (GitHub Pages)
     runs-on: ubuntu-latest
     if: github.base_ref == 'main'
     steps:
@@ -90,6 +90,12 @@ jobs:
         working-directory: client
         env:
           VITE_USE_MOCKS: 'true'
+      - name: Install Playwright chromium
+        run: npx playwright install --with-deps chromium
+        working-directory: client
+      - name: Run smoke tests
+        run: npx playwright test
+        working-directory: client
 
   branch-policy:
     name: Branch policy
