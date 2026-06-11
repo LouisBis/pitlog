@@ -3,11 +3,11 @@ import type { CreateTicketPayload, TicketStatus } from '@/types'
 import { mockUserMotorcycles, mockTickets, mockVelocity, mockIntervals, nextId } from './data'
 
 export const handlers = [
-  http.get('/api/v1/user-motorcycles', () => {
+  http.get('*/api/v1/user-motorcycles', () => {
     return HttpResponse.json(mockUserMotorcycles)
   }),
 
-  http.get('/api/v1/user-motorcycles/:id/velocity', ({ params }) => {
+  http.get('*/api/v1/user-motorcycles/:id/velocity', ({ params }) => {
     const id = Number(params.id)
     if (!mockUserMotorcycles.find((m) => m.id === id)) {
       return new HttpResponse(null, { status: 404 })
@@ -15,7 +15,7 @@ export const handlers = [
     return HttpResponse.json(mockVelocity)
   }),
 
-  http.patch('/api/v1/user-motorcycles/:id/km', async ({ params, request }) => {
+  http.patch('*/api/v1/user-motorcycles/:id/km', async ({ params, request }) => {
     const id = Number(params.id)
     const moto = mockUserMotorcycles.find((m) => m.id === id)
     if (!moto) return new HttpResponse(null, { status: 404 })
@@ -25,13 +25,13 @@ export const handlers = [
     return HttpResponse.json({ id: moto.id, currentKm: moto.currentKm })
   }),
 
-  http.get('/api/v1/tickets', ({ request }) => {
+  http.get('*/api/v1/tickets', ({ request }) => {
     const url = new URL(request.url)
     const userMotorcycleId = Number(url.searchParams.get('userMotorcycleId'))
     return HttpResponse.json(mockTickets.filter((t) => t.userMotorcycleId === userMotorcycleId))
   }),
 
-  http.post('/api/v1/tickets', async ({ request }) => {
+  http.post('*/api/v1/tickets', async ({ request }) => {
     const body = (await request.json()) as CreateTicketPayload
     const ticket = {
       id: nextId(),
@@ -48,7 +48,7 @@ export const handlers = [
     return HttpResponse.json(ticket, { status: 201 })
   }),
 
-  http.patch('/api/v1/tickets/:id/status', async ({ params, request }) => {
+  http.patch('*/api/v1/tickets/:id/status', async ({ params, request }) => {
     const id = Number(params.id)
     const body = (await request.json()) as { status: TicketStatus }
     const ticket = mockTickets.find((t) => t.id === id)
