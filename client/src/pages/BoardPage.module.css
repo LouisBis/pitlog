@@ -1,0 +1,52 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg-base);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.back {
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.back:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.motoName {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.km {
+  font-size: 13px;
+  color: var(--accent-text);
+  background: var(--accent-subtle);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity 150ms ease;
+}
+
+.km:hover {
+  opacity: 0.8;
+}

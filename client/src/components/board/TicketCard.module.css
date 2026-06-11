@@ -1,0 +1,62 @@
+.card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-left: 3px solid transparent;
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: box-shadow 150ms ease, border-color 150ms ease;
+  box-shadow: var(--shadow-card);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card.dragging {
+  cursor: grabbing;
+  opacity: 0.4;
+}
+
+/* ── Urgency variants ────────────────────────────────────── */
+
+.card.urgent {
+  border-left-color: var(--color-danger);
+}
+
+.card.warning {
+  border-left-color: var(--color-warning);
+}
+
+.card.ok {
+  border-left-color: var(--color-success);
+}
+
+/* ── Content ─────────────────────────────────────────────── */
+
+.operation {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-base);
+}
+
+.badge.urgent  { color: var(--color-danger); }
+.badge.warning { color: var(--color-warning); }
+.badge.ok      { color: var(--color-success); }
+.badge.days    { color: var(--text-secondary); }

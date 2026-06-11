@@ -1,0 +1,135 @@
+.page {
+  min-height: 100vh;
+  background: var(--bg-base);
+}
+
+.header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 48px 24px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin: 0 0 32px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empty {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.error {
+  color: var(--color-danger);
+}
+
+/* ── Moto card ───────────────────────────────────────────── */
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 150ms ease, transform 150ms ease, border-color 150ms ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-card-hover);
+  border-color: var(--accent);
+  transform: translateY(-2px);
+}
+
+.cardInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.brand {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.model {
+  margin: 4px 0 16px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.badges {
+  display: flex;
+  gap: 8px;
+}
+
+.badgeYear {
+  font-size: 13px;
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-weight: 500;
+}
+
+.badgeKm {
+  font-size: 13px;
+  background: var(--accent-subtle);
+  color: var(--accent-text);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-weight: 500;
+}
+
+.arrow {
+  font-size: 20px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  transition: color 150ms ease;
+}
+
+.card:hover .arrow {
+  color: var(--accent);
+}
