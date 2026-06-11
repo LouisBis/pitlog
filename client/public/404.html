@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pitlog</title>
+    <script>
+      // Save the full URL then redirect to the app root so GitHub Pages
+      // serves index.html instead of a real 404.
+      sessionStorage.setItem('spa-redirect', location.href);
+      location.replace(location.origin + '/pitlog/');
+    </script>
+  </head>
+  <body></body>
+</html>
