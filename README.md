@@ -2,6 +2,18 @@
 
 > Motorcycle maintenance logbook — predictive alerts, kanban board, LLM-assisted diagnostics.
 
+[![CI](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml)
+[![Deploy](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml)
+[![Live demo](https://img.shields.io/badge/Live_demo-GitHub_Pages-222?logo=github&logoColor=white)](https://louisbis.github.io/pitlog/)
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-22-339933?logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-003B57?logo=sqlite&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?logo=docker&logoColor=white)
+
 ## Concept
 
 Pitlog is a mobile-first PWA that turns your maintenance schedule into an actionable kanban board. Tickets are color-coded by urgency based on mileage and time, regenerate automatically when completed, and predict when your next service is due based on your riding velocity.
@@ -72,6 +84,19 @@ erDiagram
     intervals |o--o{ tickets : "generates"
 ```
 
+## Architecture
+
+The client and server are fully decoupled — the React SPA communicates with the Express API over REST, and can run standalone via MSW for the GitHub Pages demo.
+
+A few deliberate choices worth noting:
+
+- **SQLite over PostgreSQL** — single-user app, zero ops overhead, file-based persistence via a Docker volume. [ADR-002](docs/adr/002-sqlite-vs-postgres.md)
+- **Zustand + TanStack Query** — Zustand handles ephemeral UI state (drag, modals), TanStack Query owns server state and cache invalidation. No overlap, no boilerplate. [ADR-003](docs/adr/003-state-management.md)
+- **Sliding window velocity** — km/day is computed over the last 10 odometer entries, not lifetime average. Recent riding behavior predicts near-term due dates better. [ADR-005](docs/adr/005-predictive-velocity.md)
+- **MSW for the demo** — no backend on GitHub Pages. MSW intercepts fetch calls at the service worker level and returns realistic stateful mock data. [docs/adr/](docs/adr/)
+
+Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-009)
+
 ## Stack
 
 | Layer           | Tool                              |
@@ -112,11 +137,11 @@ The script opens an interactive menu. To start the full stack:
 1) Start   →  docker compose up -d
 ```
 
-|URL|Service|
-|---|-------|
-|[localhost:5173](http://localhost:5173)|React client|
-|[localhost:3001](http://localhost:3001)|Express API|
-|[localhost:3001/health](http://localhost:3001/health)|Health check|
+| URL | Service |
+| --- | ------- |
+| [localhost:5173](http://localhost:5173) | React client |
+| [localhost:3001](http://localhost:3001) | Express API |
+| [localhost:3001/health](http://localhost:3001/health) | Health check |
 
 To run server tests, use option `7` from the menu.
 
