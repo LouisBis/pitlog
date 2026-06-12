@@ -1,16 +1,16 @@
 .column {
   min-width: 260px;
   flex: 1;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: var(--background-surface);
+  border: 1px solid var(--border-default);
   border-radius: 10px;
   padding: 14px;
   transition: background 150ms ease, border-color 150ms ease;
 }
 
 .column.over {
-  background: var(--bg-elevated);
-  border-color: var(--accent);
+  background: var(--background-elevated);
+  border-color: var(--accent-default);
 }
 
 .header {
@@ -28,7 +28,7 @@
 .count {
   font-weight: 400;
   color: var(--text-muted);
-  background: var(--bg-elevated);
+  background: var(--background-elevated);
   border-radius: 10px;
   padding: 1px 7px;
   font-size: 11px;

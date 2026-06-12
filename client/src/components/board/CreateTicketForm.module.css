@@ -7,8 +7,8 @@
 
 .input {
   width: 100%;
-  background: var(--bg-base);
-  border: 1px solid var(--border);
+  background: var(--background-base);
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   padding: 8px 10px;
   font-size: 13px;
@@ -24,7 +24,7 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--accent-default);
 }
 
 .actions {
@@ -34,7 +34,7 @@
 
 .submit {
   flex: 1;
-  background: var(--accent);
+  background: var(--accent-default);
   color: #fff;
   border-radius: 6px;
   padding: 7px 12px;
@@ -57,14 +57,14 @@
   padding: 7px 12px;
   font-size: 13px;
   color: var(--text-secondary);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   cursor: pointer;
   transition: background 150ms ease;
 }
 
 .cancel:hover {
-  background: var(--bg-elevated);
+  background: var(--background-elevated);
 }
 
 .addButton {
@@ -73,7 +73,7 @@
   padding: 7px;
   font-size: 13px;
   color: var(--text-muted);
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-default);
   border-radius: 6px;
   cursor: pointer;
   transition: color 150ms ease, border-color 150ms ease;
@@ -81,6 +81,6 @@
 }
 
 .addButton:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: var(--accent-default);
+  border-color: var(--accent-default);
 }

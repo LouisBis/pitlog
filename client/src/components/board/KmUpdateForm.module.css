@@ -7,8 +7,8 @@
 .input {
   width: 110px;
   padding: 4px 8px;
-  background: var(--bg-base);
-  border: 1px solid var(--border);
+  background: var(--background-base);
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   color: var(--text-primary);
   font-size: 13px;
@@ -16,16 +16,16 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--accent-default);
 }
 
 .inputError {
-  border-color: var(--color-danger);
+  border-color: var(--status-danger);
 }
 
 .confirm {
   padding: 4px 10px;
-  background: var(--accent);
+  background: var(--accent-default);
   color: #fff;
   border: none;
   border-radius: 6px;
@@ -42,7 +42,7 @@
 .cancel {
   padding: 4px 10px;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   color: var(--text-secondary);
   font-size: 12px;
@@ -51,5 +51,5 @@
 
 .error {
   font-size: 11px;
-  color: var(--color-danger);
+  color: var(--status-danger);
 }

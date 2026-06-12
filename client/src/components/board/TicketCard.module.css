@@ -1,6 +1,6 @@
 .card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
+  background: var(--background-elevated);
+  border: 1px solid var(--border-default);
   border-left: 3px solid transparent;
   border-radius: 8px;
   padding: 12px 14px;
@@ -22,15 +22,15 @@
 /* ── Urgency variants ────────────────────────────────────── */
 
 .card.urgent {
-  border-left-color: var(--color-danger);
+  border-left-color: var(--status-danger);
 }
 
 .card.warning {
-  border-left-color: var(--color-warning);
+  border-left-color: var(--status-warning);
 }
 
 .card.ok {
-  border-left-color: var(--color-success);
+  border-left-color: var(--status-success);
 }
 
 /* ── Content ─────────────────────────────────────────────── */
@@ -53,10 +53,10 @@
   font-weight: 500;
   padding: 2px 6px;
   border-radius: 4px;
-  background: var(--bg-base);
+  background: var(--background-base);
 }
 
-.badge.urgent  { color: var(--color-danger); }
-.badge.warning { color: var(--color-warning); }
-.badge.ok      { color: var(--color-success); }
+.badge.urgent  { color: var(--status-danger); }
+.badge.warning { color: var(--status-warning); }
+.badge.ok      { color: var(--status-success); }
 .badge.days    { color: var(--text-secondary); }

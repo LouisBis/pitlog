@@ -1,11 +1,11 @@
 .page {
   min-height: 100vh;
-  background: var(--bg-base);
+  background: var(--background-base);
 }
 
 .header {
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
+  background: var(--background-surface);
+  border-bottom: 1px solid var(--border-default);
   padding: 20px 32px;
   display: flex;
   align-items: center;
@@ -15,7 +15,7 @@
 .logo {
   font-size: 22px;
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-default);
   letter-spacing: -0.02em;
 }
 
@@ -55,14 +55,14 @@
 }
 
 .error {
-  color: var(--color-danger);
+  color: var(--status-danger);
 }
 
 /* ── Moto card ───────────────────────────────────────────── */
 
 .card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: var(--background-surface);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   padding: 24px;
   cursor: pointer;
@@ -74,7 +74,7 @@
 
 .card:hover {
   box-shadow: var(--shadow-card-hover);
-  border-color: var(--accent);
+  border-color: var(--accent-default);
   transform: translateY(-2px);
 }
 
@@ -107,7 +107,7 @@
 
 .badgeYear {
   font-size: 13px;
-  background: var(--bg-elevated);
+  background: var(--background-elevated);
   color: var(--text-secondary);
   border-radius: 6px;
   padding: 4px 10px;
@@ -131,5 +131,5 @@
 }
 
 .card:hover .arrow {
-  color: var(--accent);
+  color: var(--accent-default);
 }
