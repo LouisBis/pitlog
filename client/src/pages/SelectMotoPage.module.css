@@ -1,11 +1,11 @@
 .page {
   min-height: 100vh;
-  background: var(--background-base);
+  background: var(--color-bg-raised);
 }
 
 .header {
-  background: var(--background-surface);
-  border-bottom: 1px solid var(--border-default);
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
   padding: 20px 32px;
   display: flex;
   align-items: center;
@@ -13,15 +13,16 @@
 }
 
 .logo {
+  font-family: var(--font-heading);
   font-size: 22px;
   font-weight: 800;
-  color: var(--accent-default);
+  color: var(--brand-accent);
   letter-spacing: -0.02em;
 }
 
 .tagline {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .main {
@@ -31,14 +32,15 @@
 }
 
 .title {
+  font-family: var(--font-heading);
   font-size: 28px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
   margin: 0 0 8px;
 }
 
 .subtitle {
-  color: var(--text-secondary);
+  color: var(--color-text-secondary);
   font-size: 15px;
   margin: 0 0 32px;
 }
@@ -50,7 +52,7 @@
 }
 
 .empty {
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   font-style: italic;
 }
 
@@ -61,20 +63,20 @@
 /* ── Moto card ───────────────────────────────────────────── */
 
 .card {
-  background: var(--background-surface);
-  border: 1px solid var(--border-default);
+  background: var(--color-surface);
+  border: 1px solid var(--card-border);
   border-radius: 12px;
   padding: 24px;
   cursor: pointer;
   text-align: left;
   width: 100%;
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--card-shadow);
   transition: box-shadow 150ms ease, transform 150ms ease, border-color 150ms ease;
 }
 
 .card:hover {
-  box-shadow: var(--shadow-card-hover);
-  border-color: var(--accent-default);
+  box-shadow: var(--card-shadow-hover);
+  border-color: var(--brand-accent);
   transform: translateY(-2px);
 }
 
@@ -85,19 +87,20 @@
 }
 
 .brand {
+  font-family: var(--font-heading);
   margin: 0;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
 }
 
 .model {
   margin: 4px 0 16px;
   font-size: 22px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--color-text-primary);
 }
 
 .badges {
@@ -106,9 +109,10 @@
 }
 
 .badgeYear {
+  font-family: var(--font-mono);
   font-size: 13px;
-  background: var(--background-elevated);
-  color: var(--text-secondary);
+  background: var(--column-bg-over);
+  color: var(--color-text-secondary);
   border-radius: 6px;
   padding: 4px 10px;
   font-weight: 500;
@@ -116,8 +120,9 @@
 
 .badgeKm {
   font-size: 13px;
-  background: var(--accent-subtle);
-  color: var(--accent-text);
+  font-family: var(--font-mono);
+  background: var(--tag-bg);
+  color: var(--tag-text);
   border-radius: 6px;
   padding: 4px 10px;
   font-weight: 500;
@@ -125,11 +130,11 @@
 
 .arrow {
   font-size: 20px;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin-top: 4px;
   transition: color 150ms ease;
 }
 
 .card:hover .arrow {
-  color: var(--accent-default);
+  color: var(--brand-accent);
 }

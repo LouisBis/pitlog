@@ -3,9 +3,9 @@
 
 body {
   margin: 0;
-  background: var(--background-base);
-  color: var(--text-primary);
-  font-family: var(--font-family-sans);
+  background: var(--color-bg-raised);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -22,5 +22,4 @@ button {
   padding: 0;
 }
 
-/* ── Design tokens (@louisbis/pitlog-tokens) ───────────────────────────────── */
-@import '@louisbis/pitlog-tokens/dist/tokens.css';
+/* ── Design tokens imported in main.tsx (@louisbis/pitlog-tokens) ─────────── */

@@ -45,7 +45,7 @@ export default function BoardPage() {
             }
           </>
         )}
-        {isError && <span style={{ color: 'var(--color-danger)', fontSize: '13px' }}>{t('common.error.server')}</span>}
+        {isError && <span style={{ color: 'var(--status-danger)', fontSize: '13px' }}>{t('common.error.server')}</span>}
       </header>
       {moto && <KanbanBoard userMotoId={userMotoId} currentKm={moto.currentKm} kmPerDay={velocity?.kmPerDay ?? null} />}
     </div>

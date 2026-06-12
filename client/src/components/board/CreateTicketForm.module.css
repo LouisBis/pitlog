@@ -7,24 +7,24 @@
 
 .input {
   width: 100%;
-  background: var(--background-base);
-  border: 1px solid var(--border-default);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 6px;
   padding: 8px 10px;
   font-size: 13px;
-  color: var(--text-primary);
+  color: var(--input-text);
   font-family: inherit;
   transition: border-color 150ms ease;
   box-sizing: border-box;
 }
 
 .input::placeholder {
-  color: var(--text-muted);
+  color: var(--input-placeholder);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--accent-default);
+  border-color: var(--input-border-focus);
 }
 
 .actions {
@@ -34,18 +34,18 @@
 
 .submit {
   flex: 1;
-  background: var(--accent-default);
-  color: #fff;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   border-radius: 6px;
   padding: 7px 12px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: opacity 150ms ease;
+  transition: background 150ms ease;
 }
 
 .submit:hover {
-  opacity: 0.85;
+  background: var(--btn-primary-bg-hover);
 }
 
 .submit:disabled {
@@ -56,15 +56,15 @@
 .cancel {
   padding: 7px 12px;
   font-size: 13px;
-  color: var(--text-secondary);
-  border: 1px solid var(--border-default);
+  color: var(--btn-ghost-text);
+  border: 1px solid var(--btn-ghost-border);
   border-radius: 6px;
   cursor: pointer;
   transition: background 150ms ease;
 }
 
 .cancel:hover {
-  background: var(--background-elevated);
+  background: var(--btn-ghost-bg-hover);
 }
 
 .addButton {
@@ -72,8 +72,8 @@
   margin-top: 8px;
   padding: 7px;
   font-size: 13px;
-  color: var(--text-muted);
-  border: 1px dashed var(--border-default);
+  color: var(--color-text-muted);
+  border: 1px dashed var(--color-border);
   border-radius: 6px;
   cursor: pointer;
   transition: color 150ms ease, border-color 150ms ease;
@@ -81,6 +81,6 @@
 }
 
 .addButton:hover {
-  color: var(--accent-default);
-  border-color: var(--accent-default);
+  color: var(--brand-accent);
+  border-color: var(--brand-accent);
 }
