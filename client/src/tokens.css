@@ -1,0 +1,38 @@
+/* ── Component tokens — Layer 3 ────────────────────────────────────────────── */
+/* Reference semantic tokens only — never primitives directly               */
+
+:root {
+  /* Button — primary (brass fill) */
+  --btn-primary-bg:       var(--brand-accent);
+  --btn-primary-bg-hover: var(--brand-accent-hover);
+  --btn-primary-text:     var(--color-text-on-brand);
+
+  /* Button — ghost (outlined / text) */
+  --btn-ghost-text:       var(--color-text-secondary);
+  --btn-ghost-border:     var(--color-border);
+  --btn-ghost-bg-hover:   var(--color-surface-raised);
+
+  /* Input */
+  --input-bg:             var(--color-bg-raised);
+  --input-border:         var(--color-border);
+  --input-border-focus:   var(--brand-accent);
+  --input-border-error:   var(--status-danger);
+  --input-text:           var(--color-text-primary);
+  --input-placeholder:    var(--color-text-muted);
+
+  /* Card (ticket) */
+  --card-bg:              var(--color-surface-raised);
+  --card-border:          var(--color-border);
+  --card-shadow:          var(--shadow-card);
+  --card-shadow-hover:    var(--shadow-card-hover);
+
+  /* Kanban column */
+  --column-bg:            var(--color-surface);
+  --column-border:        var(--color-border);
+  --column-bg-over:       var(--color-surface-raised);
+  --column-border-over:   var(--brand-accent);
+
+  /* App header / nav bar */
+  --header-bg:            var(--color-surface);
+  --header-border:        var(--color-border);
+}

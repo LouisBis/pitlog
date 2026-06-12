@@ -72,11 +72,12 @@ menu() {
   opt 10  "Install server deps    npm install"
   opt 11  "Rebuild client image"
   opt 12  "Rebuild server image"
+  opt 13  "Update design tokens   pull latest @louisbis/pitlog-tokens"
   echo ""
 
   section "Shell"
-  opt 13  "Shell → client"
-  opt 14  "Shell → server"
+  opt 14  "Shell → client"
+  opt 15  "Shell → server"
   echo ""
 
   opt  q  "Quit"
@@ -101,8 +102,9 @@ while true; do
     10) run docker compose exec server npm install ;;
     11) run docker compose build client && docker compose up -d client ;;
     12) run docker compose build server && docker compose up -d server ;;
-    13) docker compose exec client sh ;;
-    14) docker compose exec server sh ;;
+    13) run docker compose exec client npm install @louisbis/pitlog-tokens@latest && run docker compose restart client ;;
+    14) docker compose exec client sh ;;
+    15) docker compose exec server sh ;;
     q|Q) echo -e "\n    ${YELLOW}Bye.${RESET}\n"; exit 0 ;;
     *)  echo -e "    ${YELLOW}Unknown option: $choice${RESET}" ;;
   esac

@@ -1,24 +1,25 @@
 .column {
   min-width: 260px;
   flex: 1;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+  background: var(--column-bg);
+  border: 1px solid var(--column-border);
   border-radius: 10px;
   padding: 14px;
   transition: background 150ms ease, border-color 150ms ease;
 }
 
 .column.over {
-  background: var(--bg-elevated);
-  border-color: var(--accent);
+  background: var(--column-bg-over);
+  border-color: var(--column-border-over);
 }
 
 .header {
+  font-family: var(--font-heading);
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-muted);
+  color: var(--color-text-muted);
   margin-bottom: 12px;
   display: flex;
   align-items: center;
@@ -26,9 +27,10 @@
 }
 
 .count {
+  font-family: var(--font-mono);
   font-weight: 400;
-  color: var(--text-muted);
-  background: var(--bg-elevated);
+  color: var(--color-text-muted);
+  background: var(--column-bg-over);
   border-radius: 10px;
   padding: 1px 7px;
   font-size: 11px;

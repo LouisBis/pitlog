@@ -7,31 +7,37 @@
 .input {
   width: 110px;
   padding: 4px 8px;
-  background: var(--bg-base);
-  border: 1px solid var(--border);
+  font-family: var(--font-mono);
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
   border-radius: 6px;
-  color: var(--text-primary);
+  color: var(--input-text);
   font-size: 13px;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--accent);
+  border-color: var(--input-border-focus);
 }
 
 .inputError {
-  border-color: var(--color-danger);
+  border-color: var(--input-border-error);
 }
 
 .confirm {
   padding: 4px 10px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   border: none;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.confirm:hover {
+  background: var(--btn-primary-bg-hover);
 }
 
 .confirm:disabled {
@@ -42,14 +48,14 @@
 .cancel {
   padding: 4px 10px;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid var(--btn-ghost-border);
   border-radius: 6px;
-  color: var(--text-secondary);
+  color: var(--btn-ghost-text);
   font-size: 12px;
   cursor: pointer;
 }
 
 .error {
   font-size: 11px;
-  color: var(--color-danger);
+  color: var(--status-danger);
 }
