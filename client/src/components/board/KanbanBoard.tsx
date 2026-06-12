@@ -1,4 +1,4 @@
-import { DndContext, type DragEndEvent } from '@dnd-kit/core'
+import { DndContext, PointerSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import { TICKET_STATUSES, type Ticket, type TicketStatus } from '@/types'
 import { useTickets, usePatchTicketStatus } from '@/queries/useTickets'
@@ -13,6 +13,13 @@ interface Props {
 
 export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) {
   const { t } = useTranslation()
+  // PointerSensor: distance prevents accidental drag on click
+  // TouchSensor: delay lets the user scroll without triggering a drag
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+  )
+
   const { data: tickets, isLoading, isError } = useTickets(userMotoId)
   const { mutate: patchStatus } = usePatchTicketStatus(userMotoId)
 
@@ -37,7 +44,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) 
   }
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
       <div className={styles.board}>
         {TICKET_STATUSES.map((status) => (
           <KanbanColumn key={status} status={status} tickets={byStatus[status]} currentKm={currentKm} kmPerDay={kmPerDay} userMotoId={userMotoId} />
