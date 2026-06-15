@@ -1,0 +1,42 @@
+.input {
+  width: 100%;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  color: var(--input-text);
+  font-family: inherit;
+  box-sizing: border-box;
+  transition: border-color var(--duration-fast) var(--easing-default);
+}
+
+.input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--input-border-focus);
+}
+
+/* ── Sizes ───────────────────────────────────────────── */
+
+.md { padding: 8px 10px; font-size: var(--text-base); }
+.sm { padding: 4px 8px;  font-size: var(--text-sm);  }
+
+/* ── States ──────────────────────────────────────────── */
+
+.error {
+  border-color: var(--input-border-error);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Hide native number spinners */
+.input[type='number']::-webkit-inner-spin-button,
+.input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.input[type='number'] { -moz-appearance: textfield; }

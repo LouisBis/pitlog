@@ -22,8 +22,8 @@ export default function TicketCard({ ticket, currentKm, kmPerDay }: Props) {
   const className = [
     styles.card,
     styles[urgency],
-    isDragging ? styles.dragging : '',
-  ].join(' ')
+    isDragging && styles.dragging,
+  ].filter(Boolean).join(' ')
 
   return (
     <div
