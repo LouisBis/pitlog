@@ -36,9 +36,6 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) 
   const { data: tickets, isLoading, isError } = useTickets(userMotoId)
   const { mutate: patchStatus } = usePatchTicketStatus(userMotoId)
 
-  if (isLoading) return <p>{t('common.loading')}</p>
-  if (isError) return <p>{t('common.error.loading')}</p>
-
   const byStatus = useMemo(
     () => TICKET_STATUSES.reduce<Record<TicketStatus, Ticket[]>>(
       (acc, status) => {
@@ -49,6 +46,9 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) 
     ),
     [tickets],
   )
+
+  if (isLoading) return <p>{t('common.loading')}</p>
+  if (isError) return <p>{t('common.error.loading')}</p>
 
   const handleDragStart = (event: DragStartEvent) => {
     const ticket = tickets?.find((t) => t.id === event.active.id)
