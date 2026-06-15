@@ -14,7 +14,7 @@ export default function CreateTicketForm({ userMotoId, onClose }: Props) {
   const { t } = useTranslation()
   const [operation, setOperation] = useState('')
   const [targetKm, setTargetKm] = useState('')
-  const { mutate: createTicket, isPending } = useCreateTicket(userMotoId)
+  const { mutate: createTicket, isPending, isError } = useCreateTicket(userMotoId)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -51,6 +51,7 @@ export default function CreateTicketForm({ userMotoId, onClose }: Props) {
           {t('ticket.action.cancel')}
         </Button>
       </div>
+      {isError && <span className={styles.error}>{t('common.error.server')}</span>}
     </form>
   )
 }

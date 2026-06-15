@@ -50,7 +50,7 @@ export default function BoardPage() {
                 }
               </>
             )}
-            {isError && <span style={{ color: 'var(--status-danger)', fontSize: 'var(--text-sm)' }}>{t('common.error.server')}</span>}
+            {isError && <span className={styles.error}>{t('common.error.server')}</span>}
           </div>
         </div>
       </header>

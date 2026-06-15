@@ -1,4 +1,3 @@
-import i18n from './i18n'
 import type { Ticket } from '@/types'
 
 export type Urgency = 'urgent' | 'warning' | 'ok'
@@ -40,16 +39,13 @@ export function getUrgency(ticket: Ticket, currentKm: number, kmPerDay?: number 
   return urgency
 }
 
-export function formatKmRemaining(ticket: Ticket, currentKm: number): string | null {
+export function getKmRemaining(ticket: Ticket, currentKm: number): number | null {
   if (ticket.status === 'done' || ticket.targetKm === null) return null
-  const remaining = ticket.targetKm - currentKm
-  if (remaining <= 0) return i18n.t('ticket.urgency.overdue', { count: Math.abs(remaining) })
-  return i18n.t('ticket.urgency.remaining', { count: remaining })
+  return ticket.targetKm - currentKm
 }
 
-export function formatEstimatedDays(ticket: Ticket, currentKm: number, kmPerDay: number): string | null {
+export function getEstimatedDays(ticket: Ticket, currentKm: number, kmPerDay: number): number | null {
   if (ticket.status === 'done' || ticket.targetKm === null || kmPerDay <= 0) return null
   const days = Math.round((ticket.targetKm - currentKm) / kmPerDay)
-  if (days <= 0) return null
-  return i18n.t('ticket.urgency.estimated_days', { count: days })
+  return days <= 0 ? null : days
 }
