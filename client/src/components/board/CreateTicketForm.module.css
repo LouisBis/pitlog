@@ -13,3 +13,8 @@
 .submit {
   flex: 1;
 }
+
+.error {
+  color: var(--status-danger);
+  font-size: var(--text-sm);
+}

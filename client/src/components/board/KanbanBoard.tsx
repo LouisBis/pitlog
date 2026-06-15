@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import {
   DndContext,
   DragOverlay,
@@ -36,16 +36,19 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) 
   const { data: tickets, isLoading, isError } = useTickets(userMotoId)
   const { mutate: patchStatus } = usePatchTicketStatus(userMotoId)
 
+  const byStatus = useMemo(
+    () => TICKET_STATUSES.reduce<Record<TicketStatus, Ticket[]>>(
+      (acc, status) => {
+        acc[status] = (tickets ?? []).filter((t) => t.status === status)
+        return acc
+      },
+      {} as Record<TicketStatus, Ticket[]>,
+    ),
+    [tickets],
+  )
+
   if (isLoading) return <p>{t('common.loading')}</p>
   if (isError) return <p>{t('common.error.loading')}</p>
-
-  const byStatus = TICKET_STATUSES.reduce<Record<TicketStatus, Ticket[]>>(
-    (acc, status) => {
-      acc[status] = (tickets ?? []).filter((t) => t.status === status)
-      return acc
-    },
-    {} as Record<TicketStatus, Ticket[]>,
-  )
 
   const handleDragStart = (event: DragStartEvent) => {
     const ticket = tickets?.find((t) => t.id === event.active.id)

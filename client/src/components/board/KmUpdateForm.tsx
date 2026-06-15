@@ -15,7 +15,7 @@ export default function KmUpdateForm({ userMotoId, currentKm, onClose }: Props) 
   const { t } = useTranslation()
   const [value, setValue] = useState('')
   const [error, setError] = useState(false)
-  const { mutate: updateKm, isPending } = useUpdateKm(userMotoId)
+  const { mutate: updateKm, isPending, isError: isServerError } = useUpdateKm(userMotoId)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +46,7 @@ export default function KmUpdateForm({ userMotoId, currentKm, onClose }: Props) 
         {t('km_update.cancel')}
       </Button>
       {error && <span className={styles.error}>{t('km_update.error.lower')}</span>}
+      {isServerError && <span className={styles.error}>{t('common.error.server')}</span>}
     </form>
   )
 }

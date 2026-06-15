@@ -1,6 +1,7 @@
 import { useDraggable } from '@dnd-kit/core'
+import { useTranslation } from 'react-i18next'
 import type { Ticket } from '@/types'
-import { getUrgency, formatKmRemaining, formatEstimatedDays } from '@/lib/urgency'
+import { getUrgency, getKmRemaining, getEstimatedDays } from '@/lib/urgency'
 import { Badge } from '@/components/ui/Badge'
 import styles from './TicketCard.module.css'
 
@@ -12,6 +13,7 @@ interface Props {
 }
 
 export default function TicketCard({ ticket, currentKm, kmPerDay, overlay = false }: Props) {
+  const { t } = useTranslation()
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: ticket.id,
     data: { status: ticket.status },
@@ -19,8 +21,14 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, overlay = fals
   })
 
   const urgency = getUrgency(ticket, currentKm, kmPerDay)
-  const kmLabel = formatKmRemaining(ticket, currentKm)
-  const daysLabel = kmPerDay ? formatEstimatedDays(ticket, currentKm, kmPerDay) : null
+  const remaining = getKmRemaining(ticket, currentKm)
+  const kmLabel = remaining === null
+    ? null
+    : remaining <= 0
+      ? t('ticket.urgency.overdue', { count: Math.abs(remaining) })
+      : t('ticket.urgency.remaining', { count: remaining })
+  const estimatedDays = kmPerDay ? getEstimatedDays(ticket, currentKm, kmPerDay) : null
+  const daysLabel = estimatedDays !== null ? t('ticket.urgency.estimated_days', { count: estimatedDays }) : null
 
   const className = [
     styles.card,
