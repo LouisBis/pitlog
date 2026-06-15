@@ -31,23 +31,36 @@ export default function BoardPage() {
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-        <button type="button" className={styles.back} onClick={() => navigate('/')}>
-          {t('nav.back_to_garage')}
-        </button>
-        {moto && (
-          <>
-            <span className={styles.motoName}>{moto.brand} {moto.model} ({moto.year})</span>
-            {editingKm
-              ? <KmUpdateForm userMotoId={userMotoId} currentKm={moto.currentKm} onClose={() => setEditingKm(false)} />
-              : <button type="button" className={styles.km} onClick={() => setEditingKm(true)} title={t('km_update.label')}>
-                  {t('common.km', { count: moto.currentKm })} ✎
-                </button>
-            }
-          </>
-        )}
-        {isError && <span style={{ color: 'var(--status-danger)', fontSize: '13px' }}>{t('common.error.server')}</span>}
+        <div className={styles.identity}>
+          <span className={styles.logo}>Pitlog</span>
+          <div className={styles.meta}>
+            <button type="button" className={styles.back} onClick={() => navigate('/')}>
+              {t('nav.back_to_garage')}
+            </button>
+            {moto && (
+              <>
+                <span className={styles.separator}>·</span>
+                <span className={styles.motoName}>{moto.brand} {moto.model}</span>
+                <span className={styles.separator}>·</span>
+                {editingKm
+                  ? <KmUpdateForm userMotoId={userMotoId} currentKm={moto.currentKm} onClose={() => setEditingKm(false)} />
+                  : <button type="button" className={styles.km} onClick={() => setEditingKm(true)} title={t('km_update.label')}>
+                      {t('common.km', { count: moto.currentKm })}
+                    </button>
+                }
+              </>
+            )}
+            {isError && <span style={{ color: 'var(--status-danger)', fontSize: 'var(--text-sm)' }}>{t('common.error.server')}</span>}
+          </div>
+        </div>
       </header>
-      {moto && <KanbanBoard userMotoId={userMotoId} currentKm={moto.currentKm} kmPerDay={velocity?.kmPerDay ?? null} />}
+      {moto && (
+        <KanbanBoard
+          userMotoId={userMotoId}
+          currentKm={moto.currentKm}
+          kmPerDay={velocity?.kmPerDay ?? null}
+        />
+      )}
     </div>
   )
 }

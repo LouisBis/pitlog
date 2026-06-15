@@ -1,6 +1,7 @@
 import { useDraggable } from '@dnd-kit/core'
 import type { Ticket } from '@/types'
 import { getUrgency, formatKmRemaining, formatEstimatedDays } from '@/lib/urgency'
+import { Badge } from '@/components/ui/Badge'
 import styles from './TicketCard.module.css'
 
 interface Props {
@@ -36,8 +37,8 @@ export default function TicketCard({ ticket, currentKm, kmPerDay }: Props) {
       <p className={styles.operation}>{ticket.operation}</p>
       {(kmLabel || daysLabel) && (
         <div className={styles.badges}>
-          {kmLabel && <span className={`${styles.badge} ${styles[urgency]}`}>{kmLabel}</span>}
-          {daysLabel && <span className={`${styles.badge} ${styles.days}`}>{daysLabel}</span>}
+          {kmLabel && <Badge variant={urgency}>{kmLabel}</Badge>}
+          {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
         </div>
       )}
     </div>
