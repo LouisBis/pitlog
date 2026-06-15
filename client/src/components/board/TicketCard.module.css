@@ -16,8 +16,15 @@
 }
 
 .card.dragging {
-  cursor: grabbing;
   opacity: 0.4;
+  cursor: grabbing;
+}
+
+.card.overlay {
+  cursor: grabbing;
+  box-shadow: var(--card-shadow-hover);
+  border-color: var(--brand-accent);
+  rotate: 2deg;
 }
 
 .operation {

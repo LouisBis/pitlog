@@ -8,12 +8,14 @@ interface Props {
   ticket: Ticket
   currentKm: number
   kmPerDay: number | null
+  overlay?: boolean
 }
 
-export default function TicketCard({ ticket, currentKm, kmPerDay }: Props) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+export default function TicketCard({ ticket, currentKm, kmPerDay, overlay = false }: Props) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: ticket.id,
     data: { status: ticket.status },
+    disabled: overlay,
   })
 
   const urgency = getUrgency(ticket, currentKm, kmPerDay)
@@ -22,17 +24,15 @@ export default function TicketCard({ ticket, currentKm, kmPerDay }: Props) {
 
   const className = [
     styles.card,
-    styles[urgency],
-    isDragging && styles.dragging,
+    isDragging && !overlay && styles.dragging,
+    overlay && styles.overlay,
   ].filter(Boolean).join(' ')
 
   return (
     <div
-      ref={setNodeRef}
+      ref={overlay ? undefined : setNodeRef}
       className={className}
-      style={transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined}
-      {...listeners}
-      {...attributes}
+      {...(overlay ? {} : { ...listeners, ...attributes })}
     >
       <p className={styles.operation}>{ticket.operation}</p>
       {(kmLabel || daysLabel) && (
