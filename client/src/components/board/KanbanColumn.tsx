@@ -5,7 +5,6 @@ import type { Ticket, TicketStatus } from '@/types'
 import TicketCard from './TicketCard'
 import CreateTicketForm from './CreateTicketForm'
 import styles from './KanbanColumn.module.css'
-import formStyles from './CreateTicketForm.module.css'
 
 interface Props {
   status: TicketStatus
@@ -21,7 +20,7 @@ export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, use
   const [showForm, setShowForm] = useState(false)
 
   return (
-    <div className={`${styles.column}${isOver ? ` ${styles.over}` : ''}`}>
+    <div className={[styles.column, isOver && styles.over].filter(Boolean).join(' ')}>
       <div className={styles.header}>
         {t(`board.column.${status}`)}
         <span className={styles.count}>{tickets.length}</span>
@@ -34,7 +33,7 @@ export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, use
       {status === 'todo' && (
         showForm
           ? <CreateTicketForm userMotoId={userMotoId} onClose={() => setShowForm(false)} />
-          : <button type="button" className={formStyles.addButton} onClick={() => setShowForm(true)}>
+          : <button type="button" className={styles.addButton} onClick={() => setShowForm(true)}>
               {t('ticket.action.new')}
             </button>
       )}

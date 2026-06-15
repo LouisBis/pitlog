@@ -5,28 +5,6 @@
   gap: 8px;
 }
 
-.input {
-  width: 100%;
-  background: var(--input-bg);
-  border: 1px solid var(--input-border);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 13px;
-  color: var(--input-text);
-  font-family: inherit;
-  transition: border-color 150ms ease;
-  box-sizing: border-box;
-}
-
-.input::placeholder {
-  color: var(--input-placeholder);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--input-border-focus);
-}
-
 .actions {
   display: flex;
   gap: 6px;
@@ -34,53 +12,4 @@
 
 .submit {
   flex: 1;
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-text);
-  border-radius: 6px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 150ms ease;
-}
-
-.submit:hover {
-  background: var(--btn-primary-bg-hover);
-}
-
-.submit:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.cancel {
-  padding: 7px 12px;
-  font-size: 13px;
-  color: var(--btn-ghost-text);
-  border: 1px solid var(--btn-ghost-border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 150ms ease;
-}
-
-.cancel:hover {
-  background: var(--btn-ghost-bg-hover);
-}
-
-.addButton {
-  width: 100%;
-  margin-top: 8px;
-  padding: 7px;
-  font-size: 13px;
-  color: var(--color-text-muted);
-  border: 1px dashed var(--color-border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: color 150ms ease, border-color 150ms ease;
-  text-align: center;
-}
-
-.addButton:hover {
-  color: var(--brand-accent);
-  border-color: var(--brand-accent);
 }
