@@ -61,6 +61,7 @@ menu() {
 
   section "Tests"
   opt  7  "Server tests           vitest inside container"
+  opt 16  "Client tests           vitest inside container"
   echo ""
 
   section "Database"
@@ -97,6 +98,7 @@ while true; do
     5)  docker compose logs client -f ;;
     6)  docker compose logs server -f ;;
     7)  run docker compose exec server sh -c "npm test" ;;
+    16) run docker compose exec client sh -c "npm test" ;;
     8)  run docker compose exec server sh -c "rm -f data/pitlog.db data/pitlog.db-shm data/pitlog.db-wal && npm run seed" && run docker compose restart server ;;
     9)  run docker compose exec client npm install --legacy-peer-deps ;;
     10) run docker compose exec server npm install ;;
