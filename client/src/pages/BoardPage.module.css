@@ -8,7 +8,7 @@
 .header {
   background: var(--header-bg);
   border-bottom: 1px solid var(--header-border);
-  padding: 14px 24px;
+  padding: var(--space-4) var(--space-6);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,7 +18,7 @@
 .identity {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .logo {
@@ -33,7 +33,7 @@
 .meta {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   font-size: var(--text-sm);
 }
 
@@ -62,8 +62,8 @@
   color: var(--tag-text);
   background: var(--tag-bg);
   border: 1px solid var(--tag-border-color);
-  border-radius: 6px;
-  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
   cursor: pointer;
   transition: opacity var(--duration-fast) var(--easing-default);
 }

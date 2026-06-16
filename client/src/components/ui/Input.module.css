@@ -2,7 +2,7 @@
   width: 100%;
   background: var(--input-bg);
   border: 1px solid var(--input-border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   color: var(--input-text);
   font-family: inherit;
   box-sizing: border-box;
@@ -20,8 +20,8 @@
 
 /* ── Sizes ───────────────────────────────────────────── */
 
-.md { padding: 8px 10px; font-size: var(--text-base); }
-.sm { padding: 4px 8px;  font-size: var(--text-sm);  }
+.md { padding: var(--space-2) var(--space-3); font-size: var(--text-base); }
+.sm { padding: var(--space-1) var(--space-2);  font-size: var(--text-sm);  }
 
 /* ── States ──────────────────────────────────────────── */
 
