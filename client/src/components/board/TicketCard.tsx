@@ -43,12 +43,19 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, overlay = fals
       {...(overlay ? {} : { ...listeners, ...attributes })}
     >
       <p className={styles.operation}>{ticket.operation}</p>
-      {(kmLabel || daysLabel) && (
-        <div className={styles.badges}>
-          {kmLabel && <Badge variant={urgency}>{kmLabel}</Badge>}
-          {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
-        </div>
-      )}
+      {ticket.status === 'done' && ticket.doneKm !== null
+        ? (
+          <div className={styles.badges}>
+            <Badge variant="ok">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
+          </div>
+        )
+        : (kmLabel || daysLabel) && (
+          <div className={styles.badges}>
+            {kmLabel && <Badge variant={urgency}>{kmLabel}</Badge>}
+            {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
+          </div>
+        )
+      }
     </div>
   )
 }
