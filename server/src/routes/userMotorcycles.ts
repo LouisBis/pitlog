@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { userMotorcycles, motorcycles, kmHistory } from '../db/schema/index.js'
+import { userMotorcycles, motorcycles, kmHistory, intervals, tickets } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
 import logger from '../lib/logger.js'
@@ -71,7 +71,104 @@ router.post('/', validateBody(createSchema), (req, res) => {
     .values({ userMotorcycleId: userMoto.id, km: currentKm, recordedAt: new Date() })
     .run()
 
+  if (!motorcycle.isCustom) {
+    const motorcycleIntervals = db
+      .select()
+      .from(intervals)
+      .where(eq(intervals.motorcycleId, motorcycle.id))
+      .all()
+
+    if (motorcycleIntervals.length > 0) {
+      const now = new Date()
+      db.insert(tickets)
+        .values(
+          motorcycleIntervals.map((interval) => ({
+            userMotorcycleId: userMoto.id,
+            intervalId: interval.id,
+            operation: interval.operation,
+            status: 'todo' as const,
+            targetKm: interval.intervalKm != null ? currentKm + interval.intervalKm : null,
+            targetDate: interval.intervalDays != null
+              ? new Date(now.getTime() + interval.intervalDays * 24 * 60 * 60 * 1000)
+              : null,
+          }))
+        )
+        .run()
+    }
+  }
+
   res.status(201).json({ ...userMoto, brand, model, year, isCustom: motorcycle.isCustom })
+})
+
+router.post('/:id/import-intervals', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const userMoto = db
+    .select()
+    .from(userMotorcycles)
+    .where(eq(userMotorcycles.id, parsedId.data))
+    .get()
+
+  if (!userMoto) {
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+
+  const motorcycle = db
+    .select()
+    .from(motorcycles)
+    .where(eq(motorcycles.id, userMoto.motorcycleId))
+    .get()
+
+  if (!motorcycle || motorcycle.isCustom) {
+    res.status(422).json({ error: 'No catalogue intervals for this motorcycle' })
+    return
+  }
+
+  const motorcycleIntervals = db
+    .select()
+    .from(intervals)
+    .where(eq(intervals.motorcycleId, motorcycle.id))
+    .all()
+
+  const coveredIntervalIds = new Set(
+    db
+      .select()
+      .from(tickets)
+      .where(eq(tickets.userMotorcycleId, parsedId.data))
+      .all()
+      .filter((t) => t.intervalId !== null && t.status !== 'done')
+      .map((t) => t.intervalId as number)
+  )
+
+  const toCreate = motorcycleIntervals.filter((i) => !coveredIntervalIds.has(i.id))
+
+  if (toCreate.length === 0) {
+    res.json({ created: 0 })
+    return
+  }
+
+  const now = new Date()
+  db.insert(tickets)
+    .values(
+      toCreate.map((interval) => ({
+        userMotorcycleId: parsedId.data,
+        intervalId: interval.id,
+        operation: interval.operation,
+        status: 'todo' as const,
+        targetKm: interval.intervalKm != null ? userMoto.currentKm + interval.intervalKm : null,
+        targetDate: interval.intervalDays != null
+          ? new Date(now.getTime() + interval.intervalDays * 24 * 60 * 60 * 1000)
+          : null,
+      }))
+    )
+    .run()
+
+  res.json({ created: toCreate.length })
 })
 
 router.get('/:id/velocity', (req, res) => {

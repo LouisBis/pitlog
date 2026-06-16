@@ -11,7 +11,8 @@ import {
 } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import { TICKET_STATUSES, type Ticket, type TicketStatus } from '@/types'
-import { useTickets, usePatchTicketStatus } from '@/queries/useTickets'
+import { useTickets, usePatchTicketStatus, useImportIntervals } from '@/queries/useTickets'
+import { Button } from '@/components/ui/Button'
 import KanbanColumn from './KanbanColumn'
 import TicketCard from './TicketCard'
 import styles from './KanbanBoard.module.css'
@@ -20,9 +21,10 @@ interface Props {
   userMotoId: number
   currentKm: number
   kmPerDay: number | null
+  isCustom: boolean
 }
 
-export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) {
+export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom }: Props) {
   const { t } = useTranslation()
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null)
 
@@ -35,6 +37,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) 
 
   const { data: tickets, isLoading, isError } = useTickets(userMotoId)
   const { mutate: patchStatus } = usePatchTicketStatus(userMotoId)
+  const { mutate: importIntervals, isPending: isImporting } = useImportIntervals(userMotoId)
 
   const byStatus = useMemo(
     () => TICKET_STATUSES.reduce<Record<TicketStatus, Ticket[]>>(
@@ -66,6 +69,19 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) 
   }
 
   return (
+    <div className={styles.wrapper}>
+      {tickets?.length === 0 && (
+        <div className={styles.emptyBanner}>
+          <p className={styles.emptyText}>
+            {t(isCustom ? 'board.empty.custom' : 'board.empty.catalogue')}
+          </p>
+          {!isCustom && (
+            <Button size="sm" onClick={() => importIntervals()} disabled={isImporting}>
+              {t('board.empty.import')}
+            </Button>
+          )}
+        </div>
+      )}
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className={styles.board}>
         {TICKET_STATUSES.map((status) => (
@@ -78,5 +94,6 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay }: Props) 
         )}
       </DragOverlay>
     </DndContext>
+    </div>
   )
 }

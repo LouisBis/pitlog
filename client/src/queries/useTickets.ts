@@ -41,3 +41,13 @@ export const useCreateTicket = (userMotorcycleId: number) => {
     },
   })
 }
+
+export const useImportIntervals = (userMotorcycleId: number) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => api.importIntervals(userMotorcycleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+    },
+  })
+}

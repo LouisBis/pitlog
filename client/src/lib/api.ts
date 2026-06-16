@@ -46,6 +46,11 @@ export const api = {
   getVelocity: (userMotorcycleId: number) =>
     request<VelocityResult | null>(`/api/v1/user-motorcycles/${userMotorcycleId}/velocity`),
 
+  importIntervals: (userMotorcycleId: number) =>
+    request<{ created: number }>(`/api/v1/user-motorcycles/${userMotorcycleId}/import-intervals`, {
+      method: 'POST',
+    }),
+
   updateKm: (userMotorcycleId: number, km: number) =>
     request<{ id: number; currentKm: number }>(`/api/v1/user-motorcycles/${userMotorcycleId}/km`, {
       method: 'PATCH',
