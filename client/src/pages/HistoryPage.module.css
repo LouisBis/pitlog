@@ -1,0 +1,120 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-raised);
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  padding: 14px 24px;
+  flex-shrink: 0;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--brand-accent);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--text-sm);
+}
+
+.back {
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--easing-default);
+}
+
+.back:hover {
+  color: var(--color-text-secondary);
+}
+
+.separator {
+  color: var(--color-text-muted);
+}
+
+.motoName {
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-medium);
+}
+
+.main {
+  flex: 1;
+  padding: 32px 24px;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.title {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: 24px;
+}
+
+.state {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: border-color var(--duration-fast) var(--easing-default);
+}
+
+.row:hover {
+  border-color: var(--brand-accent);
+}
+
+.operation {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.date {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}

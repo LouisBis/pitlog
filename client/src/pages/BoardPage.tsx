@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles, useVelocity } from '@/queries/useUserMotorcycles'
 import KanbanBoard from '@/components/board/KanbanBoard'
@@ -48,6 +48,14 @@ export default function BoardPage() {
                       {t('common.km', { count: moto.currentKm })}
                     </button>
                 }
+              </>
+            )}
+            {moto && (
+              <>
+                <span className={styles.separator}>·</span>
+                <Link to={`/board/${userMotoId}/history`} className={styles.back}>
+                  {t('nav.history')}
+                </Link>
               </>
             )}
             {isError && <span className={styles.error}>{t('common.error.server')}</span>}

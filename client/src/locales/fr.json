@@ -7,7 +7,13 @@
   },
   "nav": {
     "back_to_garage": "← Mes motos",
-    "back_to_home": "← Retour à l'accueil"
+    "back_to_board": "← Tableau de bord",
+    "back_to_home": "← Retour à l'accueil",
+    "history": "Historique"
+  },
+  "history": {
+    "title": "Historique",
+    "empty": "Aucune action réalisée pour l'instant."
   },
   "garage": {
     "title": "Mes motos",
