@@ -37,6 +37,9 @@
       "overdue": "Dépassé de {{count, number}} km",
       "remaining": "{{count, number}} km restants",
       "estimated_days": "~{{count}} j"
+    },
+    "done": {
+      "at_km": "Fait à {{count, number}} km"
     }
   },
   "km_update": {
