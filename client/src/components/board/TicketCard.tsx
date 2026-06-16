@@ -46,7 +46,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, overlay = fals
       {ticket.status === 'done' && ticket.doneKm !== null
         ? (
           <div className={styles.badges}>
-            <Badge variant="ok">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
+            <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
           </div>
         )
         : (kmLabel || daysLabel) && (
