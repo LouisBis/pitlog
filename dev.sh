@@ -48,7 +48,7 @@ menu() {
   banner
 
   section "Stack"
-  opt  1  "Start                  docker compose up -d"
+  opt  1  "Start                  docker compose up -d --build --renew-anon-volumes"
   opt  2  "Stop                   docker compose down"
   opt  3  "Restart client"
   opt  4  "Restart server"
@@ -71,8 +71,8 @@ menu() {
   section "Packages"
   opt  9  "Install client deps    npm install --legacy-peer-deps"
   opt 10  "Install server deps    npm install"
-  opt 11  "Rebuild client image"
-  opt 12  "Rebuild server image"
+  opt 11  "Rebuild client image   --build --renew-anon-volumes"
+  opt 12  "Rebuild server image   --build --renew-anon-volumes"
   opt 13  "Update design tokens   pull latest @louisbis/pitlog-tokens"
   echo ""
 
@@ -91,7 +91,7 @@ while true; do
   read -rp "    Choice: " choice
   echo ""
   case "$choice" in
-    1)  run docker compose up -d ;;
+    1)  run docker compose up -d --build --renew-anon-volumes ;;
     2)  run docker compose down ;;
     3)  run docker compose restart client ;;
     4)  run docker compose restart server ;;
@@ -102,8 +102,8 @@ while true; do
     8)  run docker compose exec server sh -c "rm -f data/pitlog.db data/pitlog.db-shm data/pitlog.db-wal && npm run seed" && run docker compose restart server ;;
     9)  run docker compose exec client npm install --legacy-peer-deps ;;
     10) run docker compose exec server npm install ;;
-    11) run docker compose build client && docker compose up -d client ;;
-    12) run docker compose build server && docker compose up -d server ;;
+    11) run docker compose up -d --build --renew-anon-volumes client ;;
+    12) run docker compose up -d --build --renew-anon-volumes server ;;
     13) run docker compose exec client npm install @louisbis/pitlog-tokens@latest && run docker compose restart client ;;
     14) docker compose exec client sh ;;
     15) docker compose exec server sh ;;
