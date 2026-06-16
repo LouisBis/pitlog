@@ -31,12 +31,19 @@
   padding: 48px 24px;
 }
 
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
 .title {
   font-family: var(--font-heading);
   font-size: 28px;
   font-weight: 700;
   color: var(--color-text-primary);
-  margin: 0 0 8px;
+  margin: 0;
 }
 
 .subtitle {

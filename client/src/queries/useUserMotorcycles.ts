@@ -1,11 +1,28 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
+import type { AddMotorcyclePayload } from '@/types'
+
+export const useMotorcycles = () =>
+  useQuery({
+    queryKey: ['motorcycles'],
+    queryFn: api.getMotorcycles,
+  })
 
 export const useUserMotorcycles = () =>
   useQuery({
     queryKey: ['user-motorcycles'],
     queryFn: api.getUserMotorcycles,
   })
+
+export const useAddMotorcycle = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: AddMotorcyclePayload) => api.addMotorcycle(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-motorcycles'] })
+    },
+  })
+}
 
 export const useVelocity = (userMotorcycleId: number) =>
   useQuery({

@@ -12,9 +12,10 @@ const router = Router()
 const idSchema = z.coerce.number().int().positive()
 
 const createSchema = z.object({
-  motorcycleId: z.number().int().positive(),
+  brand: z.string().min(1),
+  model: z.string().min(1),
+  year: z.number().int().min(1900).max(2100),
   currentKm: z.number().int().min(0),
-  acquiredAt: z.coerce.date(),
 })
 
 const updateKmSchema = z.object({
@@ -41,31 +42,36 @@ router.get('/', (_req, res) => {
 })
 
 router.post('/', validateBody(createSchema), (req, res) => {
-  const { motorcycleId, currentKm, acquiredAt } = res.locals.body as z.infer<typeof createSchema>
+  const { brand, model, year, currentKm } = res.locals.body as z.infer<typeof createSchema>
 
-  const motorcycle = db
+  let motorcycle = db
     .select()
     .from(motorcycles)
-    .where(eq(motorcycles.id, motorcycleId))
-    .get()
+    .where(eq(motorcycles.brand, brand))
+    .all()
+    .find((m) => m.model === model && m.year === year) ?? null
 
   if (!motorcycle) {
-    logger.warn({ motorcycleId }, 'Motorcycle not found in catalogue')
-    res.status(404).json({ error: 'Motorcycle not found in catalogue' })
-    return
+    const [created] = db
+      .insert(motorcycles)
+      .values({ brand, model, year, isCustom: true })
+      .returning()
+      .all()
+    motorcycle = created
+    logger.info({ brand, model, year }, 'Custom motorcycle created')
   }
 
-  const [created] = db
+  const [userMoto] = db
     .insert(userMotorcycles)
-    .values({ motorcycleId, currentKm, acquiredAt })
+    .values({ motorcycleId: motorcycle.id, currentKm, acquiredAt: new Date() })
     .returning()
     .all()
 
   db.insert(kmHistory)
-    .values({ userMotorcycleId: created.id, km: currentKm, recordedAt: new Date() })
+    .values({ userMotorcycleId: userMoto.id, km: currentKm, recordedAt: new Date() })
     .run()
 
-  res.status(201).json({ ...created, brand: motorcycle.brand, model: motorcycle.model, year: motorcycle.year })
+  res.status(201).json({ ...userMoto, brand, model, year, isCustom: motorcycle.isCustom })
 })
 
 router.get('/:id/velocity', (req, res) => {

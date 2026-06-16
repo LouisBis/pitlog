@@ -19,7 +19,18 @@
     "title": "Mes motos",
     "subtitle": "Sélectionne une moto pour accéder à son tableau de bord.",
     "tagline": "Journal de bord de tes révisions",
-    "empty": "Aucune moto enregistrée."
+    "empty": "Aucune moto enregistrée.",
+    "add": "Ajouter une moto"
+  },
+  "add_moto": {
+    "title": "Ajouter une moto",
+    "brand": "Marque",
+    "model": "Modèle",
+    "year": "Année",
+    "current_km": "Kilométrage actuel",
+    "submit": "Ajouter",
+    "cancel": "Annuler",
+    "error": "Erreur lors de l'ajout de la moto."
   },
   "board": {
     "column": {

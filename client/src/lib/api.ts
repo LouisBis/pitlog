@@ -1,5 +1,5 @@
 import log from './logger'
-import type { CreateTicketPayload, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
+import type { AddMotorcyclePayload, CreateTicketPayload, Motorcycle, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
@@ -16,8 +16,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  getMotorcycles: () =>
+    request<Motorcycle[]>('/api/v1/motorcycles'),
+
   getUserMotorcycles: () =>
     request<UserMotorcycle[]>('/api/v1/user-motorcycles'),
+
+  addMotorcycle: (data: AddMotorcyclePayload) =>
+    request<UserMotorcycle>('/api/v1/user-motorcycles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
 
   getTickets: (userMotorcycleId: number) =>
     request<Ticket[]>(`/api/v1/tickets?userMotorcycleId=${userMotorcycleId}`),
