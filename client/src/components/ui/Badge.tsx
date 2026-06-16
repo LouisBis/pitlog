@@ -1,6 +1,6 @@
 import styles from './Badge.module.css'
 
-type Variant = 'urgent' | 'warning' | 'ok' | 'neutral'
+type Variant = 'urgent' | 'warning' | 'ok' | 'done' | 'neutral'
 
 interface Props {
   variant?: Variant

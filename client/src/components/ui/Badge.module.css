@@ -17,6 +17,7 @@
 .urgent  { background: var(--status-danger-bg);  color: var(--status-danger-text); }
 .warning { background: var(--status-warning-bg); color: var(--status-warning-text); }
 .ok      { background: var(--status-success-bg); color: var(--status-success-text); }
+.done    { background: var(--tag-bg); color: var(--brand-accent); border: 1px solid var(--tag-border-color); }
 
 .neutral {
   background: var(--color-surface);

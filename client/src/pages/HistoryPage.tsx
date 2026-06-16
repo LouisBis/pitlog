@@ -69,7 +69,7 @@ export default function HistoryPage() {
                 <span className={styles.operation}>{tk.operation}</span>
                 <div className={styles.meta}>
                   {tk.doneKm !== null && (
-                    <Badge variant="ok">{t('ticket.done.at_km', { count: tk.doneKm })}</Badge>
+                    <Badge variant="done">{t('ticket.done.at_km', { count: tk.doneKm })}</Badge>
                   )}
                   {tk.doneAt && (
                     <span className={styles.date}>{DATE_FORMAT.format(new Date(tk.doneAt))}</span>
