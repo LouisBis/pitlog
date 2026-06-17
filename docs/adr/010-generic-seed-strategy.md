@@ -31,5 +31,5 @@ The generic template is a V1 stopgap. In V1.2, the `motorcycle_intervals` table 
 ## Consequences
 
 - The `Generic / Standard` entry must always be present in the DB. A fresh seed creates it; wiping the volume and reseeding restores it.
-- `findGenericIntervals()` in `userMotorcycles.ts` looks up the entry by `brand = 'Générique'` and `model = 'Standard'`. If the entry is missing (e.g. partial DB reset), custom motos are created with an empty board — degraded but not broken.
+- `findGenericIntervals()` in `userMotorcycles.ts` looks up the entry by `brand = 'Generic'` and `model = 'Standard'`. If the entry is missing (e.g. partial DB reset), custom motos are created with an empty board — degraded but not broken.
 - The `import-intervals` endpoint still returns 422 for custom motos: it looks for catalogue intervals on the motorcycle's own entry, which has none. This is intentional — the import button is only shown for catalogue motos.
