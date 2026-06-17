@@ -29,7 +29,7 @@ beforeEach(() => {
   // Generic template — required for custom motorcycle seeding
   const [generic] = db
     .insert(motorcycles)
-    .values({ brand: 'Générique', model: 'Standard', year: 0, isCustom: false })
+    .values({ brand: 'Generic', model: 'Standard', year: 0, isCustom: false })
     .returning()
     .all()
 

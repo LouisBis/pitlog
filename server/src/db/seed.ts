@@ -286,7 +286,7 @@ db.insert(tickets)
 // --- Générique / Standard (template for unrecognised motorcycles) ---
 const [generic] = db
   .insert(motorcycles)
-  .values({ brand: 'Générique', model: 'Standard', year: 0, isCustom: false })
+  .values({ brand: 'Generic', model: 'Standard', year: 0, isCustom: false })
   .returning()
   .all();
 

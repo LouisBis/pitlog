@@ -21,7 +21,7 @@ function findGenericIntervals() {
   const generic = db
     .select()
     .from(motorcycles)
-    .where(eq(motorcycles.brand, 'Générique'))
+    .where(eq(motorcycles.brand, 'Generic'))
     .all()
     .find((m) => m.model === 'Standard') ?? null
 
