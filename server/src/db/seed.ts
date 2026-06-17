@@ -283,4 +283,22 @@ db.insert(tickets)
   ])
   .run();
 
-console.log("Seed complete — 3 motorcycles, intervals, 1 user motorcycle, 6 tickets loaded.");
+// --- Générique / Standard (template for unrecognised motorcycles) ---
+const [generic] = db
+  .insert(motorcycles)
+  .values({ brand: 'Générique', model: 'Standard', year: 0, isCustom: false })
+  .returning()
+  .all();
+
+db.insert(intervals)
+  .values([
+    { motorcycleId: generic.id, operation: 'Engine oil change',       intervalKm: 5000, intervalDays: 365  },
+    { motorcycleId: generic.id, operation: 'Air filter inspection',   intervalKm: 10000, intervalDays: null },
+    { motorcycleId: generic.id, operation: 'Spark plugs replacement', intervalKm: 10000, intervalDays: null },
+    { motorcycleId: generic.id, operation: 'Drive chain lubrication', intervalKm: 500,   intervalDays: null },
+    { motorcycleId: generic.id, operation: 'Drive chain tension',     intervalKm: 1000,  intervalDays: null },
+    { motorcycleId: generic.id, operation: 'Brake fluid replacement', intervalKm: null,  intervalDays: 730  },
+  ])
+  .run();
+
+console.log("Seed complete — 4 motorcycles (incl. generic template), intervals, 1 user motorcycle, 6 tickets loaded.");

@@ -25,6 +25,18 @@ beforeEach(() => {
     { motorcycleId: catalogueMotoId, operation: 'Engine oil change', intervalKm: 6000, intervalDays: 365 },
     { motorcycleId: catalogueMotoId, operation: 'Spark plugs', intervalKm: 12000, intervalDays: null },
   ]).run()
+
+  // Generic template — required for custom motorcycle seeding
+  const [generic] = db
+    .insert(motorcycles)
+    .values({ brand: 'Générique', model: 'Standard', year: 0, isCustom: false })
+    .returning()
+    .all()
+
+  db.insert(intervals).values([
+    { motorcycleId: generic.id, operation: 'Engine oil change', intervalKm: 5000, intervalDays: 365 },
+    { motorcycleId: generic.id, operation: 'Drive chain lubrication', intervalKm: 500, intervalDays: null },
+  ]).run()
 })
 
 describe('GET /api/v1/user-motorcycles', () => {
@@ -78,7 +90,7 @@ describe('POST /api/v1/user-motorcycles', () => {
     expect(oilChange.intervalId).toBeTruthy()
   })
 
-  it('creates a custom motorcycle when brand+model+year is not in catalogue', async () => {
+  it('creates a custom motorcycle and seeds generic intervals', async () => {
     const res = await request(app)
       .post('/api/v1/user-motorcycles')
       .send({ brand: 'Honda', model: 'CB500', year: 2020, currentKm: 3000 })
@@ -87,7 +99,10 @@ describe('POST /api/v1/user-motorcycles', () => {
     expect(res.body.isCustom).toBe(true)
 
     const seeded = db.select().from(tickets).all()
-    expect(seeded).toHaveLength(0)
+    expect(seeded).toHaveLength(2)
+    const oilChange = seeded.find((t) => t.operation === 'Engine oil change')!
+    expect(oilChange.status).toBe('todo')
+    expect(oilChange.targetKm).toBe(3000 + 5000)
   })
 
   it('reuses an existing catalogue entry when brand+model+year already exists', async () => {
@@ -98,8 +113,8 @@ describe('POST /api/v1/user-motorcycles', () => {
       .post('/api/v1/user-motorcycles')
       .send({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, currentKm: 8000 })
 
-    const allMotos = db.select().from(motorcycles).all()
-    expect(allMotos).toHaveLength(1)
+    const suzukis = db.select().from(motorcycles).all().filter((m) => m.brand === 'Suzuki')
+    expect(suzukis).toHaveLength(1)
   })
 
   it('returns 400 for missing fields', async () => {
