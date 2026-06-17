@@ -1,9 +1,9 @@
 .card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 8px;
-  padding: 12px 14px;
-  margin-bottom: 8px;
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
   cursor: grab;
   transition: box-shadow var(--duration-base) var(--easing-default),
               border-color var(--duration-base) var(--easing-default);
@@ -31,11 +31,11 @@
   font-size: var(--text-base);
   font-weight: var(--weight-medium);
   color: var(--color-text-primary);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .badges {
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }

@@ -67,6 +67,7 @@ export default function BoardPage() {
           userMotoId={userMotoId}
           currentKm={moto.currentKm}
           kmPerDay={velocity?.kmPerDay ?? null}
+          isCustom={moto.isCustom}
         />
       )}
     </div>

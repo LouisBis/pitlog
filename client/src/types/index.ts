@@ -1,3 +1,18 @@
+export interface Motorcycle {
+  id: number
+  brand: string
+  model: string
+  year: number
+  isCustom: boolean
+}
+
+export interface AddMotorcyclePayload {
+  brand: string
+  model: string
+  year: number
+  currentKm: number
+}
+
 export const TICKET_STATUSES = ['todo', 'part_ordered', 'in_progress', 'done'] as const
 export type TicketStatus = typeof TICKET_STATUSES[number]
 
