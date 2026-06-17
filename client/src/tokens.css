@@ -2,6 +2,10 @@
 /* Reference semantic tokens only — never primitives directly               */
 
 :root {
+  /* Display / illustration sizes */
+  --text-display:  5rem;
+  --size-icon-xl:  8rem;
+
   /* Button — primary (brass fill) */
   --btn-primary-bg:       var(--brand-accent);
   --btn-primary-bg-hover: var(--brand-accent-hover);

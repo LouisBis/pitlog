@@ -17,6 +17,18 @@ function findCatalogueIntervals(motorcycleId: number) {
     .all()
 }
 
+function findGenericIntervals() {
+  const generic = db
+    .select()
+    .from(motorcycles)
+    .where(eq(motorcycles.brand, 'Générique'))
+    .all()
+    .find((m) => m.model === 'Standard') ?? null
+
+  if (!generic) return []
+  return findCatalogueIntervals(generic.id)
+}
+
 function seedTickets(userMotorcycleId: number, currentKm: number, catalogueIntervals: ReturnType<typeof findCatalogueIntervals>) {
   if (catalogueIntervals.length === 0) return
   const now = new Date()
@@ -101,8 +113,12 @@ router.post('/', validateBody(createSchema), (req, res) => {
     .values({ userMotorcycleId: userMoto.id, km: currentKm, recordedAt: new Date() })
     .run()
 
-  if (!motorcycle.isCustom) {
-    seedTickets(userMoto.id, currentKm, findCatalogueIntervals(motorcycle.id))
+  const intervalsToSeed = motorcycle.isCustom
+    ? findGenericIntervals()
+    : findCatalogueIntervals(motorcycle.id)
+  seedTickets(userMoto.id, currentKm, intervalsToSeed)
+  if (motorcycle.isCustom) {
+    logger.info({ userMotorcycleId: userMoto.id }, 'Custom motorcycle seeded with generic intervals')
   }
 
   res.status(201).json({ ...userMoto, brand, model, year, isCustom: motorcycle.isCustom })

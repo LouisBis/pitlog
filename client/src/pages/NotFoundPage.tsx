@@ -9,6 +9,7 @@ export default function NotFoundPage() {
   return (
     <div className={styles.page}>
       <span className={styles.code}>{t('not_found.code')}</span>
+      <img src="/piston-cross.svg" alt="" aria-hidden="true" className={styles.icon} />
       <p className={styles.title}>{t('not_found.title')}</p>
       <p className={styles.subtitle}>{t('not_found.subtitle')}</p>
       <button type="button" className={styles.back} onClick={() => navigate('/')}>
