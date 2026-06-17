@@ -9,6 +9,34 @@ import logger from '../lib/logger.js'
 
 const router = Router()
 
+function findCatalogueIntervals(motorcycleId: number) {
+  return db
+    .select()
+    .from(intervals)
+    .where(eq(intervals.motorcycleId, motorcycleId))
+    .all()
+}
+
+function seedTickets(userMotorcycleId: number, currentKm: number, catalogueIntervals: ReturnType<typeof findCatalogueIntervals>) {
+  if (catalogueIntervals.length === 0) return
+  const now = new Date()
+  db.insert(tickets)
+    .values(
+      catalogueIntervals.map((interval) => ({
+        userMotorcycleId,
+        intervalId: interval.id,
+        operation: interval.operation,
+        status: 'todo' as const,
+        targetKm: interval.intervalKm != null ? currentKm + interval.intervalKm : null,
+        targetDate: interval.intervalDays != null
+          ? new Date(now.getTime() + interval.intervalDays * 24 * 60 * 60 * 1000)
+          : null,
+      }))
+    )
+    .run()
+  logger.info({ userMotorcycleId, count: catalogueIntervals.length }, 'Tickets seeded from catalogue')
+}
+
 const idSchema = z.coerce.number().int().positive()
 
 const createSchema = z.object({
@@ -59,6 +87,8 @@ router.post('/', validateBody(createSchema), (req, res) => {
       .all()
     motorcycle = created
     logger.info({ brand, model, year }, 'Custom motorcycle created')
+  } else {
+    logger.info({ motorcycleId: motorcycle.id, brand, model, year }, 'Catalogue motorcycle matched')
   }
 
   const [userMoto] = db
@@ -72,29 +102,7 @@ router.post('/', validateBody(createSchema), (req, res) => {
     .run()
 
   if (!motorcycle.isCustom) {
-    const motorcycleIntervals = db
-      .select()
-      .from(intervals)
-      .where(eq(intervals.motorcycleId, motorcycle.id))
-      .all()
-
-    if (motorcycleIntervals.length > 0) {
-      const now = new Date()
-      db.insert(tickets)
-        .values(
-          motorcycleIntervals.map((interval) => ({
-            userMotorcycleId: userMoto.id,
-            intervalId: interval.id,
-            operation: interval.operation,
-            status: 'todo' as const,
-            targetKm: interval.intervalKm != null ? currentKm + interval.intervalKm : null,
-            targetDate: interval.intervalDays != null
-              ? new Date(now.getTime() + interval.intervalDays * 24 * 60 * 60 * 1000)
-              : null,
-          }))
-        )
-        .run()
-    }
+    seedTickets(userMoto.id, currentKm, findCatalogueIntervals(motorcycle.id))
   }
 
   res.status(201).json({ ...userMoto, brand, model, year, isCustom: motorcycle.isCustom })
@@ -124,16 +132,16 @@ router.post('/:id/import-intervals', (req, res) => {
     .where(eq(motorcycles.id, userMoto.motorcycleId))
     .get()
 
-  if (!motorcycle || motorcycle.isCustom) {
-    res.status(422).json({ error: 'No catalogue intervals for this motorcycle' })
+  if (!motorcycle) {
+    res.status(404).json({ error: 'Motorcycle not found' })
     return
   }
 
-  const motorcycleIntervals = db
-    .select()
-    .from(intervals)
-    .where(eq(intervals.motorcycleId, motorcycle.id))
-    .all()
+  const motorcycleIntervals = findCatalogueIntervals(motorcycle.id)
+  if (motorcycleIntervals.length === 0) {
+    res.status(422).json({ error: 'No catalogue intervals for this motorcycle' })
+    return
+  }
 
   const coveredIntervalIds = new Set(
     db
@@ -146,28 +154,8 @@ router.post('/:id/import-intervals', (req, res) => {
   )
 
   const toCreate = motorcycleIntervals.filter((i) => !coveredIntervalIds.has(i.id))
-
-  if (toCreate.length === 0) {
-    res.json({ created: 0 })
-    return
-  }
-
-  const now = new Date()
-  db.insert(tickets)
-    .values(
-      toCreate.map((interval) => ({
-        userMotorcycleId: parsedId.data,
-        intervalId: interval.id,
-        operation: interval.operation,
-        status: 'todo' as const,
-        targetKm: interval.intervalKm != null ? userMoto.currentKm + interval.intervalKm : null,
-        targetDate: interval.intervalDays != null
-          ? new Date(now.getTime() + interval.intervalDays * 24 * 60 * 60 * 1000)
-          : null,
-      }))
-    )
-    .run()
-
+  seedTickets(parsedId.data, userMoto.currentKm, toCreate)
+  logger.info({ userMotorcycleId: parsedId.data, created: toCreate.length, skipped: motorcycleIntervals.length - toCreate.length }, 'Intervals imported')
   res.json({ created: toCreate.length })
 })
 

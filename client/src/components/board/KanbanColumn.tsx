@@ -30,12 +30,11 @@ export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, use
           <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} kmPerDay={kmPerDay} />
         ))}
       </div>
-      {status === 'todo' && (
-        showForm
-          ? <CreateTicketForm userMotoId={userMotoId} onClose={() => setShowForm(false)} />
-          : <button type="button" className={styles.addButton} onClick={() => setShowForm(true)}>
-              {t('ticket.action.new')}
-            </button>
+      {status === 'todo' && (showForm
+        ? <CreateTicketForm userMotoId={userMotoId} onClose={() => setShowForm(false)} />
+        : <button type="button" className={styles.addButton} onClick={() => setShowForm(true)}>
+            {t('ticket.action.new')}
+          </button>
       )}
     </div>
   )
