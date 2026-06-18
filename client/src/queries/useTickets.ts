@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { CreateTicketPayload, Ticket, TicketStatus } from '@/types'
+import type { CreateTicketPayload, UpdateTicketIntervalPayload, Ticket, TicketStatus } from '@/types'
 
 export const useTickets = (userMotorcycleId: number) =>
   useQuery({
@@ -36,6 +36,17 @@ export const useCreateTicket = (userMotorcycleId: number) => {
   return useMutation({
     mutationFn: (data: Omit<CreateTicketPayload, 'userMotorcycleId'>) =>
       api.createTicket({ ...data, userMotorcycleId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+    },
+  })
+}
+
+export const usePatchTicketInterval = (userMotorcycleId: number) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, ...data }: { id: number } & UpdateTicketIntervalPayload) =>
+      api.patchTicketInterval(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
     },

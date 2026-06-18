@@ -52,3 +52,9 @@ export interface CreateTicketPayload {
   targetKm?: number
   targetDate?: string
 }
+
+export interface UpdateTicketIntervalPayload {
+  customKm?: number | null
+  customDays?: number | null
+  operation?: string
+}

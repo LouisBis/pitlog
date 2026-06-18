@@ -1,5 +1,5 @@
 import log from './logger'
-import type { AddMotorcyclePayload, CreateTicketPayload, Motorcycle, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
+import type { AddMotorcyclePayload, CreateTicketPayload, UpdateTicketIntervalPayload, Motorcycle, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
@@ -55,5 +55,11 @@ export const api = {
     request<{ id: number; currentKm: number }>(`/api/v1/user-motorcycles/${userMotorcycleId}/km`, {
       method: 'PATCH',
       body: JSON.stringify({ km }),
+    }),
+
+  patchTicketInterval: (id: number, data: UpdateTicketIntervalPayload) =>
+    request<Ticket>(`/api/v1/tickets/${id}/interval`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     }),
 }

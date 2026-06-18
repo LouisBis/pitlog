@@ -14,6 +14,23 @@
   flex: 1;
 }
 
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.recurrence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
+}
+
 .error {
   color: var(--status-danger);
   font-size: var(--text-sm);
