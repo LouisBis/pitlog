@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useCreateTicket, usePatchTicketInterval } from '@/queries/useTickets'
 import { Button } from '@/components/ui/Button'
+import { Switch } from '@/components/ui/Switch'
 import { Input } from '@/components/ui/Input'
 import styles from './CreateTicketForm.module.css'
 
@@ -65,13 +66,13 @@ export default function CreateTicketForm({ userMotoId, onClose }: Props) {
         onChange={(e) => setTargetKm(e.target.value)}
         min={0}
       />
-      <label className={styles.checkboxLabel}>
-        <input
-          type="checkbox"
-          checked={recurring}
-          onChange={(e) => setRecurring(e.target.checked)}
-        />
+      <label className={styles.switchLabel} htmlFor="recurring">
         {t('ticket.form.recurrence')}
+        <Switch
+          id="recurring"
+          checked={recurring}
+          onCheckedChange={setRecurring}
+        />
       </label>
       {recurring && (
         <div className={styles.recurrence}>
