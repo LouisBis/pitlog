@@ -97,7 +97,7 @@ A few deliberate choices worth noting:
 - **Sliding window velocity** — km/day is computed over the last 10 odometer entries, not lifetime average. Recent riding behavior predicts near-term due dates better. [ADR-005](docs/adr/005-predictive-velocity.md)
 - **MSW for the demo** — no backend on GitHub Pages. MSW intercepts fetch calls at the service worker level and returns realistic stateful mock data. [docs/adr/](docs/adr/)
 
-Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-010)
+Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-011)
 
 ## Stack
 

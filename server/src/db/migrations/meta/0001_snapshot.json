@@ -1,0 +1,410 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "0b775bb7-8fe8-48d6-9dd7-4f640e70234c",
+  "prevId": "16d0f7d7-2368-48d2-94e1-f26f5aae9e94",
+  "tables": {
+    "motorcycles": {
+      "name": "motorcycles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "brand": {
+          "name": "brand",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "is_custom": {
+          "name": "is_custom",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "intervals": {
+      "name": "intervals",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "motorcycle_id": {
+          "name": "motorcycle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "operation": {
+          "name": "operation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "interval_km": {
+          "name": "interval_km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "interval_days": {
+          "name": "interval_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "intervals_motorcycle_id_motorcycles_id_fk": {
+          "name": "intervals_motorcycle_id_motorcycles_id_fk",
+          "tableFrom": "intervals",
+          "tableTo": "motorcycles",
+          "columnsFrom": [
+            "motorcycle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "user_motorcycles": {
+      "name": "user_motorcycles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "motorcycle_id": {
+          "name": "motorcycle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "current_km": {
+          "name": "current_km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "acquired_at": {
+          "name": "acquired_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_motorcycles_motorcycle_id_motorcycles_id_fk": {
+          "name": "user_motorcycles_motorcycle_id_motorcycles_id_fk",
+          "tableFrom": "user_motorcycles",
+          "tableTo": "motorcycles",
+          "columnsFrom": [
+            "motorcycle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "km_history": {
+      "name": "km_history",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "user_motorcycle_id": {
+          "name": "user_motorcycle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "km": {
+          "name": "km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "recorded_at": {
+          "name": "recorded_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "km_history_user_motorcycle_id_user_motorcycles_id_fk": {
+          "name": "km_history_user_motorcycle_id_user_motorcycles_id_fk",
+          "tableFrom": "km_history",
+          "tableTo": "user_motorcycles",
+          "columnsFrom": [
+            "user_motorcycle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "tickets": {
+      "name": "tickets",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "user_motorcycle_id": {
+          "name": "user_motorcycle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "interval_id": {
+          "name": "interval_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "operation": {
+          "name": "operation",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'todo'"
+        },
+        "target_km": {
+          "name": "target_km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "target_date": {
+          "name": "target_date",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "done_km": {
+          "name": "done_km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "done_at": {
+          "name": "done_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tickets_user_motorcycle_id_user_motorcycles_id_fk": {
+          "name": "tickets_user_motorcycle_id_user_motorcycles_id_fk",
+          "tableFrom": "tickets",
+          "tableTo": "user_motorcycles",
+          "columnsFrom": [
+            "user_motorcycle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "tickets_interval_id_intervals_id_fk": {
+          "name": "tickets_interval_id_intervals_id_fk",
+          "tableFrom": "tickets",
+          "tableTo": "intervals",
+          "columnsFrom": [
+            "interval_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "motorcycle_intervals": {
+      "name": "motorcycle_intervals",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "user_motorcycle_id": {
+          "name": "user_motorcycle_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "interval_id": {
+          "name": "interval_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "custom_km": {
+          "name": "custom_km",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "custom_days": {
+          "name": "custom_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "motorcycle_intervals_user_motorcycle_id_interval_id_unique": {
+          "name": "motorcycle_intervals_user_motorcycle_id_interval_id_unique",
+          "columns": [
+            "user_motorcycle_id",
+            "interval_id"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "motorcycle_intervals_user_motorcycle_id_user_motorcycles_id_fk": {
+          "name": "motorcycle_intervals_user_motorcycle_id_user_motorcycles_id_fk",
+          "tableFrom": "motorcycle_intervals",
+          "tableTo": "user_motorcycles",
+          "columnsFrom": [
+            "user_motorcycle_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "motorcycle_intervals_interval_id_intervals_id_fk": {
+          "name": "motorcycle_intervals_interval_id_intervals_id_fk",
+          "tableFrom": "motorcycle_intervals",
+          "tableTo": "intervals",
+          "columnsFrom": [
+            "interval_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

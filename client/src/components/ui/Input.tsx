@@ -2,7 +2,7 @@ import styles from './Input.module.css'
 
 type Size = 'sm' | 'md'
 
-interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
+interface Props extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   error?: boolean
   size?: Size
 }

@@ -27,7 +27,7 @@ export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, use
       </div>
       <div ref={setNodeRef} className={styles.dropZone}>
         {tickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} kmPerDay={kmPerDay} />
+          <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} kmPerDay={kmPerDay} userMotoId={userMotoId} />
         ))}
       </div>
       {status === 'todo' && (showForm

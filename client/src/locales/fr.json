@@ -53,7 +53,15 @@
     },
     "form": {
       "operation.placeholder": "Opération (ex. : vidange)",
-      "target_km.placeholder": "Km cible (optionnel)"
+      "target_km.placeholder": "Km cible (optionnel)",
+      "recurrence": "Récurrent",
+      "interval_km.placeholder": "Tous les X km (optionnel)",
+      "interval_days.placeholder": "Tous les X jours (optionnel)"
+    },
+    "interval": {
+      "edit_title": "Intervalle de récurrence",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
     },
     "urgency": {
       "overdue": "Dépassé de {{count, number}} km",

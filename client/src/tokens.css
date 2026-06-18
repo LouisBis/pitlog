@@ -2,6 +2,8 @@
 /* Reference semantic tokens only — never primitives directly               */
 
 :root {
+  /* Radius supplement (not yet in @louisbis/pitlog-tokens) */
+  --radius-full: 9999rem;
   /* Display / illustration sizes */
   --text-display:  5rem;
   --size-icon-xl:  8rem;

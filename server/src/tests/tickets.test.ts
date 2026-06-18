@@ -3,12 +3,13 @@ import request from 'supertest'
 import { eq } from 'drizzle-orm'
 import { app } from '../app.js'
 import { db } from '../db/index.js'
-import { intervals, kmHistory, motorcycles, userMotorcycles, tickets } from '../db/schema/index.js'
+import { intervals, kmHistory, motorcycles, userMotorcycles, tickets, motorcycleIntervals } from '../db/schema/index.js'
 
 let motoId: number
 let userMotoId: number
 
 beforeEach(() => {
+  db.delete(motorcycleIntervals).run()
   db.delete(tickets).run()
   db.delete(kmHistory).run()
   db.delete(intervals).run()
@@ -213,5 +214,119 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
 
     const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
     expect(all).toHaveLength(1)
+  })
+
+  it('regenerates using motorcycle_intervals override instead of catalogue default', async () => {
+    const [interval] = db
+      .insert(intervals)
+      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
+      .returning()
+      .all()
+
+    db.insert(motorcycleIntervals)
+      .values({ userMotorcycleId: userMotoId, intervalId: interval.id, customKm: 4000, customDays: null })
+      .run()
+
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo' })
+      .returning()
+      .all()
+
+    await request(app).patch(`/api/v1/tickets/${ticket.id}/status`).send({ status: 'done' })
+
+    const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
+    const next = all.find((t) => t.id !== ticket.id)!
+    expect(next.targetKm).toBe(8500 + 4000) // uses custom 4000, not catalogue 6000
+  })
+})
+
+describe('PATCH /api/v1/tickets/:id/interval', () => {
+  it('creates a motorcycle_intervals override for an existing catalogue interval', async () => {
+    const [interval] = db
+      .insert(intervals)
+      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
+      .returning()
+      .all()
+
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo', targetKm: 14500 })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/tickets/${ticket.id}/interval`)
+      .send({ customKm: 4000 })
+
+    expect(res.status).toBe(200)
+    expect(res.body.targetKm).toBe(8500 + 4000)
+
+    const override = db.select().from(motorcycleIntervals).all()
+    expect(override).toHaveLength(1)
+    expect(override[0].customKm).toBe(4000)
+  })
+
+  it('creates an interval entry and links it for a custom ticket without intervalId', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Fork oil', status: 'todo' })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/tickets/${ticket.id}/interval`)
+      .send({ operation: 'Fork oil', customKm: 12000 })
+
+    expect(res.status).toBe(200)
+
+    const updatedTicket = db.select().from(tickets).where(eq(tickets.id, ticket.id)).get()!
+    expect(updatedTicket.intervalId).not.toBeNull()
+
+    const override = db.select().from(motorcycleIntervals).all()
+    expect(override).toHaveLength(1)
+    expect(override[0].customKm).toBe(12000)
+  })
+
+  it('returns 400 when operation is missing for a custom ticket', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Fork oil', status: 'todo' })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/tickets/${ticket.id}/interval`)
+      .send({ customKm: 12000 })
+
+    expect(res.status).toBe(400)
+  })
+
+  it('updates an existing motorcycle_intervals record on second call', async () => {
+    const [interval] = db
+      .insert(intervals)
+      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
+      .returning()
+      .all()
+
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo' })
+      .returning()
+      .all()
+
+    await request(app).patch(`/api/v1/tickets/${ticket.id}/interval`).send({ customKm: 4000 })
+    await request(app).patch(`/api/v1/tickets/${ticket.id}/interval`).send({ customKm: 3500 })
+
+    const overrides = db.select().from(motorcycleIntervals).all()
+    expect(overrides).toHaveLength(1)
+    expect(overrides[0].customKm).toBe(3500)
+  })
+
+  it('returns 404 for unknown ticket', async () => {
+    const res = await request(app)
+      .patch('/api/v1/tickets/999/interval')
+      .send({ customKm: 5000 })
+    expect(res.status).toBe(404)
   })
 })

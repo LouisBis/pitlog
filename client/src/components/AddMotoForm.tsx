@@ -23,6 +23,11 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
   const models = [...new Set(
     catalogue.filter((m) => m.brand.toLowerCase() === brand.toLowerCase()).map((m) => m.model)
   )].sort()
+  const years = [...new Set(
+    catalogue
+      .filter((m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase())
+      .map((m) => m.year)
+  )].sort((a, b) => b - a)
 
   const isValid = brand.trim() && model.trim() && Number(year) >= 1900 && Number(currentKm) >= 0
 
@@ -54,7 +59,7 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
         <Input
           placeholder={t('add_moto.model')}
           value={model}
-          onChange={(e) => setModel(e.target.value)}
+          onChange={(e) => { setModel(e.target.value); setYear('') }}
           list="model-list"
         />
         <datalist id="model-list">
@@ -62,13 +67,14 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
         </datalist>
 
         <Input
-          type="number"
           placeholder={t('add_moto.year')}
           value={year}
           onChange={(e) => setYear(e.target.value)}
-          min={1900}
-          max={new Date().getFullYear() + 1}
+          list="year-list"
         />
+        <datalist id="year-list">
+          {years.map((y) => <option key={y} value={y} />)}
+        </datalist>
 
         <Input
           type="number"
