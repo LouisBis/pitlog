@@ -12,9 +12,11 @@ interface Props {
   currentKm: number
   kmPerDay: number | null
   userMotoId: number
+  forceEditId: number | null
+  onForceEditDone: () => void
 }
 
-export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, userMotoId }: Props) {
+export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, userMotoId, forceEditId, onForceEditDone }: Props) {
   const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({ id: status })
   const [showForm, setShowForm] = useState(false)
@@ -27,7 +29,15 @@ export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, use
       </div>
       <div ref={setNodeRef} className={styles.dropZone}>
         {tickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} kmPerDay={kmPerDay} userMotoId={userMotoId} />
+          <TicketCard
+            key={ticket.id}
+            ticket={ticket}
+            currentKm={currentKm}
+            kmPerDay={kmPerDay}
+            userMotoId={userMotoId}
+            forceEdit={forceEditId === ticket.id}
+            onForceEditDone={onForceEditDone}
+          />
         ))}
       </div>
       {status === 'todo' && (showForm

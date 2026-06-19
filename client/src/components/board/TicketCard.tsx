@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
@@ -18,9 +18,11 @@ interface Props {
   kmPerDay: number | null
   userMotoId?: number
   overlay?: boolean
+  forceEdit?: boolean
+  onForceEditDone?: () => void
 }
 
-export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false }: Props) {
+export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false, forceEdit = false, onForceEditDone }: Props) {
   const { t } = useTranslation()
   const [editing, setEditing] = useState(false)
 
@@ -39,8 +41,15 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: ticket.id,
     data: { status: ticket.status },
-    disabled: overlay || editing,
+    disabled: overlay || editing || ticket.status === 'done',
   })
+
+  useEffect(() => {
+    if (forceEdit) {
+      openEdit()
+      onForceEditDone?.()
+    }
+  }, [forceEdit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { mutate: patchInterval, isPending: isPatchingInterval } = usePatchTicketInterval(userMotoId ?? 0)
   const { mutate: updateTicket, isPending: isUpdating } = useUpdateTicket(userMotoId ?? 0)
@@ -226,6 +235,9 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
 
           <div className={styles.partsSection}>
             <p className={styles.partsSectionTitle}>{t('ticket.parts.title')}</p>
+            {forceEdit && parts.length === 0 && (
+              <p className={styles.partsHint}>{t('board.part_ordered_hint')}</p>
+            )}
             {parts.length > 0 && (
               <ul className={styles.partsList}>
                 {parts.map((part) => (

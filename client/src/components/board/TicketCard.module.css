@@ -183,6 +183,13 @@
   opacity: 1;
 }
 
+.partsHint {
+  font-size: var(--text-xs);
+  color: var(--brand-accent);
+  font-weight: var(--weight-medium);
+  margin-bottom: 0;
+}
+
 .partsAddForm {
   display: flex;
   flex-direction: column;

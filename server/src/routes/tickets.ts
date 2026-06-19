@@ -27,6 +27,13 @@ const updateStatusSchema = z.object({
   status: z.enum(TICKET_STATUSES),
 })
 
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  todo: ['part_ordered', 'in_progress'],
+  part_ordered: ['todo', 'in_progress'],
+  in_progress: ['todo', 'part_ordered', 'done'],
+  done: [],
+}
+
 const updateIntervalSchema = z.object({
   customKm: z.number().int().positive().nullable().optional(),
   customDays: z.number().int().positive().nullable().optional(),
@@ -132,6 +139,12 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
   if (!ticket) {
     logger.warn({ ticketId: parsedId.data }, 'Ticket not found')
     res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  if (!VALID_TRANSITIONS[ticket.status].includes(status)) {
+    logger.warn({ ticketId: parsedId.data, from: ticket.status, to: status }, 'Invalid status transition')
+    res.status(422).json({ error: `Transition ${ticket.status} → ${status} not allowed` })
     return
   }
 
