@@ -1,6 +1,7 @@
 import { http, HttpResponse } from 'msw'
-import type { CreatePartPayload, CreateTicketPayload, TicketStatus } from '@/types'
-import { mockUserMotorcycles, mockTickets, mockVelocity, mockIntervals, mockParts, nextId, nextMockPartId } from './data'
+import type { CreatePartPayload, CreateTicketPayload, TicketStatus, UpdateTicketIntervalPayload } from '@/types'
+import { mockUserMotorcycles, mockTickets, mockParts, mockVelocity, mockIntervals, nextId, nextMockPartId } from './data'
+import type { UpdateTicketPayload } from '@/lib/api'
 
 export const handlers = [
   http.get('*/api/v1/user-motorcycles', () => {
@@ -25,6 +26,28 @@ export const handlers = [
     return HttpResponse.json({ id: moto.id, currentKm: moto.currentKm })
   }),
 
+  http.delete('*/api/v1/user-motorcycles/:id', ({ params }) => {
+    const id = Number(params.id)
+    const idx = mockUserMotorcycles.findIndex((m) => m.id === id)
+    if (idx === -1) return new HttpResponse(null, { status: 404 })
+    const ticketIds = mockTickets.filter((t) => t.userMotorcycleId === id).map((t) => t.id)
+    ticketIds.forEach((tid) => {
+      const pi = mockParts.findIndex((p) => p.ticketId === tid)
+      if (pi !== -1) mockParts.splice(pi, 1)
+    })
+    mockTickets.splice(0, mockTickets.length, ...mockTickets.filter((t) => t.userMotorcycleId !== id))
+    mockUserMotorcycles.splice(idx, 1)
+    return new HttpResponse(null, { status: 204 })
+  }),
+
+  http.post('*/api/v1/user-motorcycles/:id/import-intervals', ({ params }) => {
+    const id = Number(params.id)
+    if (!mockUserMotorcycles.find((m) => m.id === id)) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    return HttpResponse.json({ created: 0 })
+  }),
+
   http.get('*/api/v1/tickets', ({ request }) => {
     const url = new URL(request.url)
     const userMotorcycleId = Number(url.searchParams.get('userMotorcycleId'))
@@ -43,6 +66,8 @@ export const handlers = [
       targetDate: body.targetDate ?? null,
       doneKm: null,
       doneAt: null,
+      customKm: null,
+      customDays: null,
     }
     mockTickets.push(ticket)
     return HttpResponse.json(ticket, { status: 201 })
@@ -79,12 +104,43 @@ export const handlers = [
             targetDate: nextTargetDate,
             doneKm: null,
             doneAt: null,
+            customKm: null,
+            customDays: null,
           })
         }
       }
     }
 
     return HttpResponse.json(ticket)
+  }),
+
+  http.patch('*/api/v1/tickets/:id/interval', async ({ params, request }) => {
+    const id = Number(params.id)
+    const body = (await request.json()) as UpdateTicketIntervalPayload
+    const ticket = mockTickets.find((t) => t.id === id)
+    if (!ticket) return new HttpResponse(null, { status: 404 })
+    ticket.customKm = body.customKm ?? null
+    ticket.customDays = body.customDays ?? null
+    return HttpResponse.json(ticket)
+  }),
+
+  http.patch('*/api/v1/tickets/:id', async ({ params, request }) => {
+    const id = Number(params.id)
+    const body = (await request.json()) as UpdateTicketPayload
+    const ticket = mockTickets.find((t) => t.id === id)
+    if (!ticket) return new HttpResponse(null, { status: 404 })
+    if (body.operation !== undefined) ticket.operation = body.operation
+    if (body.targetKm !== undefined) ticket.targetKm = body.targetKm
+    return HttpResponse.json(ticket)
+  }),
+
+  http.delete('*/api/v1/tickets/:id', ({ params }) => {
+    const id = Number(params.id)
+    const idx = mockTickets.findIndex((t) => t.id === id)
+    if (idx === -1) return new HttpResponse(null, { status: 404 })
+    mockParts.splice(0, mockParts.length, ...mockParts.filter((p) => p.ticketId !== id))
+    mockTickets.splice(idx, 1)
+    return new HttpResponse(null, { status: 204 })
   }),
 
   http.get('*/api/v1/tickets/:id/parts', ({ params }) => {
