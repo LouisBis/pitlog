@@ -37,6 +37,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const [partReference, setPartReference] = useState('')
   const [partQuantity, setPartQuantity] = useState('1')
   const [partUrl, setPartUrl] = useState('')
+  const [showPartsHint, setShowPartsHint] = useState(false)
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: ticket.id,
@@ -47,6 +48,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   useEffect(() => {
     if (forceEdit) {
       openEdit()
+      setShowPartsHint(true)
       onForceEditDone?.()
     }
   }, [forceEdit]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -180,10 +182,22 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             type="button"
             className={styles.editBtn}
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={editing ? () => setEditing(false) : openEdit}
+            onClick={editing ? () => { setEditing(false); setShowPartsHint(false) } : openEdit}
             aria-label={t('ticket.edit.title')}
           >
             <PencilSimpleIcon size={14} weight="fill" />
+          </button>
+        )}
+        {ticket.status === 'done' && !overlay && (
+          <button
+            type="button"
+            className={styles.editBtn}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={handleDelete}
+            disabled={isDeleting}
+            aria-label={t('ticket.edit.delete')}
+          >
+            <TrashIcon size={14} weight="fill" />
           </button>
         )}
       </div>
@@ -228,14 +242,14 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             <Button type="submit" disabled={!operation.trim() || isPending}>
               {t('ticket.edit.save')}
             </Button>
-            <Button variant="ghost" type="button" onClick={() => setEditing(false)}>
+            <Button variant="ghost" type="button" onClick={() => { setEditing(false); setShowPartsHint(false) }}>
               {t('ticket.edit.cancel')}
             </Button>
           </div>
 
           <div className={styles.partsSection}>
             <p className={styles.partsSectionTitle}>{t('ticket.parts.title')}</p>
-            {forceEdit && parts.length === 0 && (
+            {showPartsHint && parts.length === 0 && (
               <p className={styles.partsHint}>{t('board.part_ordered_hint')}</p>
             )}
             {parts.length > 0 && (
