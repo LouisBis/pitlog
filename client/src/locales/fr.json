@@ -20,7 +20,11 @@
     "subtitle": "Sélectionne une moto pour accéder à son tableau de bord.",
     "tagline": "Journal de bord de tes révisions",
     "empty": "Aucune moto enregistrée.",
-    "add": "Ajouter une moto"
+    "add": "Ajouter une moto",
+    "delete": "Supprimer cette moto",
+    "delete_confirm": "Supprimer définitivement ?",
+    "delete_yes": "Oui, supprimer",
+    "delete_no": "Annuler"
   },
   "add_moto": {
     "title": "Ajouter une moto",
@@ -62,6 +66,14 @@
       "edit_title": "Intervalle de récurrence",
       "save": "Enregistrer",
       "cancel": "Annuler"
+    },
+    "edit": {
+      "title": "Modifier le ticket",
+      "operation.placeholder": "Opération",
+      "target_km.placeholder": "Km cible (optionnel)",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
     },
     "urgency": {
       "overdue": "Dépassé de {{count, number}} km",
