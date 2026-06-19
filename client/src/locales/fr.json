@@ -7,15 +7,43 @@
   },
   "nav": {
     "back_to_garage": "← Mes motos",
-    "back_to_home": "← Retour à l'accueil"
+    "back_to_board": "← Tableau de bord",
+    "back_to_home": "← Retour à l'accueil",
+    "history": "Historique"
+  },
+  "history": {
+    "title": "Historique",
+    "empty": "Aucune action réalisée pour l'instant.",
+    "parts_used": "Pièces utilisées"
   },
   "garage": {
     "title": "Mes motos",
     "subtitle": "Sélectionne une moto pour accéder à son tableau de bord.",
     "tagline": "Journal de bord de tes révisions",
-    "empty": "Aucune moto enregistrée."
+    "empty": "Aucune moto enregistrée.",
+    "add": "Ajouter une moto",
+    "delete": "Supprimer cette moto",
+    "delete_confirm": "Supprimer définitivement ?",
+    "delete_yes": "Oui, supprimer",
+    "delete_no": "Annuler"
+  },
+  "add_moto": {
+    "title": "Ajouter une moto",
+    "brand": "Marque",
+    "model": "Modèle",
+    "year": "Année",
+    "current_km": "Kilométrage actuel",
+    "submit": "Ajouter",
+    "cancel": "Annuler",
+    "error": "Erreur lors de l'ajout de la moto."
   },
   "board": {
+    "part_ordered_hint": "Ajoute au moins une pièce avant de passer en commande",
+    "empty": {
+      "catalogue": "Aucun entretien planifié. Importez les entretiens du catalogue pour démarrer.",
+      "custom": "Aucun entretien planifié. Utilisez le bouton + dans chaque colonne pour créer votre premier ticket.",
+      "import": "Importer les entretiens"
+    },
     "column": {
       "todo": "À faire",
       "part_ordered": "Pièces commandées",
@@ -31,12 +59,42 @@
     },
     "form": {
       "operation.placeholder": "Opération (ex. : vidange)",
-      "target_km.placeholder": "Km cible (optionnel)"
+      "target_km.placeholder": "Km cible (optionnel)",
+      "recurrence": "Récurrent",
+      "interval_km.placeholder": "Tous les X km (optionnel)",
+      "interval_days.placeholder": "Tous les X jours (optionnel)"
+    },
+    "interval": {
+      "edit_title": "Intervalle de récurrence",
+      "save": "Enregistrer",
+      "cancel": "Annuler"
+    },
+    "edit": {
+      "title": "Modifier le ticket",
+      "operation.placeholder": "Opération",
+      "target_km.placeholder": "Km cible (optionnel)",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "delete": "Supprimer"
+    },
+    "parts": {
+      "title": "Pièces",
+      "empty": "Aucune pièce",
+      "add": "Ajouter une pièce",
+      "name.placeholder": "Nom de la pièce *",
+      "brand.placeholder": "Marque (optionnel)",
+      "reference.placeholder": "Référence (optionnel)",
+      "quantity.placeholder": "Qté",
+      "url.placeholder": "URL (optionnel)",
+      "delete": "Supprimer la pièce"
     },
     "urgency": {
       "overdue": "Dépassé de {{count, number}} km",
       "remaining": "{{count, number}} km restants",
       "estimated_days": "~{{count}} j"
+    },
+    "done": {
+      "at_km": "Fait à {{count, number}} km"
     }
   },
   "km_update": {

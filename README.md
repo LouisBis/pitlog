@@ -22,6 +22,8 @@ Pitlog is a mobile-first PWA that turns your maintenance schedule into an action
 
 ### **Module 1 — Maintenance Kanban (core)**
 
+- Multi-motorcycle garage — add any bike by brand / model / year
+- Catalogue matching: recognised models auto-seed tickets from predefined service intervals; unrecognised models fall back to a generic template
 - Board with columns: `To do` / `Part ordered` / `In progress` / `Done`
 - Tickets color-coded by urgency: 🔴 ≤ 200 km or ≤ 14 days / 🟠 ≤ 500 km or ≤ 30 days / 🟢 otherwise
 - Predictive mileage: estimates due dates based on your riding velocity (sliding window km/day)
@@ -95,7 +97,7 @@ A few deliberate choices worth noting:
 - **Sliding window velocity** — km/day is computed over the last 10 odometer entries, not lifetime average. Recent riding behavior predicts near-term due dates better. [ADR-005](docs/adr/005-predictive-velocity.md)
 - **MSW for the demo** — no backend on GitHub Pages. MSW intercepts fetch calls at the service worker level and returns realistic stateful mock data. [docs/adr/](docs/adr/)
 
-Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-009)
+Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-011)
 
 ## Stack
 

@@ -1,86 +1,38 @@
 .form {
-  margin-top: 8px;
+  margin-top: var(--space-2);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.input {
-  width: 100%;
-  background: var(--bg-base);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 13px;
-  color: var(--text-primary);
-  font-family: inherit;
-  transition: border-color 150ms ease;
-  box-sizing: border-box;
-}
-
-.input::placeholder {
-  color: var(--text-muted);
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--accent);
+  gap: var(--space-2);
 }
 
 .actions {
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .submit {
   flex: 1;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 6px;
-  padding: 7px 12px;
-  font-size: 13px;
-  font-weight: 600;
+}
+
+.switchLabel {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
   cursor: pointer;
-  transition: opacity 150ms ease;
 }
 
-.submit:hover {
-  opacity: 0.85;
+.recurrence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--color-border);
 }
 
-.submit:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.cancel {
-  padding: 7px 12px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 150ms ease;
-}
-
-.cancel:hover {
-  background: var(--bg-elevated);
-}
-
-.addButton {
-  width: 100%;
-  margin-top: 8px;
-  padding: 7px;
-  font-size: 13px;
-  color: var(--text-muted);
-  border: 1px dashed var(--border);
-  border-radius: 6px;
-  cursor: pointer;
-  transition: color 150ms ease, border-color 150ms ease;
-  text-align: center;
-}
-
-.addButton:hover {
-  color: var(--accent);
-  border-color: var(--accent);
+.error {
+  color: var(--status-danger);
+  font-size: var(--text-sm);
 }

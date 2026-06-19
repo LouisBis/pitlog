@@ -1,4 +1,4 @@
-import type { Ticket, UserMotorcycle, VelocityResult } from '@/types'
+import type { Ticket, TicketPart, UserMotorcycle, VelocityResult } from '@/types'
 
 interface MockInterval {
   id: number
@@ -7,9 +7,11 @@ interface MockInterval {
 }
 
 export const mockIntervals: Record<number, MockInterval> = {
-  1: { id: 1, intervalKm: 5000, intervalDays: null },
-  2: { id: 2, intervalKm: 8000, intervalDays: null },
-  3: { id: 3, intervalKm: null, intervalDays: 730 },
+  1: { id: 1, intervalKm: 6000,  intervalDays: 365  }, // Engine oil change
+  2: { id: 2, intervalKm: 6000,  intervalDays: 365  }, // Air filter inspection
+  3: { id: 3, intervalKm: 12000, intervalDays: 730  }, // Spark plugs
+  4: { id: 4, intervalKm: 1000,  intervalDays: null }, // Drive chain lubrication
+  5: { id: 5, intervalKm: null,  intervalDays: 730  }, // Brake fluid
 }
 
 export const mockUserMotorcycles: UserMotorcycle[] = [
@@ -27,18 +29,28 @@ export const mockUserMotorcycles: UserMotorcycle[] = [
 
 export const mockTickets: Ticket[] = [
   // 🔴 overdue by 200 km
-  { id: 1, userMotorcycleId: 1, intervalId: 1, operation: 'Vidange moteur', status: 'todo', targetKm: 15000, targetDate: null, doneKm: null, doneAt: null },
+  { id: 1, userMotorcycleId: 1, intervalId: 1, operation: 'Vidange moteur', status: 'todo', targetKm: 15000, targetDate: null, doneKm: null, doneAt: null, customKm: null, customDays: null },
   // 🔴 150 km left
-  { id: 2, userMotorcycleId: 1, intervalId: 2, operation: 'Filtre à air', status: 'todo', targetKm: 15350, targetDate: null, doneKm: null, doneAt: null },
+  { id: 2, userMotorcycleId: 1, intervalId: 2, operation: 'Filtre à air', status: 'todo', targetKm: 15350, targetDate: null, doneKm: null, doneAt: null, customKm: null, customDays: null },
   // 🟠 450 km left
-  { id: 3, userMotorcycleId: 1, intervalId: null, operation: 'Bougies', status: 'todo', targetKm: 15650, targetDate: null, doneKm: null, doneAt: null },
+  { id: 3, userMotorcycleId: 1, intervalId: 3, operation: 'Bougies', status: 'todo', targetKm: 15650, targetDate: null, doneKm: null, doneAt: null, customKm: null, customDays: null },
   // 🟢 part ordered, 2800 km left
-  { id: 4, userMotorcycleId: 1, intervalId: null, operation: 'Révision fourche', status: 'part_ordered', targetKm: 18000, targetDate: null, doneKm: null, doneAt: null },
+  { id: 4, userMotorcycleId: 1, intervalId: 4, operation: 'Lubrification chaîne', status: 'part_ordered', targetKm: 18000, targetDate: null, doneKm: null, doneAt: null, customKm: null, customDays: null },
   // 🟢 in progress, no target
-  { id: 5, userMotorcycleId: 1, intervalId: null, operation: 'Chaîne + pignons', status: 'in_progress', targetKm: null, targetDate: null, doneKm: null, doneAt: null },
-  // done — linked to interval 3 (brake fluid), will regenerate on next demo drag to done
-  { id: 6, userMotorcycleId: 1, intervalId: 3, operation: 'Liquide de frein', status: 'done', targetKm: 14000, targetDate: null, doneKm: 14050, doneAt: '2025-11-20T00:00:00.000Z' },
+  { id: 5, userMotorcycleId: 1, intervalId: 2, operation: 'Filtre à air', status: 'in_progress', targetKm: null, targetDate: null, doneKm: null, doneAt: null, customKm: null, customDays: null },
+  // done — linked to interval 5 (brake fluid), will regenerate on next demo drag to done
+  { id: 6, userMotorcycleId: 1, intervalId: 5, operation: 'Liquide de frein', status: 'done', targetKm: 14000, targetDate: null, doneKm: 14050, doneAt: '2025-11-20T00:00:00.000Z', customKm: null, customDays: null },
 ]
+
+export const mockParts: TicketPart[] = [
+  { id: 1, ticketId: 1, name: 'Filtre à huile', brand: 'Mann', reference: 'W811/80', quantity: 1, url: 'https://www.amazon.fr' },
+  { id: 2, ticketId: 1, name: 'Huile moteur 10W40', brand: 'Motul', reference: null, quantity: 4, url: null },
+]
+
+let _nextPartId = 3
+export function nextMockPartId(): number {
+  return _nextPartId++
+}
 
 export const mockVelocity: VelocityResult = {
   kmPerDay: 6.99,

@@ -1,55 +1,10 @@
 .form {
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.input {
-  width: 110px;
-  padding: 4px 8px;
-  background: var(--bg-base);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text-primary);
-  font-size: 13px;
-}
-
-.input:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-
-.inputError {
-  border-color: var(--color-danger);
-}
-
-.confirm {
-  padding: 4px 10px;
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.confirm:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.cancel {
-  padding: 4px 10px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--text-secondary);
-  font-size: 12px;
-  cursor: pointer;
+  gap: var(--space-2);
 }
 
 .error {
-  font-size: 11px;
-  color: var(--color-danger);
+  font-size: var(--text-xs);
+  color: var(--status-danger);
 }

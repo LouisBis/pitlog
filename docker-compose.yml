@@ -7,7 +7,7 @@ services:
       - "5173:5173"
     volumes:
       - ./client:/app
-      - /app/node_modules
+      - client_node_modules:/app/node_modules
     environment:
       - VITE_API_URL=http://localhost:3001
     depends_on:
@@ -22,10 +22,12 @@ services:
       - "3001:3001"
     volumes:
       - ./server:/app
-      - /app/node_modules
+      - server_node_modules:/app/node_modules
       - pitlog_data:/app/data
     env_file:
       - ./server/.env
 
 volumes:
   pitlog_data:
+  client_node_modules:
+  server_node_modules:

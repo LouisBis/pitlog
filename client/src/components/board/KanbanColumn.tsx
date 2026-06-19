@@ -5,7 +5,6 @@ import type { Ticket, TicketStatus } from '@/types'
 import TicketCard from './TicketCard'
 import CreateTicketForm from './CreateTicketForm'
 import styles from './KanbanColumn.module.css'
-import formStyles from './CreateTicketForm.module.css'
 
 interface Props {
   status: TicketStatus
@@ -13,30 +12,39 @@ interface Props {
   currentKm: number
   kmPerDay: number | null
   userMotoId: number
+  forceEditId: number | null
+  onForceEditDone: () => void
 }
 
-export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, userMotoId }: Props) {
+export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, userMotoId, forceEditId, onForceEditDone }: Props) {
   const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({ id: status })
   const [showForm, setShowForm] = useState(false)
 
   return (
-    <div className={`${styles.column}${isOver ? ` ${styles.over}` : ''}`}>
+    <div className={[styles.column, isOver && styles.over].filter(Boolean).join(' ')}>
       <div className={styles.header}>
         {t(`board.column.${status}`)}
         <span className={styles.count}>{tickets.length}</span>
       </div>
       <div ref={setNodeRef} className={styles.dropZone}>
         {tickets.map((ticket) => (
-          <TicketCard key={ticket.id} ticket={ticket} currentKm={currentKm} kmPerDay={kmPerDay} />
+          <TicketCard
+            key={ticket.id}
+            ticket={ticket}
+            currentKm={currentKm}
+            kmPerDay={kmPerDay}
+            userMotoId={userMotoId}
+            forceEdit={forceEditId === ticket.id}
+            onForceEditDone={onForceEditDone}
+          />
         ))}
       </div>
-      {status === 'todo' && (
-        showForm
-          ? <CreateTicketForm userMotoId={userMotoId} onClose={() => setShowForm(false)} />
-          : <button type="button" className={formStyles.addButton} onClick={() => setShowForm(true)}>
-              {t('ticket.action.new')}
-            </button>
+      {status === 'todo' && (showForm
+        ? <CreateTicketForm userMotoId={userMotoId} onClose={() => setShowForm(false)} />
+        : <button type="button" className={styles.addButton} onClick={() => setShowForm(true)}>
+            {t('ticket.action.new')}
+          </button>
       )}
     </div>
   )

@@ -5,8 +5,8 @@ on:
     branches: [dev, main]
 
 jobs:
-  lint:
-    name: Lint
+  lint-client:
+    name: Lint — client (ESLint)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,36 +20,60 @@ jobs:
         run: npm run lint
         working-directory: client
 
-  typecheck:
-    name: Typecheck
+  typecheck-client:
+    name: Typecheck — client
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install client dependencies
+      - name: Install dependencies
         run: npm ci --legacy-peer-deps
         working-directory: client
-      - name: Typecheck client
+      - name: Run tsc
         run: npx tsc --noEmit
         working-directory: client
-      - name: Install server dependencies
+
+  typecheck-server:
+    name: Typecheck — server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
         run: npm ci
         working-directory: server
-      - name: Typecheck server
+      - name: Run tsc
         run: npx tsc --noEmit
         working-directory: server
 
-  test:
-    name: Test
+  test-client:
+    name: Test — client (Vitest)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Install server dependencies
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+        working-directory: client
+      - name: Run tests
+        run: npm test
+        working-directory: client
+
+  test-server:
+    name: Test — server (Vitest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install dependencies
         run: npm ci
         working-directory: server
       - name: Run tests

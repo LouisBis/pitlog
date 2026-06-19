@@ -2,19 +2,60 @@ import { Router } from 'express'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { userMotorcycles, motorcycles, kmHistory } from '../db/schema/index.js'
+import { userMotorcycles, motorcycles, kmHistory, intervals, tickets, motorcycleIntervals, ticketParts } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
 import logger from '../lib/logger.js'
 
 const router = Router()
 
+function findCatalogueIntervals(motorcycleId: number) {
+  return db
+    .select()
+    .from(intervals)
+    .where(eq(intervals.motorcycleId, motorcycleId))
+    .all()
+}
+
+function findGenericIntervals() {
+  const generic = db
+    .select()
+    .from(motorcycles)
+    .where(eq(motorcycles.brand, 'Generic'))
+    .all()
+    .find((m) => m.model === 'Standard') ?? null
+
+  if (!generic) return []
+  return findCatalogueIntervals(generic.id)
+}
+
+function seedTickets(userMotorcycleId: number, currentKm: number, catalogueIntervals: ReturnType<typeof findCatalogueIntervals>) {
+  if (catalogueIntervals.length === 0) return
+  const now = new Date()
+  db.insert(tickets)
+    .values(
+      catalogueIntervals.map((interval) => ({
+        userMotorcycleId,
+        intervalId: interval.id,
+        operation: interval.operation,
+        status: 'todo' as const,
+        targetKm: interval.intervalKm != null ? currentKm + interval.intervalKm : null,
+        targetDate: interval.intervalDays != null
+          ? new Date(now.getTime() + interval.intervalDays * 24 * 60 * 60 * 1000)
+          : null,
+      }))
+    )
+    .run()
+  logger.info({ userMotorcycleId, count: catalogueIntervals.length }, 'Tickets seeded from catalogue')
+}
+
 const idSchema = z.coerce.number().int().positive()
 
 const createSchema = z.object({
-  motorcycleId: z.number().int().positive(),
+  brand: z.string().min(1),
+  model: z.string().min(1),
+  year: z.number().int().min(1900).max(2100),
   currentKm: z.number().int().min(0),
-  acquiredAt: z.coerce.date(),
 })
 
 const updateKmSchema = z.object({
@@ -41,31 +82,97 @@ router.get('/', (_req, res) => {
 })
 
 router.post('/', validateBody(createSchema), (req, res) => {
-  const { motorcycleId, currentKm, acquiredAt } = res.locals.body as z.infer<typeof createSchema>
+  const { brand, model, year, currentKm } = res.locals.body as z.infer<typeof createSchema>
 
-  const motorcycle = db
+  let motorcycle = db
     .select()
     .from(motorcycles)
-    .where(eq(motorcycles.id, motorcycleId))
-    .get()
+    .where(eq(motorcycles.brand, brand))
+    .all()
+    .find((m) => m.model === model && m.year === year) ?? null
 
   if (!motorcycle) {
-    logger.warn({ motorcycleId }, 'Motorcycle not found in catalogue')
-    res.status(404).json({ error: 'Motorcycle not found in catalogue' })
-    return
+    const [created] = db
+      .insert(motorcycles)
+      .values({ brand, model, year, isCustom: true })
+      .returning()
+      .all()
+    motorcycle = created
+    logger.info({ brand, model, year }, 'Custom motorcycle created')
+  } else {
+    logger.info({ motorcycleId: motorcycle.id, brand, model, year }, 'Catalogue motorcycle matched')
   }
 
-  const [created] = db
+  const [userMoto] = db
     .insert(userMotorcycles)
-    .values({ motorcycleId, currentKm, acquiredAt })
+    .values({ motorcycleId: motorcycle.id, currentKm, acquiredAt: new Date() })
     .returning()
     .all()
 
   db.insert(kmHistory)
-    .values({ userMotorcycleId: created.id, km: currentKm, recordedAt: new Date() })
+    .values({ userMotorcycleId: userMoto.id, km: currentKm, recordedAt: new Date() })
     .run()
 
-  res.status(201).json({ ...created, brand: motorcycle.brand, model: motorcycle.model, year: motorcycle.year })
+  const intervalsToSeed = motorcycle.isCustom
+    ? findGenericIntervals()
+    : findCatalogueIntervals(motorcycle.id)
+  seedTickets(userMoto.id, currentKm, intervalsToSeed)
+  if (motorcycle.isCustom) {
+    logger.info({ userMotorcycleId: userMoto.id }, 'Custom motorcycle seeded with generic intervals')
+  }
+
+  res.status(201).json({ ...userMoto, brand, model, year, isCustom: motorcycle.isCustom })
+})
+
+router.post('/:id/import-intervals', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const userMoto = db
+    .select()
+    .from(userMotorcycles)
+    .where(eq(userMotorcycles.id, parsedId.data))
+    .get()
+
+  if (!userMoto) {
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+
+  const motorcycle = db
+    .select()
+    .from(motorcycles)
+    .where(eq(motorcycles.id, userMoto.motorcycleId))
+    .get()
+
+  if (!motorcycle) {
+    res.status(404).json({ error: 'Motorcycle not found' })
+    return
+  }
+
+  const motorcycleIntervals = findCatalogueIntervals(motorcycle.id)
+  if (motorcycleIntervals.length === 0) {
+    res.status(422).json({ error: 'No catalogue intervals for this motorcycle' })
+    return
+  }
+
+  const coveredIntervalIds = new Set(
+    db
+      .select()
+      .from(tickets)
+      .where(eq(tickets.userMotorcycleId, parsedId.data))
+      .all()
+      .filter((t) => t.intervalId !== null && t.status !== 'done')
+      .map((t) => t.intervalId as number)
+  )
+
+  const toCreate = motorcycleIntervals.filter((i) => !coveredIntervalIds.has(i.id))
+  seedTickets(parsedId.data, userMoto.currentKm, toCreate)
+  logger.info({ userMotorcycleId: parsedId.data, created: toCreate.length, skipped: motorcycleIntervals.length - toCreate.length }, 'Intervals imported')
+  res.json({ created: toCreate.length })
 })
 
 router.get('/:id/velocity', (req, res) => {
@@ -132,6 +239,35 @@ router.patch('/:id/km', validateBody(updateKmSchema), (req, res) => {
     .run()
 
   res.json({ id: parsedId.data, currentKm: km })
+})
+
+router.delete('/:id', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, parsedId.data)).get()
+  if (!userMoto) {
+    logger.warn({ userMotorcycleId: parsedId.data }, 'User motorcycle not found for deletion')
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+
+  db.delete(motorcycleIntervals).where(eq(motorcycleIntervals.userMotorcycleId, parsedId.data)).run()
+
+  const motoTickets = db.select({ id: tickets.id }).from(tickets).where(eq(tickets.userMotorcycleId, parsedId.data)).all()
+  for (const t of motoTickets) {
+    db.delete(ticketParts).where(eq(ticketParts.ticketId, t.id)).run()
+  }
+
+  db.delete(tickets).where(eq(tickets.userMotorcycleId, parsedId.data)).run()
+  db.delete(kmHistory).where(eq(kmHistory.userMotorcycleId, parsedId.data)).run()
+  db.delete(userMotorcycles).where(eq(userMotorcycles.id, parsedId.data)).run()
+
+  logger.info({ userMotorcycleId: parsedId.data }, 'User motorcycle and associated data deleted')
+  res.status(204).send()
 })
 
 export default router

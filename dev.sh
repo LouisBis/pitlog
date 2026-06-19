@@ -12,12 +12,13 @@ YELLOW='\033[0;33m'
 CYAN='\033[0;36m'
 RED='\033[0;31m'
 ORANGE='\033[38;5;208m'
+BRASS='\033[38;5;137m'
 
 # ── Banner ─────────────────────────────────────────────────────────────────────
 banner() {
   clear
   echo ""
-  echo -e "${ORANGE}${BOLD}"
+  echo -e "${BRASS}${BOLD}"
   echo '    ██████╗ ██╗████████╗██╗      ██████╗  ██████╗ '
   echo '    ██╔══██╗██║╚══██╔══╝██║     ██╔═══██╗██╔════╝ '
   echo '    ██████╔╝██║   ██║   ██║     ██║   ██║██║  ███╗'
@@ -48,10 +49,11 @@ menu() {
   banner
 
   section "Stack"
-  opt  1  "Start                  docker compose up -d"
+  opt  1  "Start                  docker compose up -d --build"
   opt  2  "Stop                   docker compose down"
   opt  3  "Restart client"
   opt  4  "Restart server"
+  opt 17  "Full reset             down -v + build (wipe all volumes)"
   echo ""
 
   section "Logs"
@@ -61,6 +63,7 @@ menu() {
 
   section "Tests"
   opt  7  "Server tests           vitest inside container"
+  opt 16  "Client tests           vitest inside container"
   echo ""
 
   section "Database"
@@ -72,11 +75,12 @@ menu() {
   opt 10  "Install server deps    npm install"
   opt 11  "Rebuild client image"
   opt 12  "Rebuild server image"
+  opt 13  "Update design tokens   pull latest @louisbis/pitlog-tokens"
   echo ""
 
   section "Shell"
-  opt 13  "Shell → client"
-  opt 14  "Shell → server"
+  opt 14  "Shell → client"
+  opt 15  "Shell → server"
   echo ""
 
   opt  q  "Quit"
@@ -89,20 +93,23 @@ while true; do
   read -rp "    Choice: " choice
   echo ""
   case "$choice" in
-    1)  run docker compose up -d ;;
+    1)  run docker compose up -d --build ;;
     2)  run docker compose down ;;
     3)  run docker compose restart client ;;
     4)  run docker compose restart server ;;
     5)  docker compose logs client -f ;;
     6)  docker compose logs server -f ;;
     7)  run docker compose exec server sh -c "npm test" ;;
+    16) run docker compose exec client sh -c "npm test" ;;
     8)  run docker compose exec server sh -c "rm -f data/pitlog.db data/pitlog.db-shm data/pitlog.db-wal && npm run seed" && run docker compose restart server ;;
     9)  run docker compose exec client npm install --legacy-peer-deps ;;
     10) run docker compose exec server npm install ;;
-    11) run docker compose build client && docker compose up -d client ;;
-    12) run docker compose build server && docker compose up -d server ;;
-    13) docker compose exec client sh ;;
-    14) docker compose exec server sh ;;
+    11) run docker compose up -d --build client ;;
+    12) run docker compose up -d --build server ;;
+    17) run docker compose down -v && docker compose up -d --build ;;
+    13) run docker compose exec client npm install @louisbis/pitlog-tokens@latest && run docker compose restart client ;;
+    14) docker compose exec client sh ;;
+    15) docker compose exec server sh ;;
     q|Q) echo -e "\n    ${YELLOW}Bye.${RESET}\n"; exit 0 ;;
     *)  echo -e "    ${YELLOW}Unknown option: $choice${RESET}" ;;
   esac

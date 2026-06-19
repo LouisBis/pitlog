@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUpdateKm } from '@/queries/useUserMotorcycles'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
 import styles from './KmUpdateForm.module.css'
 
 interface Props {
@@ -13,7 +15,7 @@ export default function KmUpdateForm({ userMotoId, currentKm, onClose }: Props) 
   const { t } = useTranslation()
   const [value, setValue] = useState('')
   const [error, setError] = useState(false)
-  const { mutate: updateKm, isPending } = useUpdateKm(userMotoId)
+  const { mutate: updateKm, isPending, isError: isServerError } = useUpdateKm(userMotoId)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,22 +29,24 @@ export default function KmUpdateForm({ userMotoId, currentKm, onClose }: Props) 
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <input
-        className={`${styles.input}${error ? ` ${styles.inputError}` : ''}`}
+      <Input
         type="number"
+        size="sm"
+        error={error}
         placeholder={t('km_update.placeholder')}
         value={value}
         onChange={(e) => { setValue(e.target.value); setError(false) }}
         min={currentKm + 1}
         autoFocus
       />
-      <button type="submit" className={styles.confirm} disabled={!value || isPending}>
+      <Button size="sm" type="submit" disabled={!value || isPending}>
         {t('km_update.confirm')}
-      </button>
-      <button type="button" className={styles.cancel} onClick={onClose}>
+      </Button>
+      <Button size="sm" variant="ghost" type="button" onClick={onClose}>
         {t('km_update.cancel')}
-      </button>
+      </Button>
       {error && <span className={styles.error}>{t('km_update.error.lower')}</span>}
+      {isServerError && <span className={styles.error}>{t('common.error.server')}</span>}
     </form>
   )
 }

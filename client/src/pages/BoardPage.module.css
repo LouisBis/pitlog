@@ -1,52 +1,78 @@
 .page {
   min-height: 100vh;
-  background: var(--bg-base);
+  background: var(--color-bg-raised);
   display: flex;
   flex-direction: column;
 }
 
 .header {
-  background: var(--bg-surface);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 24px;
+  background: var(--header-bg);
+  border-bottom: 1px solid var(--header-border);
+  padding: var(--space-4) var(--space-6);
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
   flex-shrink: 0;
 }
 
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.logo {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 800;
+  color: var(--brand-accent);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+}
+
 .back {
-  font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--color-text-muted);
   cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-  transition: background 150ms ease, color 150ms ease;
+  transition: color var(--duration-fast) var(--easing-default);
 }
 
 .back:hover {
-  background: var(--bg-elevated);
-  color: var(--text-primary);
+  color: var(--color-text-secondary);
+}
+
+.separator {
+  color: var(--color-text-muted);
 }
 
 .motoName {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-primary);
+  color: var(--color-text-secondary);
+  font-weight: var(--weight-medium);
 }
 
 .km {
-  font-size: 13px;
-  color: var(--accent-text);
-  background: var(--accent-subtle);
-  border-radius: 6px;
-  padding: 3px 8px;
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--tag-text);
+  background: var(--tag-bg);
+  border: 1px solid var(--tag-border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
   cursor: pointer;
-  border: none;
-  transition: opacity 150ms ease;
+  transition: opacity var(--duration-fast) var(--easing-default);
 }
 
 .km:hover {
   opacity: 0.8;
+}
+
+.error {
+  color: var(--status-danger);
+  font-size: var(--text-sm);
 }

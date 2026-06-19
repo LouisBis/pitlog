@@ -1,13 +1,24 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
+import { TrashIcon } from '@phosphor-icons/react'
+import { useUserMotorcycles, useMotorcycles, useDeleteMotorcycle } from '@/queries/useUserMotorcycles'
+import AddMotoForm from '@/components/AddMotoForm'
+import { Button } from '@/components/ui/Button'
 import type { UserMotorcycle } from '@/types'
 import styles from './SelectMotoPage.module.css'
 
-function MotoCard({ moto, onClick }: { moto: UserMotorcycle; onClick: () => void }) {
+function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => void }) {
   const { t } = useTranslation()
+  const [confirming, setConfirming] = useState(false)
+  const { mutate: deleteMoto, isPending } = useDeleteMotorcycle()
+
+  const handleDelete = () => {
+    deleteMoto(moto.id)
+  }
+
   return (
-    <button type="button" onClick={onClick} className={styles.card}>
+    <div className={styles.card} onClick={onSelect} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onSelect()}>
       <div className={styles.cardInner}>
         <div>
           <p className={styles.brand}>{moto.brand}</p>
@@ -19,14 +30,35 @@ function MotoCard({ moto, onClick }: { moto: UserMotorcycle; onClick: () => void
         </div>
         <span className={styles.arrow}>→</span>
       </div>
-    </button>
+      {confirming ? (
+        <div className={styles.deleteConfirm} onClick={(e) => e.stopPropagation()}>
+          <span className={styles.deleteConfirmText}>{t('garage.delete_confirm')}</span>
+          <button className={styles.deleteConfirmYes} onClick={handleDelete} disabled={isPending}>
+            {t('garage.delete_yes')}
+          </button>
+          <button className={styles.deleteConfirmNo} onClick={() => setConfirming(false)}>
+            {t('garage.delete_no')}
+          </button>
+        </div>
+      ) : (
+        <button
+          className={styles.deleteBtn}
+          onClick={(e) => { e.stopPropagation(); setConfirming(true) }}
+          aria-label={t('garage.delete')}
+        >
+          <TrashIcon size={18} weight="fill" />
+        </button>
+      )}
+    </div>
   )
 }
 
 export default function SelectMotoPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const [showForm, setShowForm] = useState(false)
   const { data: motos, isLoading, isError } = useUserMotorcycles()
+  const { data: catalogue = [] } = useMotorcycles()
 
   return (
     <div className={styles.page}>
@@ -36,16 +68,25 @@ export default function SelectMotoPage() {
       </header>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>{t('garage.title')}</h1>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>{t('garage.title')}</h1>
+          <Button size="sm" onClick={() => setShowForm((v) => !v)}>
+            {t('garage.add')}
+          </Button>
+        </div>
         <p className={styles.subtitle}>{t('garage.subtitle')}</p>
+
+        {showForm && (
+          <AddMotoForm catalogue={catalogue} onClose={() => setShowForm(false)} />
+        )}
 
         {isLoading && <p>{t('common.loading')}</p>}
         {isError && <p className={styles.error}>{t('common.error.loading')}</p>}
-        {motos?.length === 0 && <p className={styles.empty}>{t('garage.empty')}</p>}
+        {motos?.length === 0 && !showForm && <p className={styles.empty}>{t('garage.empty')}</p>}
 
         <div className={styles.list}>
           {motos?.map((moto) => (
-            <MotoCard key={moto.id} moto={moto} onClick={() => navigate(`/board/${moto.id}`)} />
+            <MotoCard key={moto.id} moto={moto} onSelect={() => navigate(`/board/${moto.id}`)} />
           ))}
         </div>
       </main>
