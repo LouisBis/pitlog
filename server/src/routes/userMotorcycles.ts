@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { userMotorcycles, motorcycles, kmHistory, intervals, tickets } from '../db/schema/index.js'
+import { userMotorcycles, motorcycles, kmHistory, intervals, tickets, motorcycleIntervals } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
 import logger from '../lib/logger.js'
@@ -239,6 +239,29 @@ router.patch('/:id/km', validateBody(updateKmSchema), (req, res) => {
     .run()
 
   res.json({ id: parsedId.data, currentKm: km })
+})
+
+router.delete('/:id', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, parsedId.data)).get()
+  if (!userMoto) {
+    logger.warn({ userMotorcycleId: parsedId.data }, 'User motorcycle not found for deletion')
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+
+  db.delete(motorcycleIntervals).where(eq(motorcycleIntervals.userMotorcycleId, parsedId.data)).run()
+  db.delete(tickets).where(eq(tickets.userMotorcycleId, parsedId.data)).run()
+  db.delete(kmHistory).where(eq(kmHistory.userMotorcycleId, parsedId.data)).run()
+  db.delete(userMotorcycles).where(eq(userMotorcycles.id, parsedId.data)).run()
+
+  logger.info({ userMotorcycleId: parsedId.data }, 'User motorcycle and associated data deleted')
+  res.status(204).send()
 })
 
 export default router

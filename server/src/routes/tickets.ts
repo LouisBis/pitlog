@@ -6,6 +6,11 @@ import { tickets, userMotorcycles, intervals, motorcycleIntervals, motorcycles, 
 import { validateBody } from '../middleware/validate.js'
 import logger from '../lib/logger.js'
 
+const updateTicketSchema = z.object({
+  operation: z.string().min(1).optional(),
+  targetKm: z.number().int().min(0).nullable().optional(),
+})
+
 const router = Router()
 
 const idSchema = z.coerce.number().int().positive()
@@ -57,8 +62,27 @@ router.get('/', (req, res) => {
   }
 
   const result = db
-    .select()
+    .select({
+      id: tickets.id,
+      userMotorcycleId: tickets.userMotorcycleId,
+      intervalId: tickets.intervalId,
+      operation: tickets.operation,
+      status: tickets.status,
+      targetKm: tickets.targetKm,
+      targetDate: tickets.targetDate,
+      doneKm: tickets.doneKm,
+      doneAt: tickets.doneAt,
+      customKm: motorcycleIntervals.customKm,
+      customDays: motorcycleIntervals.customDays,
+    })
     .from(tickets)
+    .leftJoin(
+      motorcycleIntervals,
+      and(
+        eq(motorcycleIntervals.intervalId, tickets.intervalId),
+        eq(motorcycleIntervals.userMotorcycleId, tickets.userMotorcycleId),
+      )
+    )
     .where(eq(tickets.userMotorcycleId, parsed.data))
     .all()
 
@@ -209,6 +233,59 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
 
   logger.info({ ticketId: ticket.id, intervalId, customKm, customDays }, 'Ticket interval updated')
   res.json(updated)
+})
+
+router.patch('/:id', validateBody(updateTicketSchema), (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const body = res.locals.body as z.infer<typeof updateTicketSchema>
+  if (!body.operation && body.targetKm === undefined) {
+    res.status(400).json({ error: 'At least one field required: operation, targetKm' })
+    return
+  }
+
+  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  if (!ticket) {
+    logger.warn({ ticketId: parsedId.data }, 'Ticket not found for update')
+    res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  const [updated] = db
+    .update(tickets)
+    .set({
+      ...(body.operation !== undefined && { operation: body.operation }),
+      ...(body.targetKm !== undefined && { targetKm: body.targetKm }),
+    })
+    .where(eq(tickets.id, parsedId.data))
+    .returning()
+    .all()
+
+  logger.info({ ticketId: updated.id, operation: updated.operation, targetKm: updated.targetKm }, 'Ticket updated')
+  res.json(updated)
+})
+
+router.delete('/:id', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  if (!ticket) {
+    logger.warn({ ticketId: parsedId.data }, 'Ticket not found for deletion')
+    res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  db.delete(tickets).where(eq(tickets.id, parsedId.data)).run()
+  logger.info({ ticketId: parsedId.data, operation: ticket.operation }, 'Ticket deleted')
+  res.status(204).send()
 })
 
 export default router

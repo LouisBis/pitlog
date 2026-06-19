@@ -41,3 +41,13 @@ export const useUpdateKm = (userMotorcycleId: number) => {
     },
   })
 }
+
+export const useDeleteMotorcycle = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (userMotorcycleId: number) => api.deleteMotorcycle(userMotorcycleId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-motorcycles'] })
+    },
+  })
+}

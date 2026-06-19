@@ -37,6 +37,8 @@ export interface Ticket {
   targetDate: string | null
   doneKm: number | null
   doneAt: string | null
+  customKm: number | null
+  customDays: number | null
 }
 
 export interface VelocityResult {

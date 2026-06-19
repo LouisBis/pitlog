@@ -1,6 +1,11 @@
 import log from './logger'
 import type { AddMotorcyclePayload, CreateTicketPayload, UpdateTicketIntervalPayload, Motorcycle, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
 
+export interface UpdateTicketPayload {
+  operation?: string
+  targetKm?: number | null
+}
+
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -62,4 +67,16 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify(data),
     }),
+
+  updateTicket: (id: number, data: UpdateTicketPayload) =>
+    request<Ticket>(`/api/v1/tickets/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  deleteTicket: (id: number) =>
+    request<void>(`/api/v1/tickets/${id}`, { method: 'DELETE' }),
+
+  deleteMotorcycle: (userMotorcycleId: number) =>
+    request<void>(`/api/v1/user-motorcycles/${userMotorcycleId}`, { method: 'DELETE' }),
 }

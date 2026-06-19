@@ -228,3 +228,33 @@ describe('PATCH /api/v1/user-motorcycles/:id/km', () => {
     expect(res.status).toBe(404)
   })
 })
+
+describe('DELETE /api/v1/user-motorcycles/:id', () => {
+  it('deletes the user motorcycle and its associated tickets and km history', async () => {
+    const [userMoto] = db
+      .insert(userMotorcycles)
+      .values({ motorcycleId: catalogueMotoId, currentKm: 8500, acquiredAt: new Date('2022-01-01') })
+      .returning()
+      .all()
+
+    db.insert(tickets)
+      .values({ userMotorcycleId: userMoto.id, operation: 'Oil change', status: 'todo' })
+      .run()
+
+    db.insert(kmHistory)
+      .values({ userMotorcycleId: userMoto.id, km: 8500, recordedAt: new Date() })
+      .run()
+
+    const res = await request(app).delete(`/api/v1/user-motorcycles/${userMoto.id}`)
+    expect(res.status).toBe(204)
+
+    expect(db.select().from(userMotorcycles).where(eq(userMotorcycles.id, userMoto.id)).get()).toBeUndefined()
+    expect(db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()).toHaveLength(0)
+    expect(db.select().from(kmHistory).where(eq(kmHistory.userMotorcycleId, userMoto.id)).all()).toHaveLength(0)
+  })
+
+  it('returns 404 for unknown user motorcycle', async () => {
+    const res = await request(app).delete('/api/v1/user-motorcycles/999')
+    expect(res.status).toBe(404)
+  })
+})
