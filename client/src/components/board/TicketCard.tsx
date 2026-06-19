@@ -38,6 +38,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const [partQuantity, setPartQuantity] = useState('1')
   const [partUrl, setPartUrl] = useState('')
   const [showPartsHint, setShowPartsHint] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: ticket.id,
@@ -188,17 +189,26 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             <PencilSimpleIcon size={14} weight="fill" />
           </button>
         )}
-        {ticket.status === 'done' && !overlay && (
+        {ticket.status === 'done' && !overlay && !confirmingDelete && (
           <button
             type="button"
             className={styles.editBtn}
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={handleDelete}
-            disabled={isDeleting}
+            onClick={() => setConfirmingDelete(true)}
             aria-label={t('ticket.edit.delete')}
           >
             <TrashIcon size={14} weight="fill" />
           </button>
+        )}
+        {ticket.status === 'done' && !overlay && confirmingDelete && (
+          <div className={styles.deleteConfirm} onPointerDown={(e) => e.stopPropagation()}>
+            <button type="button" className={styles.deleteConfirmYes} onClick={handleDelete} disabled={isDeleting}>
+              {t('garage.delete_yes')}
+            </button>
+            <button type="button" className={styles.deleteConfirmNo} onClick={() => setConfirmingDelete(false)}>
+              {t('garage.delete_no')}
+            </button>
+          </div>
         )}
       </div>
 
