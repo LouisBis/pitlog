@@ -60,3 +60,21 @@ export interface UpdateTicketIntervalPayload {
   customDays?: number | null
   operation?: string
 }
+
+export interface TicketPart {
+  id: number
+  ticketId: number
+  name: string
+  brand: string | null
+  reference: string | null
+  quantity: number
+  url: string | null
+}
+
+export interface CreatePartPayload {
+  name: string
+  brand?: string
+  reference?: string
+  quantity?: number
+  url?: string
+}

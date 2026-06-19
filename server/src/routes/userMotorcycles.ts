@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { userMotorcycles, motorcycles, kmHistory, intervals, tickets, motorcycleIntervals } from '../db/schema/index.js'
+import { userMotorcycles, motorcycles, kmHistory, intervals, tickets, motorcycleIntervals, ticketParts } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
 import logger from '../lib/logger.js'
@@ -256,6 +256,12 @@ router.delete('/:id', (req, res) => {
   }
 
   db.delete(motorcycleIntervals).where(eq(motorcycleIntervals.userMotorcycleId, parsedId.data)).run()
+
+  const motoTickets = db.select({ id: tickets.id }).from(tickets).where(eq(tickets.userMotorcycleId, parsedId.data)).all()
+  for (const t of motoTickets) {
+    db.delete(ticketParts).where(eq(ticketParts.ticketId, t.id)).run()
+  }
+
   db.delete(tickets).where(eq(tickets.userMotorcycleId, parsedId.data)).run()
   db.delete(kmHistory).where(eq(kmHistory.userMotorcycleId, parsedId.data)).run()
   db.delete(userMotorcycles).where(eq(userMotorcycles.id, parsedId.data)).run()

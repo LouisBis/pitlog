@@ -1,5 +1,5 @@
 import log from './logger'
-import type { AddMotorcyclePayload, CreateTicketPayload, UpdateTicketIntervalPayload, Motorcycle, Ticket, TicketStatus, UserMotorcycle, VelocityResult } from '@/types'
+import type { AddMotorcyclePayload, CreateTicketPayload, UpdateTicketIntervalPayload, Motorcycle, Ticket, TicketPart, TicketStatus, UserMotorcycle, VelocityResult, CreatePartPayload } from '@/types'
 
 export interface UpdateTicketPayload {
   operation?: string
@@ -79,4 +79,16 @@ export const api = {
 
   deleteMotorcycle: (userMotorcycleId: number) =>
     request<void>(`/api/v1/user-motorcycles/${userMotorcycleId}`, { method: 'DELETE' }),
+
+  getTicketParts: (ticketId: number) =>
+    request<TicketPart[]>(`/api/v1/tickets/${ticketId}/parts`),
+
+  addTicketPart: (ticketId: number, data: CreatePartPayload) =>
+    request<TicketPart>(`/api/v1/tickets/${ticketId}/parts`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  deleteTicketPart: (ticketId: number, partId: number) =>
+    request<void>(`/api/v1/tickets/${ticketId}/parts/${partId}`, { method: 'DELETE' }),
 }

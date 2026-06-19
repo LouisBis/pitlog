@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw'
-import type { CreateTicketPayload, TicketStatus } from '@/types'
-import { mockUserMotorcycles, mockTickets, mockVelocity, mockIntervals, nextId } from './data'
+import type { CreatePartPayload, CreateTicketPayload, TicketStatus } from '@/types'
+import { mockUserMotorcycles, mockTickets, mockVelocity, mockIntervals, mockParts, nextId, nextMockPartId } from './data'
 
 export const handlers = [
   http.get('*/api/v1/user-motorcycles', () => {
@@ -85,5 +85,41 @@ export const handlers = [
     }
 
     return HttpResponse.json(ticket)
+  }),
+
+  http.get('*/api/v1/tickets/:id/parts', ({ params }) => {
+    const ticketId = Number(params.id)
+    if (!mockTickets.find((t) => t.id === ticketId)) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    return HttpResponse.json(mockParts.filter((p) => p.ticketId === ticketId))
+  }),
+
+  http.post('*/api/v1/tickets/:id/parts', async ({ params, request }) => {
+    const ticketId = Number(params.id)
+    if (!mockTickets.find((t) => t.id === ticketId)) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    const body = (await request.json()) as CreatePartPayload
+    const part = {
+      id: nextMockPartId(),
+      ticketId,
+      name: body.name,
+      brand: body.brand ?? null,
+      reference: body.reference ?? null,
+      quantity: body.quantity ?? 1,
+      url: body.url ?? null,
+    }
+    mockParts.push(part)
+    return HttpResponse.json(part, { status: 201 })
+  }),
+
+  http.delete('*/api/v1/tickets/:id/parts/:partId', ({ params }) => {
+    const ticketId = Number(params.id)
+    const partId = Number(params.partId)
+    const idx = mockParts.findIndex((p) => p.id === partId && p.ticketId === ticketId)
+    if (idx === -1) return new HttpResponse(null, { status: 404 })
+    mockParts.splice(idx, 1)
+    return new HttpResponse(null, { status: 204 })
   }),
 ]
