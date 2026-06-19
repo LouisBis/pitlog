@@ -192,7 +192,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
         {ticket.status === 'done' && !overlay && !confirmingDelete && (
           <button
             type="button"
-            className={styles.editBtn}
+            className={[styles.editBtn, styles.editBtnDanger].join(' ')}
             onPointerDown={(e) => e.stopPropagation()}
             onClick={() => setConfirmingDelete(true)}
             aria-label={t('ticket.edit.delete')}

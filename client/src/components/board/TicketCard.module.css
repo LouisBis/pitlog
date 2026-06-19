@@ -72,6 +72,10 @@
   color: var(--brand-accent);
 }
 
+.editBtnDanger:hover {
+  color: var(--status-danger);
+}
+
 .editMode {
   cursor: default;
 }
