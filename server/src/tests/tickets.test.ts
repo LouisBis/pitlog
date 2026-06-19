@@ -49,6 +49,38 @@ describe('GET /api/v1/tickets', () => {
     expect(res.body[0].operation).toBe('Oil change')
   })
 
+  it('includes customKm and customDays from motorcycle_intervals override', async () => {
+    const [interval] = db
+      .insert(intervals)
+      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
+      .returning()
+      .all()
+
+    db.insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo' })
+      .run()
+
+    db.insert(motorcycleIntervals)
+      .values({ userMotorcycleId: userMotoId, intervalId: interval.id, customKm: 4000, customDays: null })
+      .run()
+
+    const res = await request(app).get(`/api/v1/tickets?userMotorcycleId=${userMotoId}`)
+    expect(res.status).toBe(200)
+    expect(res.body[0].customKm).toBe(4000)
+    expect(res.body[0].customDays).toBeNull()
+  })
+
+  it('returns null customKm/customDays when no override exists', async () => {
+    db.insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Chain lube', status: 'todo' })
+      .run()
+
+    const res = await request(app).get(`/api/v1/tickets?userMotorcycleId=${userMotoId}`)
+    expect(res.status).toBe(200)
+    expect(res.body[0].customKm).toBeNull()
+    expect(res.body[0].customDays).toBeNull()
+  })
+
   it('returns 400 when userMotorcycleId is missing', async () => {
     const res = await request(app).get('/api/v1/tickets')
     expect(res.status).toBe(400)
@@ -238,6 +270,94 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
     const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
     const next = all.find((t) => t.id !== ticket.id)!
     expect(next.targetKm).toBe(8500 + 4000) // uses custom 4000, not catalogue 6000
+  })
+})
+
+describe('PATCH /api/v1/tickets/:id', () => {
+  it('updates operation', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/tickets/${ticket.id}`)
+      .send({ operation: 'Full oil change' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.operation).toBe('Full oil change')
+  })
+
+  it('updates targetKm', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Tires', status: 'todo', targetKm: 10000 })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/tickets/${ticket.id}`)
+      .send({ targetKm: 12000 })
+
+    expect(res.status).toBe(200)
+    expect(res.body.targetKm).toBe(12000)
+  })
+
+  it('clears targetKm when null is sent', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Tires', status: 'todo', targetKm: 10000 })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/tickets/${ticket.id}`)
+      .send({ targetKm: null })
+
+    expect(res.status).toBe(200)
+    expect(res.body.targetKm).toBeNull()
+  })
+
+  it('returns 404 for unknown ticket', async () => {
+    const res = await request(app)
+      .patch('/api/v1/tickets/999')
+      .send({ operation: 'Oil change' })
+    expect(res.status).toBe(404)
+  })
+
+  it('returns 400 when no field is provided', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Tires', status: 'todo' })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/tickets/${ticket.id}`)
+      .send({})
+    expect(res.status).toBe(400)
+  })
+})
+
+describe('DELETE /api/v1/tickets/:id', () => {
+  it('deletes an existing ticket', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
+      .returning()
+      .all()
+
+    const res = await request(app).delete(`/api/v1/tickets/${ticket.id}`)
+    expect(res.status).toBe(204)
+
+    const remaining = db.select().from(tickets).where(eq(tickets.id, ticket.id)).get()
+    expect(remaining).toBeUndefined()
+  })
+
+  it('returns 404 for unknown ticket', async () => {
+    const res = await request(app).delete('/api/v1/tickets/999')
+    expect(res.status).toBe(404)
   })
 })
 
