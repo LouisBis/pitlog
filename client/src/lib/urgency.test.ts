@@ -13,6 +13,8 @@ function makeTicket(overrides: Partial<Ticket> = {}): Ticket {
     targetDate: null,
     doneKm: null,
     doneAt: null,
+    customKm: null,
+    customDays: null,
     ...overrides,
   }
 }
