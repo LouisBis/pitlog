@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
-import { Trash } from '@phosphor-icons/react'
+import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
 import type { Ticket } from '@/types'
 import { getUrgency, getKmRemaining, getEstimatedDays } from '@/lib/urgency'
 import { Badge } from '@/components/ui/Badge'
@@ -136,7 +136,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             onClick={editing ? () => setEditing(false) : openEdit}
             aria-label={t('ticket.edit.title')}
           >
-            ✎
+            <PencilSimpleIcon size={14} weight="fill" />
           </button>
         )}
       </div>
@@ -192,7 +192,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             disabled={isDeleting}
             aria-label={t('ticket.edit.delete')}
           >
-            <Trash size={16} weight="fill" />
+            <TrashIcon size={16} weight="fill" />
           </button>
         </form>
       )}

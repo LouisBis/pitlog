@@ -41,6 +41,8 @@
 }
 .ghost:hover:not(:disabled) {
   background: var(--btn-ghost-bg-hover);
+  border-color: var(--brand-accent);
+  color: var(--brand-accent);
 }
 
 .text {

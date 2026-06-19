@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Trash } from '@phosphor-icons/react'
+import { TrashIcon } from '@phosphor-icons/react'
 import { useUserMotorcycles, useMotorcycles, useDeleteMotorcycle } from '@/queries/useUserMotorcycles'
 import AddMotoForm from '@/components/AddMotoForm'
 import { Button } from '@/components/ui/Button'
@@ -46,7 +46,7 @@ function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => vo
           onClick={(e) => { e.stopPropagation(); setConfirming(true) }}
           aria-label={t('garage.delete')}
         >
-          <Trash size={18} weight="fill" />
+          <TrashIcon size={18} weight="fill" />
         </button>
       )}
     </div>
