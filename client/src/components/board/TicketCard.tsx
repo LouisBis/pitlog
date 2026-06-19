@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useDraggable } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
@@ -24,7 +24,8 @@ interface Props {
 
 export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false, forceEdit = false, onForceEditDone }: Props) {
   const { t } = useTranslation()
-  const [editing, setEditing] = useState(false)
+  const [editingLocal, setEditingLocal] = useState(false)
+  const editing = editingLocal || forceEdit
 
   const [operation, setOperation] = useState(ticket.operation)
   const [targetKm, setTargetKm] = useState(ticket.targetKm?.toString() ?? '')
@@ -37,22 +38,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const [partReference, setPartReference] = useState('')
   const [partQuantity, setPartQuantity] = useState('1')
   const [partUrl, setPartUrl] = useState('')
-  const [showPartsHint, setShowPartsHint] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
-
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: ticket.id,
-    data: { status: ticket.status },
-    disabled: overlay || editing || ticket.status === 'done',
-  })
-
-  useEffect(() => {
-    if (forceEdit) {
-      openEdit()
-      setShowPartsHint(true)
-      onForceEditDone?.()
-    }
-  }, [forceEdit]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const { mutate: patchInterval, isPending: isPatchingInterval } = usePatchTicketInterval(userMotoId ?? 0)
   const { mutate: updateTicket, isPending: isUpdating } = useUpdateTicket(userMotoId ?? 0)
@@ -60,6 +46,12 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const { data: parts = [] } = useTicketParts(ticket.id)
   const { mutate: addPart, isPending: isAddingPart } = useAddTicketPart(ticket.id)
   const { mutate: deletePart } = useDeleteTicketPart(ticket.id)
+
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: ticket.id,
+    data: { status: ticket.status },
+    disabled: overlay || editing || ticket.status === 'done',
+  })
 
   const isPending = isPatchingInterval || isUpdating || isDeleting
 
@@ -91,7 +83,12 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
     setPartReference('')
     setPartQuantity('1')
     setPartUrl('')
-    setEditing(true)
+    setEditingLocal(true)
+  }
+
+  const closeEdit = () => {
+    setEditingLocal(false)
+    if (forceEdit) onForceEditDone?.()
   }
 
   const handleSubmit = (e: { preventDefault(): void }) => {
@@ -117,10 +114,10 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
                   customKm: intervalKm ? Number(intervalKm) : null,
                   customDays: intervalDays ? Number(intervalDays) : null,
                 },
-                { onSuccess: () => setEditing(false) },
+                { onSuccess: closeEdit },
               )
             } else {
-              setEditing(false)
+              closeEdit()
             }
           },
         },
@@ -136,10 +133,10 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
           customKm: intervalKm ? Number(intervalKm) : null,
           customDays: intervalDays ? Number(intervalDays) : null,
         },
-        { onSuccess: () => setEditing(false) },
+        { onSuccess: closeEdit },
       )
     } else {
-      setEditing(false)
+      closeEdit()
     }
   }
 
@@ -183,7 +180,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             type="button"
             className={styles.editBtn}
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={editing ? () => { setEditing(false); setShowPartsHint(false) } : openEdit}
+            onClick={editing ? closeEdit : openEdit}
             aria-label={t('ticket.edit.title')}
           >
             <PencilSimpleIcon size={14} weight="fill" />
@@ -252,14 +249,14 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             <Button type="submit" disabled={!operation.trim() || isPending}>
               {t('ticket.edit.save')}
             </Button>
-            <Button variant="ghost" type="button" onClick={() => { setEditing(false); setShowPartsHint(false) }}>
+            <Button variant="ghost" type="button" onClick={closeEdit}>
               {t('ticket.edit.cancel')}
             </Button>
           </div>
 
           <div className={styles.partsSection}>
             <p className={styles.partsSectionTitle}>{t('ticket.parts.title')}</p>
-            {showPartsHint && parts.length === 0 && (
+            {forceEdit && parts.length === 0 && (
               <p className={styles.partsHint}>{t('board.part_ordered_hint')}</p>
             )}
             {parts.length > 0 && (
