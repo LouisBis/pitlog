@@ -3,10 +3,51 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
 import { useTickets } from '@/queries/useTickets'
+import { useTicketParts } from '@/queries/useTicketParts'
 import { Badge } from '@/components/ui/Badge'
+import type { Ticket } from '@/types'
 import styles from './HistoryPage.module.css'
 
 const DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+
+function HistoryRow({ ticket }: { ticket: Ticket }) {
+  const { t } = useTranslation()
+  const { data: parts = [] } = useTicketParts(ticket.id)
+
+  return (
+    <div className={styles.row}>
+      <div className={styles.rowMain}>
+        <span className={styles.operation}>{ticket.operation}</span>
+        <div className={styles.meta}>
+          {ticket.doneKm !== null && (
+            <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
+          )}
+          {ticket.doneAt && (
+            <span className={styles.date}>{DATE_FORMAT.format(new Date(ticket.doneAt))}</span>
+          )}
+        </div>
+      </div>
+      {parts.length > 0 && (
+        <div className={styles.partsList}>
+          <span className={styles.partsLabel}>{t('history.parts_used')}</span>
+          <ul className={styles.parts}>
+            {parts.map((part) => (
+              <li key={part.id} className={styles.part}>
+                {part.quantity > 1 && <span className={styles.partQty}>{part.quantity}×</span>}
+                {part.url
+                  ? <a href={part.url} target="_blank" rel="noopener noreferrer" className={styles.partLink}>{part.name}</a>
+                  : <span>{part.name}</span>
+                }
+                {part.brand && <span className={styles.partMeta}> · {part.brand}</span>}
+                {part.reference && <span className={styles.partMeta}> · {part.reference}</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function HistoryPage() {
   const { t } = useTranslation()
@@ -65,17 +106,7 @@ export default function HistoryPage() {
         {done.length > 0 && (
           <div className={styles.list}>
             {done.map((tk) => (
-              <div key={tk.id} className={styles.row}>
-                <span className={styles.operation}>{tk.operation}</span>
-                <div className={styles.meta}>
-                  {tk.doneKm !== null && (
-                    <Badge variant="done">{t('ticket.done.at_km', { count: tk.doneKm })}</Badge>
-                  )}
-                  {tk.doneAt && (
-                    <span className={styles.date}>{DATE_FORMAT.format(new Date(tk.doneAt))}</span>
-                  )}
-                </div>
-              </div>
+              <HistoryRow key={tk.id} ticket={tk} />
             ))}
           </div>
         )}

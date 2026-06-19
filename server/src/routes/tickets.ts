@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { tickets, userMotorcycles, intervals, motorcycleIntervals, motorcycles, TICKET_STATUSES } from '../db/schema/index.js'
+import { tickets, userMotorcycles, intervals, motorcycleIntervals, motorcycles, ticketParts, TICKET_STATUSES } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import logger from '../lib/logger.js'
 
@@ -26,6 +26,13 @@ const createSchema = z.object({
 const updateStatusSchema = z.object({
   status: z.enum(TICKET_STATUSES),
 })
+
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  todo: ['part_ordered', 'in_progress'],
+  part_ordered: ['todo', 'in_progress'],
+  in_progress: ['todo', 'part_ordered', 'done'],
+  done: [],
+}
 
 const updateIntervalSchema = z.object({
   customKm: z.number().int().positive().nullable().optional(),
@@ -132,6 +139,12 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
   if (!ticket) {
     logger.warn({ ticketId: parsedId.data }, 'Ticket not found')
     res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  if (!VALID_TRANSITIONS[ticket.status].includes(status)) {
+    logger.warn({ ticketId: parsedId.data, from: ticket.status, to: status }, 'Invalid status transition')
+    res.status(422).json({ error: `Transition ${ticket.status} → ${status} not allowed` })
     return
   }
 
@@ -283,8 +296,85 @@ router.delete('/:id', (req, res) => {
     return
   }
 
+  db.delete(ticketParts).where(eq(ticketParts.ticketId, parsedId.data)).run()
   db.delete(tickets).where(eq(tickets.id, parsedId.data)).run()
   logger.info({ ticketId: parsedId.data, operation: ticket.operation }, 'Ticket deleted')
+  res.status(204).send()
+})
+
+const createPartSchema = z.object({
+  name: z.string().min(1),
+  brand: z.string().optional(),
+  reference: z.string().optional(),
+  quantity: z.number().int().positive().optional(),
+  url: z.string().url().optional(),
+})
+
+router.get('/:id/parts', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  if (!ticket) {
+    res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  const parts = db.select().from(ticketParts).where(eq(ticketParts.ticketId, parsedId.data)).all()
+  res.json(parts)
+})
+
+router.post('/:id/parts', validateBody(createPartSchema), (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  if (!parsedId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const body = res.locals.body as z.infer<typeof createPartSchema>
+
+  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  if (!ticket) {
+    logger.warn({ ticketId: parsedId.data }, 'Ticket not found for part creation')
+    res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  const [created] = db
+    .insert(ticketParts)
+    .values({ ticketId: parsedId.data, ...body })
+    .returning()
+    .all()
+
+  logger.info({ partId: created.id, ticketId: parsedId.data, name: body.name }, 'Part added to ticket')
+  res.status(201).json(created)
+})
+
+router.delete('/:id/parts/:partId', (req, res) => {
+  const parsedId = idSchema.safeParse(req.params.id)
+  const parsedPartId = idSchema.safeParse(req.params.partId)
+  if (!parsedId.success || !parsedPartId.success) {
+    res.status(400).json({ error: 'Invalid id' })
+    return
+  }
+
+  const part = db
+    .select()
+    .from(ticketParts)
+    .where(and(eq(ticketParts.id, parsedPartId.data), eq(ticketParts.ticketId, parsedId.data)))
+    .get()
+
+  if (!part) {
+    logger.warn({ partId: parsedPartId.data, ticketId: parsedId.data }, 'Part not found for deletion')
+    res.status(404).json({ error: 'Part not found' })
+    return
+  }
+
+  db.delete(ticketParts).where(eq(ticketParts.id, parsedPartId.data)).run()
+  logger.info({ partId: parsedPartId.data, ticketId: parsedId.data, name: part.name }, 'Part deleted')
   res.status(204).send()
 })
 

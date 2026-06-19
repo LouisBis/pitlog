@@ -13,7 +13,8 @@
   },
   "history": {
     "title": "Historique",
-    "empty": "Aucune action réalisée pour l'instant."
+    "empty": "Aucune action réalisée pour l'instant.",
+    "parts_used": "Pièces utilisées"
   },
   "garage": {
     "title": "Mes motos",
@@ -37,6 +38,7 @@
     "error": "Erreur lors de l'ajout de la moto."
   },
   "board": {
+    "part_ordered_hint": "Ajoute au moins une pièce avant de passer en commande",
     "empty": {
       "catalogue": "Aucun entretien planifié. Importez les entretiens du catalogue pour démarrer.",
       "custom": "Aucun entretien planifié. Utilisez le bouton + dans chaque colonne pour créer votre premier ticket.",
@@ -74,6 +76,17 @@
       "save": "Enregistrer",
       "cancel": "Annuler",
       "delete": "Supprimer"
+    },
+    "parts": {
+      "title": "Pièces",
+      "empty": "Aucune pièce",
+      "add": "Ajouter une pièce",
+      "name.placeholder": "Nom de la pièce *",
+      "brand.placeholder": "Marque (optionnel)",
+      "reference.placeholder": "Référence (optionnel)",
+      "quantity.placeholder": "Qté",
+      "url.placeholder": "URL (optionnel)",
+      "delete": "Supprimer la pièce"
     },
     "urgency": {
       "overdue": "Dépassé de {{count, number}} km",

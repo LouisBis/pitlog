@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Switch } from '@/components/ui/Switch'
 import { usePatchTicketInterval, useUpdateTicket, useDeleteTicket } from '@/queries/useTickets'
+import { useTicketParts, useAddTicketPart, useDeleteTicketPart } from '@/queries/useTicketParts'
 import styles from './TicketCard.module.css'
 
 interface Props {
@@ -17,11 +18,14 @@ interface Props {
   kmPerDay: number | null
   userMotoId?: number
   overlay?: boolean
+  forceEdit?: boolean
+  onForceEditDone?: () => void
 }
 
-export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false }: Props) {
+export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false, forceEdit = false, onForceEditDone }: Props) {
   const { t } = useTranslation()
-  const [editing, setEditing] = useState(false)
+  const [editingLocal, setEditingLocal] = useState(false)
+  const editing = editingLocal || forceEdit
 
   const [operation, setOperation] = useState(ticket.operation)
   const [targetKm, setTargetKm] = useState(ticket.targetKm?.toString() ?? '')
@@ -29,15 +33,25 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const [intervalKm, setIntervalKm] = useState(ticket.customKm?.toString() ?? '')
   const [intervalDays, setIntervalDays] = useState(ticket.customDays?.toString() ?? '')
 
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: ticket.id,
-    data: { status: ticket.status },
-    disabled: overlay || editing,
-  })
+  const [partName, setPartName] = useState('')
+  const [partBrand, setPartBrand] = useState('')
+  const [partReference, setPartReference] = useState('')
+  const [partQuantity, setPartQuantity] = useState('1')
+  const [partUrl, setPartUrl] = useState('')
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   const { mutate: patchInterval, isPending: isPatchingInterval } = usePatchTicketInterval(userMotoId ?? 0)
   const { mutate: updateTicket, isPending: isUpdating } = useUpdateTicket(userMotoId ?? 0)
   const { mutate: deleteTicket, isPending: isDeleting } = useDeleteTicket(userMotoId ?? 0)
+  const { data: parts = [] } = useTicketParts(ticket.id)
+  const { mutate: addPart, isPending: isAddingPart } = useAddTicketPart(ticket.id)
+  const { mutate: deletePart } = useDeleteTicketPart(ticket.id)
+
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: ticket.id,
+    data: { status: ticket.status },
+    disabled: overlay || editing || ticket.status === 'done',
+  })
 
   const isPending = isPatchingInterval || isUpdating || isDeleting
 
@@ -64,7 +78,17 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
     setRecurring(ticket.customKm != null || ticket.customDays != null)
     setIntervalKm(ticket.customKm?.toString() ?? '')
     setIntervalDays(ticket.customDays?.toString() ?? '')
-    setEditing(true)
+    setPartName('')
+    setPartBrand('')
+    setPartReference('')
+    setPartQuantity('1')
+    setPartUrl('')
+    setEditingLocal(true)
+  }
+
+  const closeEdit = () => {
+    setEditingLocal(false)
+    if (forceEdit) onForceEditDone?.()
   }
 
   const handleSubmit = (e: { preventDefault(): void }) => {
@@ -90,10 +114,10 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
                   customKm: intervalKm ? Number(intervalKm) : null,
                   customDays: intervalDays ? Number(intervalDays) : null,
                 },
-                { onSuccess: () => setEditing(false) },
+                { onSuccess: closeEdit },
               )
             } else {
-              setEditing(false)
+              closeEdit()
             }
           },
         },
@@ -109,11 +133,34 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
           customKm: intervalKm ? Number(intervalKm) : null,
           customDays: intervalDays ? Number(intervalDays) : null,
         },
-        { onSuccess: () => setEditing(false) },
+        { onSuccess: closeEdit },
       )
     } else {
-      setEditing(false)
+      closeEdit()
     }
+  }
+
+  const handleAddPart = (e: { preventDefault(): void }) => {
+    e.preventDefault()
+    if (!partName.trim()) return
+    addPart(
+      {
+        name: partName.trim(),
+        ...(partBrand.trim() && { brand: partBrand.trim() }),
+        ...(partReference.trim() && { reference: partReference.trim() }),
+        ...(partQuantity && { quantity: Number(partQuantity) }),
+        ...(partUrl.trim() && { url: partUrl.trim() }),
+      },
+      {
+        onSuccess: () => {
+          setPartName('')
+          setPartBrand('')
+          setPartReference('')
+          setPartQuantity('1')
+          setPartUrl('')
+        },
+      },
+    )
   }
 
   const handleDelete = () => {
@@ -133,11 +180,32 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             type="button"
             className={styles.editBtn}
             onPointerDown={(e) => e.stopPropagation()}
-            onClick={editing ? () => setEditing(false) : openEdit}
+            onClick={editing ? closeEdit : openEdit}
             aria-label={t('ticket.edit.title')}
           >
             <PencilSimpleIcon size={14} weight="fill" />
           </button>
+        )}
+        {ticket.status === 'done' && !overlay && !confirmingDelete && (
+          <button
+            type="button"
+            className={[styles.editBtn, styles.editBtnDanger].join(' ')}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => setConfirmingDelete(true)}
+            aria-label={t('ticket.edit.delete')}
+          >
+            <TrashIcon size={14} weight="fill" />
+          </button>
+        )}
+        {ticket.status === 'done' && !overlay && confirmingDelete && (
+          <div className={styles.deleteConfirm} onPointerDown={(e) => e.stopPropagation()}>
+            <button type="button" className={styles.deleteConfirmYes} onClick={handleDelete} disabled={isDeleting}>
+              {t('garage.delete_yes')}
+            </button>
+            <button type="button" className={styles.deleteConfirmNo} onClick={() => setConfirmingDelete(false)}>
+              {t('garage.delete_no')}
+            </button>
+          </div>
         )}
       </div>
 
@@ -181,10 +249,82 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
             <Button type="submit" disabled={!operation.trim() || isPending}>
               {t('ticket.edit.save')}
             </Button>
-            <Button variant="ghost" type="button" onClick={() => setEditing(false)}>
+            <Button variant="ghost" type="button" onClick={closeEdit}>
               {t('ticket.edit.cancel')}
             </Button>
           </div>
+
+          <div className={styles.partsSection}>
+            <p className={styles.partsSectionTitle}>{t('ticket.parts.title')}</p>
+            {forceEdit && parts.length === 0 && (
+              <p className={styles.partsHint}>{t('board.part_ordered_hint')}</p>
+            )}
+            {parts.length > 0 && (
+              <ul className={styles.partsList}>
+                {parts.map((part) => (
+                  <li key={part.id} className={styles.partsItem}>
+                    <span className={styles.partsItemName}>
+                      {part.quantity > 1 && <span className={styles.partsQty}>{part.quantity}×</span>}
+                      {part.name}
+                      {part.brand && <span className={styles.partsMeta}> · {part.brand}</span>}
+                      {part.reference && <span className={styles.partsMeta}> · {part.reference}</span>}
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.partsDeleteBtn}
+                      onClick={() => deletePart(part.id)}
+                      aria-label={t('ticket.parts.delete')}
+                    >
+                      <TrashIcon size={12} weight="fill" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className={styles.partsAddForm}>
+              <Input
+                placeholder={t('ticket.parts.name.placeholder')}
+                value={partName}
+                onChange={(e) => setPartName(e.target.value)}
+              />
+              <div className={styles.partsAddRow}>
+                <Input
+                  placeholder={t('ticket.parts.brand.placeholder')}
+                  value={partBrand}
+                  onChange={(e) => setPartBrand(e.target.value)}
+                />
+                <Input
+                  placeholder={t('ticket.parts.reference.placeholder')}
+                  value={partReference}
+                  onChange={(e) => setPartReference(e.target.value)}
+                />
+              </div>
+              <div className={styles.partsAddRow}>
+                <Input
+                  type="number"
+                  placeholder={t('ticket.parts.quantity.placeholder')}
+                  value={partQuantity}
+                  onChange={(e) => setPartQuantity(e.target.value)}
+                  min={1}
+                  className={styles.partsQtyInput}
+                />
+                <Input
+                  placeholder={t('ticket.parts.url.placeholder')}
+                  value={partUrl}
+                  onChange={(e) => setPartUrl(e.target.value)}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={!partName.trim() || isAddingPart}
+                onClick={handleAddPart}
+              >
+                {t('ticket.parts.add')}
+              </Button>
+            </div>
+          </div>
+
           <button
             type="button"
             className={styles.deleteBtn}
@@ -198,18 +338,46 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
       )}
 
       {!editing && (
-        ticket.status === 'done' && ticket.doneKm !== null
-          ? (
-            <div className={styles.badges}>
-              <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
-            </div>
-          )
-          : (kmLabel || daysLabel) && (
-            <div className={styles.badges}>
-              {kmLabel && <Badge variant={urgency}>{kmLabel}</Badge>}
-              {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
-            </div>
-          )
+        <>
+          {ticket.status === 'done' && ticket.doneKm !== null
+            ? (
+              <div className={styles.badges}>
+                <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
+              </div>
+            )
+            : (kmLabel || daysLabel) && (
+              <div className={styles.badges}>
+                {kmLabel && <Badge variant={urgency}>{kmLabel}</Badge>}
+                {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
+              </div>
+            )
+          }
+          {parts.length > 0 && (
+            <ul className={styles.partsReadList}>
+              {parts.map((part) => (
+                <li key={part.id} className={styles.partsReadItem}>
+                  {part.quantity > 1 && <span className={styles.partsQty}>{part.quantity}×</span>}
+                  {part.url
+                    ? (
+                      <a
+                        href={part.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.partsLink}
+                        onPointerDown={(e) => e.stopPropagation()}
+                      >
+                        {part.name}
+                      </a>
+                    )
+                    : <span>{part.name}</span>
+                  }
+                  {part.brand && <span className={styles.partsMeta}> · {part.brand}</span>}
+                  {part.reference && <span className={styles.partsMeta}> · {part.reference}</span>}
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
     </div>
   )
