@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api, type UpdateTicketPayload } from '@/lib/api'
+import log from '@/lib/logger'
 import type { CreateTicketPayload, UpdateTicketIntervalPayload, Ticket, TicketStatus } from '@/types'
 
 export const useTickets = (userMotorcycleId: number) =>
@@ -24,6 +25,7 @@ export const usePatchTicketStatus = (userMotorcycleId: number) => {
     },
     onError: (_err, _vars, context) => {
       queryClient.setQueryData(['tickets', userMotorcycleId], context?.previous)
+      log.error('[usePatchTicketStatus] failed, rolling back optimistic update')
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
@@ -39,6 +41,9 @@ export const useCreateTicket = (userMotorcycleId: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
     },
+    onError: (err) => {
+      log.error('[useCreateTicket] failed', err)
+    },
   })
 }
 
@@ -49,6 +54,9 @@ export const usePatchTicketInterval = (userMotorcycleId: number) => {
       api.patchTicketInterval(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+    },
+    onError: (err) => {
+      log.error('[usePatchTicketInterval] failed', err)
     },
   })
 }
@@ -61,6 +69,9 @@ export const useUpdateTicket = (userMotorcycleId: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
     },
+    onError: (err) => {
+      log.error('[useUpdateTicket] failed', err)
+    },
   })
 }
 
@@ -71,6 +82,9 @@ export const useDeleteTicket = (userMotorcycleId: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
     },
+    onError: (err) => {
+      log.error('[useDeleteTicket] failed', err)
+    },
   })
 }
 
@@ -80,6 +94,9 @@ export const useImportIntervals = (userMotorcycleId: number) => {
     mutationFn: () => api.importIntervals(userMotorcycleId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+    },
+    onError: (err) => {
+      log.error('[useImportIntervals] failed', err)
     },
   })
 }

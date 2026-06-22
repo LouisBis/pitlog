@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { tickets, userMotorcycles, intervals, motorcycleIntervals, motorcycles, ticketParts, TICKET_STATUSES } from '../db/schema/index.js'
+import { tickets, userMotorcycles, intervals, motorcycleIntervals, motorcycles, ticketParts, TICKET_STATUSES, type TicketStatus } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import logger from '../lib/logger.js'
 
@@ -27,7 +27,7 @@ const updateStatusSchema = z.object({
   status: z.enum(TICKET_STATUSES),
 })
 
-const VALID_TRANSITIONS: Record<string, string[]> = {
+const VALID_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
   todo: ['part_ordered', 'in_progress'],
   part_ordered: ['todo', 'in_progress'],
   in_progress: ['todo', 'part_ordered', 'done'],
@@ -148,14 +148,18 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
     return
   }
 
-  const updates: Partial<typeof ticket> =
-    status === 'done'
-      ? {
-          status,
-          doneAt: new Date(),
-          doneKm: db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()!.currentKm,
-        }
-      : { status, doneAt: null, doneKm: null }
+  let updates: Partial<typeof ticket>
+  if (status === 'done') {
+    const userMotoForKm = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
+    if (!userMotoForKm) {
+      logger.warn({ ticketId: parsedId.data, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on done transition')
+      res.status(500).json({ error: 'User motorcycle not found' })
+      return
+    }
+    updates = { status, doneAt: new Date(), doneKm: userMotoForKm.currentKm }
+  } else {
+    updates = { status, doneAt: null, doneKm: null }
+  }
 
   const [updated] = db
     .update(tickets)
@@ -206,8 +210,18 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
     return
   }
 
-  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()!
-  const moto = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()!
+  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
+  if (!userMoto) {
+    logger.warn({ ticketId: parsedId.data, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on interval update')
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+  const moto = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()
+  if (!moto) {
+    logger.warn({ ticketId: parsedId.data, motorcycleId: userMoto.motorcycleId }, 'Motorcycle not found on interval update')
+    res.status(404).json({ error: 'Motorcycle not found' })
+    return
+  }
 
   let intervalId = ticket.intervalId
 
