@@ -6,8 +6,26 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useUserMotorcycles, useMotorcycles, useDeleteMotorcycle } from '@/queries/useUserMotorcycles'
 import AddMotoForm from '@/components/AddMotoForm'
 import { Button } from '@/components/ui/Button'
+import { Skeleton } from '@/components/ui/Skeleton'
 import type { UserMotorcycle } from '@/types'
 import styles from './SelectMotoPage.module.css'
+
+function MotoCardSkeleton() {
+  return (
+    <div className={styles.card} style={{ pointerEvents: 'none' }}>
+      <div className={styles.cardInner}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <Skeleton height="0.625rem" width="4rem" />
+          <Skeleton height="1.5rem" width="9rem" />
+          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+            <Skeleton height="1.5rem" width="2.75rem" />
+            <Skeleton height="1.5rem" width="5rem" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => void }) {
   const { t } = useTranslation()
@@ -92,7 +110,13 @@ export default function SelectMotoPage() {
           )}
         </AnimatePresence>
 
-        {isLoading && <p>{t('common.loading')}</p>}
+        {isLoading && (
+          <div className={styles.list}>
+            <MotoCardSkeleton />
+            <MotoCardSkeleton />
+            <MotoCardSkeleton />
+          </div>
+        )}
         {isError && <p className={styles.error}>{t('common.error.loading')}</p>}
 
         <AnimatePresence mode="wait">

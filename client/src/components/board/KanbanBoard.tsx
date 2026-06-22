@@ -15,6 +15,7 @@ import { TICKET_STATUSES, type Ticket, type TicketPart, type TicketStatus } from
 import { useTickets, usePatchTicketStatus, useImportIntervals } from '@/queries/useTickets'
 import { Button } from '@/components/ui/Button'
 import KanbanColumn from './KanbanColumn'
+import KanbanBoardSkeleton from './KanbanBoardSkeleton'
 import TicketCard from './TicketCard'
 import styles from './KanbanBoard.module.css'
 
@@ -61,7 +62,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
     [tickets],
   )
 
-  if (isLoading) return <p>{t('common.loading')}</p>
+  if (isLoading) return <KanbanBoardSkeleton />
   if (isError) return <p>{t('common.error.loading')}</p>
 
   const handleDragStart = (event: DragStartEvent) => {
