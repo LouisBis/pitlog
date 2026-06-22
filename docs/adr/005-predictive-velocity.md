@@ -15,13 +15,9 @@ eta_days     = (target_km - current_km) / velocity
 
 The alert displays whichever deadline comes first: the km-based ETA or the calendar-based deadline (`target_date`).
 
-### Staleness threshold
-
-If no km entry has been recorded in the last **30 days**, velocity is considered unreliable. The app falls back to displaying the static gap ("X km remaining") without a time estimate, and shows a prompt to update the odometer.
-
 ### Window size
 
-Default window: last **5 entries** or last **90 days**, whichever is smaller. This balances responsiveness to recent riding patterns against noise from isolated trips.
+Default window: last **10 entries**. This balances responsiveness to recent riding patterns against noise from isolated trips.
 
 ## Why not the alternatives
 
@@ -34,7 +30,7 @@ Default window: last **5 entries** or last **90 days**, whichever is smaller. Th
 ## Consequences
 
 - Every km entry saved to `KmHistory` with its timestamp
-- Velocity recalculated on each new entry
-- UI shows: badge with days/km remaining + tooltip "at your current pace"
-- No velocity displayed if last entry > 30 days ago — staleness guard prevents misleading alerts
-- Open question for later: should the window adapt based on entry frequency?
+- Velocity recalculated on each board load via `GET /user-motorcycles/:id/velocity`
+- UI shows estimated days remaining alongside the km gap badge
+- Returns `null` (no time estimate shown) if fewer than 2 entries exist in the window
+- Future: staleness guard (no entry in > 30 days) and adaptive window size
