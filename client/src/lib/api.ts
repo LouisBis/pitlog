@@ -6,6 +6,17 @@ export interface UpdateTicketPayload {
   targetKm?: number | null
 }
 
+export class ApiError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly statusText: string,
+    public readonly body: unknown = null,
+  ) {
+    super(`${status} ${statusText}`)
+    this.name = 'ApiError'
+  }
+}
+
 const BASE = import.meta.env.VITE_API_URL ?? ''
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
@@ -14,8 +25,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   })
   if (!res.ok) {
-    log.error(`[api] ${init?.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`)
-    throw new Error(`${res.status} ${res.statusText}`)
+    const body = await res.json().catch(() => null)
+    log.error(`[api] ${init?.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, body)
+    throw new ApiError(res.status, res.statusText, body)
   }
   return res.json() as Promise<T>
 }

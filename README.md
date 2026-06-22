@@ -93,7 +93,7 @@ The client and server are fully decoupled — the React SPA communicates with th
 A few deliberate choices worth noting:
 
 - **SQLite over PostgreSQL** — single-user app, zero ops overhead, file-based persistence via a Docker volume. [ADR-002](docs/adr/002-sqlite-vs-postgres.md)
-- **Zustand + TanStack Query** — Zustand handles ephemeral UI state (drag, modals), TanStack Query owns server state and cache invalidation. No overlap, no boilerplate. [ADR-003](docs/adr/003-state-management.md)
+- **TanStack Query** — owns server state, cache invalidation, and optimistic updates (drag & drop). No separate UI state store needed. [ADR-003](docs/adr/003-state-management.md)
 - **Sliding window velocity** — km/day is computed over the last 10 odometer entries, not lifetime average. Recent riding behavior predicts near-term due dates better. [ADR-005](docs/adr/005-predictive-velocity.md)
 - **MSW for the demo** — no backend on GitHub Pages. MSW intercepts fetch calls at the service worker level and returns realistic stateful mock data. [docs/adr/](docs/adr/)
 

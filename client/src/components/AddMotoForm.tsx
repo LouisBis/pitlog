@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Motorcycle } from '@/types'
 import { useAddMotorcycle } from '@/queries/useUserMotorcycles'
@@ -19,15 +19,24 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
   const [currentKm, setCurrentKm] = useState('')
   const { mutate: addMoto, isPending, isError } = useAddMotorcycle()
 
-  const brands = [...new Set(catalogue.map((m) => m.brand))].sort()
-  const models = [...new Set(
-    catalogue.filter((m) => m.brand.toLowerCase() === brand.toLowerCase()).map((m) => m.model)
-  )].sort()
-  const years = [...new Set(
-    catalogue
-      .filter((m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase())
-      .map((m) => m.year)
-  )].sort((a, b) => b - a)
+  const brands = useMemo(
+    () => [...new Set(catalogue.map((m) => m.brand))].sort(),
+    [catalogue],
+  )
+  const models = useMemo(
+    () => [...new Set(
+      catalogue.filter((m) => m.brand.toLowerCase() === brand.toLowerCase()).map((m) => m.model)
+    )].sort(),
+    [catalogue, brand],
+  )
+  const years = useMemo(
+    () => [...new Set(
+      catalogue
+        .filter((m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase())
+        .map((m) => m.year)
+    )].sort((a, b) => b - a),
+    [catalogue, brand, model],
+  )
 
   const isValid = brand.trim() && model.trim() && Number(year) >= 1900 && Number(currentKm) >= 0
 

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
+import log from '@/lib/logger'
 import type { CreatePartPayload } from '@/types'
 
 export const useTicketParts = (ticketId: number) =>
@@ -15,6 +16,9 @@ export const useAddTicketPart = (ticketId: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ticket-parts', ticketId] })
     },
+    onError: (err) => {
+      log.error('[useAddTicketPart] failed', err)
+    },
   })
 }
 
@@ -24,6 +28,9 @@ export const useDeleteTicketPart = (ticketId: number) => {
     mutationFn: (partId: number) => api.deleteTicketPart(ticketId, partId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ticket-parts', ticketId] })
+    },
+    onError: (err) => {
+      log.error('[useDeleteTicketPart] failed', err)
     },
   })
 }
