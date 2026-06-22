@@ -9,8 +9,10 @@ beforeEach(() => {
   db.delete(motorcycles).run()
 
   db.insert(motorcycles).values([
-    { brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false },
-    { brand: 'Honda',  model: 'CB500',          year: 1998, isCustom: false },
+    { brand: 'Suzuki',  model: 'GSF 600 Bandit', year: 1997, isCustom: false },
+    { brand: 'Honda',   model: 'CB500',           year: 1998, isCustom: false },
+    { brand: 'Generic', model: 'Standard',        year: 0,    isCustom: false },
+    { brand: 'Honda',   model: 'CB500',           year: 2020, isCustom: true  },
   ]).run()
 
   const [gsf600] = db.select().from(motorcycles).all()
@@ -21,10 +23,12 @@ beforeEach(() => {
 })
 
 describe('GET /api/v1/motorcycles', () => {
-  it('returns all motorcycles', async () => {
+  it('returns only catalogue motorcycles, excluding custom and Generic template', async () => {
     const res = await request(app).get('/api/v1/motorcycles')
     expect(res.status).toBe(200)
     expect(res.body).toHaveLength(2)
+    expect(res.body.every((m: { isCustom: boolean }) => !m.isCustom)).toBe(true)
+    expect(res.body.some((m: { brand: string }) => m.brand === 'Generic')).toBe(false)
     expect(res.body[0].brand).toBe('Suzuki')
   })
 })

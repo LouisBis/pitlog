@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { eq } from 'drizzle-orm'
+import { and, eq, ne } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
 import { motorcycles, intervals } from '../db/schema/index.js'
@@ -9,7 +9,11 @@ const router = Router()
 const idSchema = z.coerce.number().int().positive()
 
 router.get('/', (_req, res) => {
-  const result = db.select().from(motorcycles).all()
+  const result = db
+    .select()
+    .from(motorcycles)
+    .where(and(eq(motorcycles.isCustom, false), ne(motorcycles.brand, 'Generic')))
+    .all()
   res.json(result)
 })
 
