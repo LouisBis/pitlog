@@ -37,6 +37,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
   const queryClient = useQueryClient()
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null)
   const [forceEditId, setForceEditId] = useState<number | null>(null)
+  const [justDoneId, setJustDoneId] = useState<number | null>(null)
 
   // PointerSensor: distance prevents accidental drag on click
   // TouchSensor: delay lets the user scroll without triggering a drag
@@ -89,6 +90,11 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
       }
     }
 
+    if (targetStatus === 'done') {
+      setJustDoneId(ticketId)
+      setTimeout(() => setJustDoneId(null), 700)
+    }
+
     patchStatus({ id: ticketId, status: targetStatus })
   }
 
@@ -118,6 +124,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
             userMotoId={userMotoId}
             forceEditId={forceEditId}
             onForceEditDone={() => setForceEditId(null)}
+            justDoneId={justDoneId}
           />
         ))}
       </div>
