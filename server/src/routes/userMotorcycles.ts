@@ -17,15 +17,36 @@ function findCatalogueIntervals(motorcycleId: number) {
     .all()
 }
 
+const GENERIC_INTERVAL_DEFAULTS = [
+  { operation: 'Engine oil change',       intervalKm: 5000,  intervalDays: 365  },
+  { operation: 'Air filter inspection',   intervalKm: 10000, intervalDays: null as null },
+  { operation: 'Spark plugs replacement', intervalKm: 10000, intervalDays: null as null },
+  { operation: 'Drive chain lubrication', intervalKm: 500,   intervalDays: null as null },
+  { operation: 'Drive chain tension',     intervalKm: 1000,  intervalDays: null as null },
+  { operation: 'Brake fluid replacement', intervalKm: null as null,  intervalDays: 730  },
+]
+
 function findGenericIntervals() {
-  const generic = db
+  const existing = db
     .select()
     .from(motorcycles)
     .where(eq(motorcycles.brand, 'Generic'))
     .all()
     .find((m) => m.model === 'Standard') ?? null
 
-  if (!generic) return []
+  if (existing) return findCatalogueIntervals(existing.id)
+
+  const [generic] = db
+    .insert(motorcycles)
+    .values({ brand: 'Generic', model: 'Standard', year: 0, isCustom: false })
+    .returning()
+    .all()
+
+  db.insert(intervals)
+    .values(GENERIC_INTERVAL_DEFAULTS.map((i) => ({ motorcycleId: generic.id, ...i })))
+    .run()
+
+  logger.info({ motorcycleId: generic.id }, 'Generic/Standard motorcycle created on demand')
   return findCatalogueIntervals(generic.id)
 }
 

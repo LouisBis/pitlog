@@ -29,6 +29,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     log.error(`[api] ${init?.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, body)
     throw new ApiError(res.status, res.statusText, body)
   }
+  if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
 }
 

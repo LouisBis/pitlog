@@ -1,21 +1,36 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { TrashIcon } from '@phosphor-icons/react'
+import { TrashIcon, MotorcycleIcon } from '@phosphor-icons/react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useUserMotorcycles, useMotorcycles, useDeleteMotorcycle } from '@/queries/useUserMotorcycles'
 import AddMotoForm from '@/components/AddMotoForm'
 import { Button } from '@/components/ui/Button'
+import { Skeleton } from '@/components/ui/Skeleton'
 import type { UserMotorcycle } from '@/types'
 import styles from './SelectMotoPage.module.css'
+
+function MotoCardSkeleton() {
+  return (
+    <div className={styles.card} style={{ pointerEvents: 'none' }}>
+      <div className={styles.cardInner}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+          <Skeleton height="0.625rem" width="4rem" />
+          <Skeleton height="1.5rem" width="9rem" />
+          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+            <Skeleton height="1.5rem" width="2.75rem" />
+            <Skeleton height="1.5rem" width="5rem" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => void }) {
   const { t } = useTranslation()
   const [confirming, setConfirming] = useState(false)
   const { mutate: deleteMoto, isPending } = useDeleteMotorcycle()
-
-  const handleDelete = () => {
-    deleteMoto(moto.id)
-  }
 
   return (
     <div className={styles.card} onClick={onSelect} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onSelect()}>
@@ -33,7 +48,7 @@ function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => vo
       {confirming ? (
         <div className={styles.deleteConfirm} onClick={(e) => e.stopPropagation()}>
           <span className={styles.deleteConfirmText}>{t('garage.delete_confirm')}</span>
-          <button className={styles.deleteConfirmYes} onClick={handleDelete} disabled={isPending}>
+          <button className={styles.deleteConfirmYes} onClick={() => deleteMoto(moto.id)} disabled={isPending}>
             {t('garage.delete_yes')}
           </button>
           <button className={styles.deleteConfirmNo} onClick={() => setConfirming(false)}>
@@ -60,6 +75,8 @@ export default function SelectMotoPage() {
   const { data: motos, isLoading, isError } = useUserMotorcycles()
   const { data: catalogue = [] } = useMotorcycles()
 
+  const isEmpty = !isLoading && !isError && motos?.length === 0
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -70,25 +87,71 @@ export default function SelectMotoPage() {
       <main className={styles.main}>
         <div className={styles.titleRow}>
           <h1 className={styles.title}>{t('garage.title')}</h1>
-          <Button size="sm" onClick={() => setShowForm((v) => !v)}>
-            {t('garage.add')}
-          </Button>
+          {!isEmpty && (
+            <Button size="sm" onClick={() => setShowForm((v) => !v)}>
+              {t('garage.add')}
+            </Button>
+          )}
         </div>
         <p className={styles.subtitle}>{t('garage.subtitle')}</p>
 
-        {showForm && (
-          <AddMotoForm catalogue={catalogue} onClose={() => setShowForm(false)} />
+        <AnimatePresence>
+          {showForm && (
+            <motion.div
+              key="add-form"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.22, ease: 'easeInOut' }}
+              style={{ overflow: 'hidden' }}
+            >
+              <AddMotoForm catalogue={catalogue} onClose={() => setShowForm(false)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {isLoading && (
+          <div className={styles.list}>
+            <MotoCardSkeleton />
+            <MotoCardSkeleton />
+            <MotoCardSkeleton />
+          </div>
         )}
-
-        {isLoading && <p>{t('common.loading')}</p>}
         {isError && <p className={styles.error}>{t('common.error.loading')}</p>}
-        {motos?.length === 0 && !showForm && <p className={styles.empty}>{t('garage.empty')}</p>}
 
-        <div className={styles.list}>
-          {motos?.map((moto) => (
-            <MotoCard key={moto.id} moto={moto} onSelect={() => navigate(`/board/${moto.id}`)} />
-          ))}
-        </div>
+        <AnimatePresence mode="wait">
+          {isEmpty && !showForm ? (
+            <motion.div
+              key="empty"
+              className={styles.emptyState}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <MotorcycleIcon size={64} weight="thin" className={styles.emptyIcon} />
+              <p className={styles.emptyTitle}>{t('garage.empty_state.title')}</p>
+              <p className={styles.emptySubtitle}>{t('garage.empty_state.subtitle')}</p>
+              <Button onClick={() => setShowForm(true)}>{t('garage.add')}</Button>
+            </motion.div>
+          ) : (
+            <motion.div key="list" className={styles.list}>
+              <AnimatePresence>
+                {motos?.map((moto, index) => (
+                  <motion.div
+                    key={moto.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -16, transition: { duration: 0.15 } }}
+                    transition={{ delay: index * 0.07, duration: 0.25, ease: 'easeOut' }}
+                  >
+                    <MotoCard moto={moto} onSelect={() => navigate(`/board/${moto.id}`)} />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
     </div>
   )

@@ -15,6 +15,7 @@ import { TICKET_STATUSES, type Ticket, type TicketPart, type TicketStatus } from
 import { useTickets, usePatchTicketStatus, useImportIntervals } from '@/queries/useTickets'
 import { Button } from '@/components/ui/Button'
 import KanbanColumn from './KanbanColumn'
+import KanbanBoardSkeleton from './KanbanBoardSkeleton'
 import TicketCard from './TicketCard'
 import styles from './KanbanBoard.module.css'
 
@@ -37,6 +38,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
   const queryClient = useQueryClient()
   const [activeTicket, setActiveTicket] = useState<Ticket | null>(null)
   const [forceEditId, setForceEditId] = useState<number | null>(null)
+  const [justDoneId, setJustDoneId] = useState<number | null>(null)
 
   // PointerSensor: distance prevents accidental drag on click
   // TouchSensor: delay lets the user scroll without triggering a drag
@@ -60,7 +62,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
     [tickets],
   )
 
-  if (isLoading) return <p>{t('common.loading')}</p>
+  if (isLoading) return <KanbanBoardSkeleton />
   if (isError) return <p>{t('common.error.loading')}</p>
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -87,6 +89,11 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
         setForceEditId(ticketId)
         return
       }
+    }
+
+    if (targetStatus === 'done') {
+      setJustDoneId(ticketId)
+      setTimeout(() => setJustDoneId(null), 700)
     }
 
     patchStatus({ id: ticketId, status: targetStatus })
@@ -118,6 +125,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
             userMotoId={userMotoId}
             forceEditId={forceEditId}
             onForceEditDone={() => setForceEditId(null)}
+            justDoneId={justDoneId}
           />
         ))}
       </div>

@@ -105,6 +105,27 @@ describe('POST /api/v1/user-motorcycles', () => {
     expect(oilChange.targetKm).toBe(3000 + 5000)
   })
 
+  it('seeds generic intervals even when Generic/Standard is absent from DB (self-heal)', async () => {
+    db.delete(intervals).where(eq(intervals.motorcycleId,
+      db.select({ id: motorcycles.id }).from(motorcycles).where(eq(motorcycles.brand, 'Generic')).get()?.id ?? -1
+    )).run()
+    db.delete(motorcycles).where(eq(motorcycles.brand, 'Generic')).run()
+
+    const res = await request(app)
+      .post('/api/v1/user-motorcycles')
+      .send({ brand: 'Yamaha', model: 'MT-07', year: 2010, currentKm: 1000 })
+
+    expect(res.status).toBe(201)
+    expect(res.body.isCustom).toBe(true)
+
+    const seeded = db.select().from(tickets).all()
+    expect(seeded.length).toBeGreaterThan(0)
+    expect(seeded.some((t) => t.operation === 'Engine oil change')).toBe(true)
+
+    const generic = db.select().from(motorcycles).all().find((m) => m.brand === 'Generic' && m.model === 'Standard')
+    expect(generic).toBeDefined()
+  })
+
   it('reuses an existing catalogue entry when brand+model+year already exists', async () => {
     await request(app)
       .post('/api/v1/user-motorcycles')

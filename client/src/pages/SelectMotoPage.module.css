@@ -63,6 +63,34 @@
   font-style: italic;
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-16) var(--space-6);
+  gap: var(--space-4);
+}
+
+.emptyIcon {
+  color: var(--brand-accent);
+  opacity: 0.3;
+}
+
+.emptyTitle {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.emptySubtitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 24rem;
+}
+
 .error {
   color: var(--status-danger);
 }

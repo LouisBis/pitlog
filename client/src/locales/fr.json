@@ -21,6 +21,10 @@
     "subtitle": "Sélectionne une moto pour accéder à son tableau de bord.",
     "tagline": "Journal de bord de tes révisions",
     "empty": "Aucune moto enregistrée.",
+    "empty_state": {
+      "title": "Ton garage est vide",
+      "subtitle": "Ajoute ta première moto pour commencer à suivre tes entretiens"
+    },
     "add": "Ajouter une moto",
     "delete": "Supprimer cette moto",
     "delete_confirm": "Supprimer définitivement ?",
