@@ -2,8 +2,19 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import * as THREE from 'three'
 import { AsciiEffect } from 'three/addons/effects/AsciiEffect.js'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import styles from './HomePage.module.css'
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.25, 0.1, 0.25, 1] } },
+}
+
+const overlayVariants = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.5 } },
+}
 
 export default function HomePage() {
   const { t } = useTranslation()
@@ -17,7 +28,7 @@ export default function HomePage() {
     const h = container.clientHeight
 
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100)
+    const camera = new THREE.PerspectiveCamera(55, w / h, 0.1, 100)
     camera.position.z = 4
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.5))
@@ -41,24 +52,24 @@ export default function HomePage() {
     const SPOKES = 9
     for (let i = 0; i < SPOKES; i++) {
       const angle = (i / SPOKES) * Math.PI * 2
-      const spokeLen = 1.04
-      const spoke = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.022, 0.022, spokeLen, 6),
-        mat,
-      )
+      const spoke = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 1.04, 6), mat)
       spoke.position.set(Math.cos(angle) * 0.66, Math.sin(angle) * 0.66, 0)
       spoke.rotation.z = angle - Math.PI / 2
       wheel.add(spoke)
     }
 
-    wheel.rotation.x = 0.3
     scene.add(wheel)
 
     const renderer = new THREE.WebGLRenderer()
     const effect = new AsciiEffect(renderer, ' .,:;=+xX$&#@', { invert: true })
     effect.setSize(w, h)
-    effect.domElement.style.color = 'var(--brand-accent)'
-    effect.domElement.style.backgroundColor = 'transparent'
+    Object.assign(effect.domElement.style, {
+      position: 'absolute',
+      inset: '0',
+      color: 'var(--brand-accent)',
+      backgroundColor: 'transparent',
+      transform: 'translateX(-2.5rem)',
+    })
     container.appendChild(effect.domElement)
 
     const clock = new THREE.Clock()
@@ -68,7 +79,7 @@ export default function HomePage() {
       rafId = requestAnimationFrame(animate)
       const elapsed = clock.getElapsedTime()
       wheel.rotation.z = -elapsed * 0.5
-      wheel.rotation.y = Math.sin(elapsed * 0.3) * 0.4
+      wheel.rotation.y = elapsed * 0.28
       effect.render(scene, camera)
     }
     animate()
@@ -95,11 +106,31 @@ export default function HomePage() {
   return (
     <div className={styles.page}>
       <div ref={mountRef} className={styles.scene} />
-      <div className={styles.overlay}>
-        <p className={styles.logo}>Pitlog</p>
-        <p className={styles.tagline}>{t('garage.tagline')}</p>
-        <Link to="/garage" className={styles.cta}>{t('home.cta')}</Link>
-      </div>
+
+      <motion.div
+        className={styles.overlay}
+        variants={overlayVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div className={styles.divider} variants={fadeUp} />
+        <motion.p className={styles.logo} variants={fadeUp}>Pitlog</motion.p>
+        <motion.p className={styles.tagline} variants={fadeUp}>{t('garage.tagline')}</motion.p>
+        <motion.p className={styles.tagline2} variants={fadeUp}>{t('home.tagline2')}</motion.p>
+        <motion.div className={styles.divider} variants={fadeUp} />
+        <motion.div variants={fadeUp}>
+          <Link to="/garage" className={styles.cta}>{t('home.cta')}</Link>
+        </motion.div>
+      </motion.div>
+
+      <motion.span
+        className={styles.version}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.6, duration: 0.8 }}
+      >
+        v{__APP_VERSION__}
+      </motion.span>
     </div>
   )
 }

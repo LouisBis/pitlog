@@ -12,6 +12,12 @@
 .scene {
   position: absolute;
   inset: 0;
+  animation: sceneFadeIn 2s ease-out both;
+}
+
+@keyframes sceneFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 0.35; }
 }
 
 /* AsciiEffect mounts a pre — tighten line-height for density */
@@ -28,7 +34,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-4);
   pointer-events: none;
 }
 
@@ -36,12 +42,21 @@
   pointer-events: auto;
 }
 
+.divider {
+  width: 5rem;
+  height: 1px;
+  background: var(--brand-accent);
+  opacity: 0.45;
+  border: none;
+}
+
 .logo {
   font-family: var(--font-heading);
   font-size: clamp(3rem, 8vw, 6rem);
   font-weight: 800;
   color: var(--color-text-primary);
-  letter-spacing: -0.04em;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   margin: 0;
   text-shadow:
     0 0 2rem var(--color-bg),
@@ -52,6 +67,17 @@
 .tagline {
   font-size: var(--text-md);
   color: var(--color-text-secondary);
+  margin: 0;
+  text-shadow:
+    0 0 1rem var(--color-bg),
+    0 0 3rem var(--color-bg);
+}
+
+.tagline2 {
+  font-size: var(--text-xs);
+  color: var(--brand-accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   margin: 0;
   text-shadow:
     0 0 1rem var(--color-bg),
@@ -72,10 +98,32 @@
   border: 1px solid var(--brand-accent);
   border-radius: var(--radius-sm);
   padding: var(--space-2) var(--space-5);
-  transition:
-    opacity var(--duration-fast) var(--easing-default);
+  transition: opacity var(--duration-fast) var(--easing-default);
 }
 
 .cta:hover {
   opacity: 0.85;
+}
+
+.keywords {
+  position: absolute;
+  bottom: var(--space-7);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: 0.12em;
+  margin: 0;
+  white-space: nowrap;
+  text-shadow: 0 0 1.5rem var(--color-bg);
+}
+
+.version {
+  position: absolute;
+  bottom: var(--space-4);
+  right: var(--space-5);
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+  opacity: 0.4;
 }
