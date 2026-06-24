@@ -16,6 +16,10 @@
     "empty": "Aucune action réalisée pour l'instant.",
     "parts_used": "Pièces utilisées"
   },
+  "home": {
+    "cta": "Ouvrir l'app",
+    "tagline2": "Anticipe. Entretiens. Contrôle."
+  },
   "garage": {
     "title": "Mes motos",
     "subtitle": "Sélectionne une moto pour accéder à son tableau de bord.",

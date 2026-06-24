@@ -34,7 +34,7 @@ export default function BoardPage() {
         <div className={styles.identity}>
           <span className={styles.logo}>Pitlog</span>
           <div className={styles.meta}>
-            <button type="button" className={styles.back} onClick={() => navigate('/')}>
+            <button type="button" className={styles.back} onClick={() => navigate('/garage')}>
               {t('nav.back_to_garage')}
             </button>
             {moto && (
