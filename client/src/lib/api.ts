@@ -6,6 +6,10 @@ export interface UpdateTicketPayload {
   targetKm?: number | null
 }
 
+// --- HTTP primitives ---
+
+/** Typed error that carries the HTTP status and parsed response body.
+ *  Lets callers branch on status code without parsing the error message. */
 export class ApiError extends Error {
   constructor(
     public readonly status: number,
@@ -29,9 +33,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     log.error(`[api] ${init?.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, body)
     throw new ApiError(res.status, res.statusText, body)
   }
+  // res.json() throws a SyntaxError on a 204 No Content response (empty body)
   if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
 }
+
+// --- API endpoints ---
 
 export const api = {
   getMotorcycles: () =>

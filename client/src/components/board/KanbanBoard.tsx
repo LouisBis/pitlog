@@ -21,11 +21,15 @@ import styles from './KanbanBoard.module.css'
 
 interface Props {
   userMotoId: number
+  /** Current odometer reading, forwarded to each ticket for urgency computation. */
   currentKm: number
+  /** km/day velocity estimate — null when not enough history exists. */
   kmPerDay: number | null
+  /** True for manually-entered motos: hides the catalogue import button. */
   isCustom: boolean
 }
 
+// done is a terminal state — no transitions out of it.
 const ALLOWED_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
   todo: ['part_ordered', 'in_progress'],
   part_ordered: ['todo', 'in_progress'],
@@ -40,8 +44,9 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
   const [forceEditId, setForceEditId] = useState<number | null>(null)
   const [justDoneId, setJustDoneId] = useState<number | null>(null)
 
-  // PointerSensor: distance prevents accidental drag on click
-  // TouchSensor: delay lets the user scroll without triggering a drag
+  // --- Drag sensors ---
+  // PointerSensor: distance constraint prevents accidental drag on a simple click
+  // TouchSensor: delay lets the user scroll without triggering a drag on mobile
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
@@ -78,11 +83,11 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
     const targetStatus = over.id as TicketStatus
     const currentStatus = active.data.current?.status as TicketStatus
     if (currentStatus === targetStatus) return
-
     if (!ALLOWED_TRANSITIONS[currentStatus]?.includes(targetStatus)) return
 
     const ticketId = Number(active.id)
 
+    // Dropping on part_ordered requires at least one part — force the edit form open
     if (targetStatus === 'part_ordered') {
       const cachedParts = queryClient.getQueryData<TicketPart[]>(['ticket-parts', ticketId])
       if (!cachedParts || cachedParts.length === 0) {
@@ -113,28 +118,28 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
           )}
         </div>
       )}
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className={styles.board}>
-        {TICKET_STATUSES.map((status) => (
-          <KanbanColumn
-            key={status}
-            status={status}
-            tickets={byStatus[status]}
-            currentKm={currentKm}
-            kmPerDay={kmPerDay}
-            userMotoId={userMotoId}
-            forceEditId={forceEditId}
-            onForceEditDone={() => setForceEditId(null)}
-            justDoneId={justDoneId}
-          />
-        ))}
-      </div>
-      <DragOverlay dropAnimation={null}>
-        {activeTicket && (
-          <TicketCard ticket={activeTicket} currentKm={currentKm} kmPerDay={kmPerDay} overlay />
-        )}
-      </DragOverlay>
-    </DndContext>
+      <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div className={styles.board}>
+          {TICKET_STATUSES.map((status) => (
+            <KanbanColumn
+              key={status}
+              status={status}
+              tickets={byStatus[status]}
+              currentKm={currentKm}
+              kmPerDay={kmPerDay}
+              userMotoId={userMotoId}
+              forceEditId={forceEditId}
+              onForceEditDone={() => setForceEditId(null)}
+              justDoneId={justDoneId}
+            />
+          ))}
+        </div>
+        <DragOverlay dropAnimation={null}>
+          {activeTicket && (
+            <TicketCard ticket={activeTicket} currentKm={currentKm} kmPerDay={kmPerDay} overlay />
+          )}
+        </DragOverlay>
+      </DndContext>
     </div>
   )
 }

@@ -13,11 +13,14 @@ interface Props {
   currentKm: number
   kmPerDay: number | null
   userMotoId: number
+  /** When set, the matching ticket opens in edit mode immediately (e.g. after a blocked drop to part_ordered). */
   forceEditId: number | null
   onForceEditDone: () => void
+  /** Id of the ticket that just landed in "done" — triggers the green flash animation. */
   justDoneId?: number | null
 }
 
+// Exit slides left to visually distinguish from the enter (slide down) animation
 const cardVariants = {
   enter: { opacity: 0, y: -10 },
   visible: { opacity: 1, y: 0 },

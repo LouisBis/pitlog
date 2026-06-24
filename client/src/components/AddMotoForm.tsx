@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/Input'
 import styles from './AddMotoForm.module.css'
 
 interface Props {
+  /** Catalogue motorcycles used to populate the brand/model/year datalists. */
   catalogue: Motorcycle[]
   onClose: () => void
 }
@@ -19,6 +20,8 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
   const [currentKm, setCurrentKm] = useState('')
   const { mutate: addMoto, isPending, isError } = useAddMotorcycle()
 
+  // Cascade filtering: models depend on brand, years depend on brand + model.
+  // Case-insensitive comparison lets users type freely without matching catalogue casing exactly.
   const brands = useMemo(
     () => [...new Set(catalogue.map((m) => m.brand))].sort(),
     [catalogue],

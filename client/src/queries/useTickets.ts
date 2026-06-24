@@ -10,12 +10,17 @@ export const useTickets = (userMotorcycleId: number) =>
     enabled: userMotorcycleId > 0,
   })
 
+/** Patches a ticket's status with an optimistic update.
+ *  Rolls back the cache if the server request fails. */
 export const usePatchTicketStatus = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, status }: { id: number; status: TicketStatus }) =>
       api.patchTicketStatus(id, status),
+
+    // --- Optimistic update ---
     onMutate: async ({ id, status }) => {
+      // Cancel any in-flight refetch to prevent it from overwriting the optimistic state
       await queryClient.cancelQueries({ queryKey: ['tickets', userMotorcycleId] })
       const previous = queryClient.getQueryData<Ticket[]>(['tickets', userMotorcycleId])
       queryClient.setQueryData<Ticket[]>(['tickets', userMotorcycleId], (old) =>
