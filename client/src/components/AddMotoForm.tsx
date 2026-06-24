@@ -12,6 +12,7 @@ interface Props {
   onClose: () => void
 }
 
+/** Form to add a motorcycle to the user's garage. Catalogue-backed datalists for brand/model/year. */
 export default function AddMotoForm({ catalogue, onClose }: Props) {
   const { t } = useTranslation()
   const [brand, setBrand] = useState('')

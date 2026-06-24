@@ -28,6 +28,7 @@ interface PartForm {
 
 const EMPTY_PART: PartForm = { name: '', brand: '', reference: '', quantity: '1', url: '' }
 
+/** Inline edit form for a ticket: operation, target km, recurrence interval, and parts management. */
 export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose }: Props) {
   const { t } = useTranslation()
   const { form, set, handleSubmit, isPending } = useTicketForm(ticket, userMotoId, onClose)

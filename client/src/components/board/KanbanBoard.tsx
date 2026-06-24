@@ -37,6 +37,7 @@ const ALLOWED_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
   done: [],
 }
 
+/** Full kanban board with drag-and-drop, optimistic status updates, and empty-state import. */
 export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom }: Props) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()

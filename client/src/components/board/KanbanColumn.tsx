@@ -27,6 +27,7 @@ const cardVariants = {
   exit: { opacity: 0, x: -16 },
 }
 
+/** Single kanban column: droppable zone, animated ticket list, and inline ticket creation. */
 export default function KanbanColumn({ status, tickets, currentKm, kmPerDay, userMotoId, forceEditId, onForceEditDone, justDoneId }: Props) {
   const { t } = useTranslation()
   const { setNodeRef, isOver } = useDroppable({ id: status })

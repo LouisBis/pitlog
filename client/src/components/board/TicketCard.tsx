@@ -23,6 +23,7 @@ interface Props {
   onForceEditDone?: () => void
 }
 
+/** Displays a ticket in read mode with urgency badges and parts list. Switches to edit mode inline. */
 export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false, forceEdit = false, onForceEditDone }: Props) {
   const { t } = useTranslation()
   const [editingLocal, setEditingLocal] = useState(false)
