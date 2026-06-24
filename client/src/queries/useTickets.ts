@@ -24,6 +24,8 @@ export const usePatchTicketStatus = (userMotorcycleId: number) => {
       // Cancel any in-flight refetch to prevent it from overwriting the optimistic state
       await queryClient.cancelQueries({ queryKey: ['tickets', userMotorcycleId] })
       const previous = queryClient.getQueryData<Ticket[]>(['tickets', userMotorcycleId])
+      // Without a snapshot, onError would call setQueryData(key, undefined) and wipe the board
+      if (!previous) return
       queryClient.setQueryData<Ticket[]>(['tickets', userMotorcycleId], (old) =>
         old?.map((t) => (t.id === id ? { ...t, status } : t)) ?? []
       )
