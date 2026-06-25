@@ -14,12 +14,16 @@ interface Props {
   ticket: Ticket
   currentKm: number
   kmPerDay: number | null
+  /** Required in all contexts except DragOverlay, where mutations are disabled. */
   userMotoId?: number
+  /** True when rendered inside DragOverlay — disables drag handle and mutations. */
   overlay?: boolean
+  /** Forces the edit form open (e.g. after a blocked drop to part_ordered). */
   forceEdit?: boolean
   onForceEditDone?: () => void
 }
 
+/** Displays a ticket in read mode with urgency badges and parts list. Switches to edit mode inline. */
 export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false, forceEdit = false, onForceEditDone }: Props) {
   const { t } = useTranslation()
   const [editingLocal, setEditingLocal] = useState(false)
@@ -29,12 +33,15 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const { mutate: deleteTicket, isPending: isDeleting } = useDeleteTicket(userMotoId ?? 0)
   const { data: parts = [] } = useTicketParts(ticket.id)
 
+  // --- Drag setup ---
+  // Drag is disabled on overlay cards (they live inside DragOverlay and must not re-trigger dnd)
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: ticket.id,
     data: { status: ticket.status },
     disabled: overlay || editing || ticket.status === 'done',
   })
 
+  // --- Urgency computation ---
   const urgency = useMemo(() => getUrgency(ticket, currentKm, kmPerDay), [ticket, currentKm, kmPerDay])
   const remaining = useMemo(() => getKmRemaining(ticket, currentKm), [ticket, currentKm])
   const estimatedDays = useMemo(
@@ -42,6 +49,7 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
     [ticket, currentKm, kmPerDay],
   )
 
+  // --- Label formatting ---
   const kmLabel = remaining === null
     ? null
     : remaining <= 0

@@ -13,6 +13,7 @@ import styles from './TicketCard.module.css'
 interface Props {
   ticket: Ticket
   userMotoId: number
+  /** When true, the form was opened by a blocked drop to part_ordered — a hint is shown asking the user to add at least one part. */
   forceEdit: boolean
   onClose: () => void
 }
@@ -27,6 +28,7 @@ interface PartForm {
 
 const EMPTY_PART: PartForm = { name: '', brand: '', reference: '', quantity: '1', url: '' }
 
+/** Inline edit form for a ticket: operation, target km, recurrence interval, and parts management. */
 export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose }: Props) {
   const { t } = useTranslation()
   const { form, set, handleSubmit, isPending } = useTicketForm(ticket, userMotoId, onClose)
@@ -58,6 +60,8 @@ export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose 
 
   return (
     <form className={styles.editForm} onSubmit={handleSubmit}>
+
+      {/* --- Ticket fields --- */}
       <Input
         placeholder={t('ticket.edit.operation.placeholder')}
         value={form.operation}
@@ -101,6 +105,7 @@ export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose 
         </Button>
       </div>
 
+      {/* --- Parts section --- */}
       <div className={styles.partsSection}>
         <p className={styles.partsSectionTitle}>{t('ticket.parts.title')}</p>
         {forceEdit && parts.length === 0 && (

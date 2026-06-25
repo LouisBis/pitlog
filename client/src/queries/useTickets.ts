@@ -3,6 +3,7 @@ import { api, type UpdateTicketPayload } from '@/lib/api'
 import log from '@/lib/logger'
 import type { CreateTicketPayload, UpdateTicketIntervalPayload, Ticket, TicketStatus } from '@/types'
 
+/** Fetches all tickets for a given user motorcycle. Disabled until a valid id is provided. */
 export const useTickets = (userMotorcycleId: number) =>
   useQuery({
     queryKey: ['tickets', userMotorcycleId],
@@ -10,14 +11,21 @@ export const useTickets = (userMotorcycleId: number) =>
     enabled: userMotorcycleId > 0,
   })
 
+/** Patches a ticket's status with an optimistic update.
+ *  Rolls back the cache if the server request fails. */
 export const usePatchTicketStatus = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: ({ id, status }: { id: number; status: TicketStatus }) =>
       api.patchTicketStatus(id, status),
+
+    // --- Optimistic update ---
     onMutate: async ({ id, status }) => {
+      // Cancel any in-flight refetch to prevent it from overwriting the optimistic state
       await queryClient.cancelQueries({ queryKey: ['tickets', userMotorcycleId] })
       const previous = queryClient.getQueryData<Ticket[]>(['tickets', userMotorcycleId])
+      // Without a snapshot, onError would call setQueryData(key, undefined) and wipe the board
+      if (!previous) return
       queryClient.setQueryData<Ticket[]>(['tickets', userMotorcycleId], (old) =>
         old?.map((t) => (t.id === id ? { ...t, status } : t)) ?? []
       )
@@ -33,6 +41,7 @@ export const usePatchTicketStatus = (userMotorcycleId: number) => {
   })
 }
 
+/** Creates a ticket and refreshes the ticket list. */
 export const useCreateTicket = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
@@ -47,6 +56,7 @@ export const useCreateTicket = (userMotorcycleId: number) => {
   })
 }
 
+/** Updates the recurrence interval (customKm / customDays) of a ticket. */
 export const usePatchTicketInterval = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
@@ -61,6 +71,7 @@ export const usePatchTicketInterval = (userMotorcycleId: number) => {
   })
 }
 
+/** Updates a ticket's operation name and/or target km. */
 export const useUpdateTicket = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
@@ -75,6 +86,7 @@ export const useUpdateTicket = (userMotorcycleId: number) => {
   })
 }
 
+/** Deletes a ticket and refreshes the ticket list. */
 export const useDeleteTicket = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
@@ -88,6 +100,7 @@ export const useDeleteTicket = (userMotorcycleId: number) => {
   })
 }
 
+/** Imports catalogue maintenance intervals as tickets for the given motorcycle. */
 export const useImportIntervals = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({

@@ -11,6 +11,7 @@ interface FormState {
   intervalDays: string
 }
 
+/** Initializes form state from an existing ticket. Also used to reset on close. */
 function fromTicket(ticket: Ticket): FormState {
   return {
     operation: ticket.operation,
@@ -21,9 +22,12 @@ function fromTicket(ticket: Ticket): FormState {
   }
 }
 
+/** Manages the edit form state and submission logic for a ticket.
+ *  Handles the two-step save: ticket fields first, then recurrence interval. */
 export function useTicketForm(ticket: Ticket, userMotoId: number, onClose: () => void) {
   const [form, setForm] = useState<FormState>(() => fromTicket(ticket))
 
+  // --- Mutations ---
   const { mutate: patchInterval, isPending: isPatchingInterval } = usePatchTicketInterval(userMotoId)
   const { mutate: updateTicket, isPending: isUpdating } = useUpdateTicket(userMotoId)
 
@@ -31,6 +35,8 @@ export function useTicketForm(ticket: Ticket, userMotoId: number, onClose: () =>
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
+  /** Saves the recurrence interval if the ticket is recurring, then closes the form.
+   *  Receives the final operation name to keep it in sync when it changed in the same submit. */
   function submitInterval(operationName: string) {
     if (form.recurring && (form.intervalKm || form.intervalDays)) {
       patchInterval(
@@ -50,6 +56,9 @@ export function useTicketForm(ticket: Ticket, userMotoId: number, onClose: () =>
     }
   }
 
+  /** Two-step save: if operation or targetKm changed, PATCH the ticket first,
+   *  then patch the interval on success. This prevents the interval from
+   *  referencing a stale operation name if both changed in the same submit. */
   function handleSubmit(e: { preventDefault(): void }) {
     e.preventDefault()
 
