@@ -6,6 +6,7 @@ import { userMotorcycles, motorcycles, kmHistory, intervals, tickets, motorcycle
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
 import logger from '../lib/logger.js'
+import { parseId } from '../lib/parseId.js'
 
 const router = Router()
 
@@ -69,8 +70,6 @@ function seedTickets(userMotorcycleId: number, currentKm: number, catalogueInter
     .run()
   logger.info({ userMotorcycleId, count: catalogueIntervals.length }, 'Tickets seeded from catalogue')
 }
-
-const idSchema = z.coerce.number().int().positive()
 
 const createSchema = z.object({
   brand: z.string().min(1),
@@ -146,16 +145,13 @@ router.post('/', validateBody(createSchema), (req, res) => {
 })
 
 router.post('/:id/import-intervals', (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const userMoto = db
     .select()
     .from(userMotorcycles)
-    .where(eq(userMotorcycles.id, parsedId.data))
+    .where(eq(userMotorcycles.id, id))
     .get()
 
   if (!userMoto) {
@@ -184,29 +180,26 @@ router.post('/:id/import-intervals', (req, res) => {
     db
       .select()
       .from(tickets)
-      .where(eq(tickets.userMotorcycleId, parsedId.data))
+      .where(eq(tickets.userMotorcycleId, id))
       .all()
       .filter((t) => t.intervalId !== null && t.status !== 'done')
       .map((t) => t.intervalId as number)
   )
 
   const toCreate = motorcycleIntervals.filter((i) => !coveredIntervalIds.has(i.id))
-  seedTickets(parsedId.data, userMoto.currentKm, toCreate)
-  logger.info({ userMotorcycleId: parsedId.data, created: toCreate.length, skipped: motorcycleIntervals.length - toCreate.length }, 'Intervals imported')
+  seedTickets(id, userMoto.currentKm, toCreate)
+  logger.info({ userMotorcycleId: id, created: toCreate.length, skipped: motorcycleIntervals.length - toCreate.length }, 'Intervals imported')
   res.json({ created: toCreate.length })
 })
 
 router.get('/:id/velocity', (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const userMoto = db
     .select()
     .from(userMotorcycles)
-    .where(eq(userMotorcycles.id, parsedId.data))
+    .where(eq(userMotorcycles.id, id))
     .get()
 
   if (!userMoto) {
@@ -217,7 +210,7 @@ router.get('/:id/velocity', (req, res) => {
   const entries = db
     .select({ km: kmHistory.km, recordedAt: kmHistory.recordedAt })
     .from(kmHistory)
-    .where(eq(kmHistory.userMotorcycleId, parsedId.data))
+    .where(eq(kmHistory.userMotorcycleId, id))
     .all()
 
   const result = computeVelocity(entries)
@@ -225,18 +218,15 @@ router.get('/:id/velocity', (req, res) => {
 })
 
 router.patch('/:id/km', validateBody(updateKmSchema), (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const { km } = res.locals.body as z.infer<typeof updateKmSchema>
 
   const userMoto = db
     .select()
     .from(userMotorcycles)
-    .where(eq(userMotorcycles.id, parsedId.data))
+    .where(eq(userMotorcycles.id, id))
     .get()
 
   if (!userMoto) {
@@ -245,49 +235,46 @@ router.patch('/:id/km', validateBody(updateKmSchema), (req, res) => {
   }
 
   if (km <= userMoto.currentKm) {
-    logger.warn({ userMotoId: parsedId.data, currentKm: userMoto.currentKm, attempted: km }, 'Km update rejected')
+    logger.warn({ userMotoId: id, currentKm: userMoto.currentKm, attempted: km }, 'Km update rejected')
     res.status(422).json({ error: `New km (${km}) must be greater than current km (${userMoto.currentKm})` })
     return
   }
 
   db.update(userMotorcycles)
     .set({ currentKm: km })
-    .where(eq(userMotorcycles.id, parsedId.data))
+    .where(eq(userMotorcycles.id, id))
     .run()
 
   db.insert(kmHistory)
-    .values({ userMotorcycleId: parsedId.data, km, recordedAt: new Date() })
+    .values({ userMotorcycleId: id, km, recordedAt: new Date() })
     .run()
 
-  res.json({ id: parsedId.data, currentKm: km })
+  res.json({ id, currentKm: km })
 })
 
 router.delete('/:id', (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
-  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, parsedId.data)).get()
+  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, id)).get()
   if (!userMoto) {
-    logger.warn({ userMotorcycleId: parsedId.data }, 'User motorcycle not found for deletion')
+    logger.warn({ userMotorcycleId: id }, 'User motorcycle not found for deletion')
     res.status(404).json({ error: 'User motorcycle not found' })
     return
   }
 
-  db.delete(motorcycleIntervals).where(eq(motorcycleIntervals.userMotorcycleId, parsedId.data)).run()
+  db.delete(motorcycleIntervals).where(eq(motorcycleIntervals.userMotorcycleId, id)).run()
 
-  const motoTickets = db.select({ id: tickets.id }).from(tickets).where(eq(tickets.userMotorcycleId, parsedId.data)).all()
+  const motoTickets = db.select({ id: tickets.id }).from(tickets).where(eq(tickets.userMotorcycleId, id)).all()
   for (const t of motoTickets) {
     db.delete(ticketParts).where(eq(ticketParts.ticketId, t.id)).run()
   }
 
-  db.delete(tickets).where(eq(tickets.userMotorcycleId, parsedId.data)).run()
-  db.delete(kmHistory).where(eq(kmHistory.userMotorcycleId, parsedId.data)).run()
-  db.delete(userMotorcycles).where(eq(userMotorcycles.id, parsedId.data)).run()
+  db.delete(tickets).where(eq(tickets.userMotorcycleId, id)).run()
+  db.delete(kmHistory).where(eq(kmHistory.userMotorcycleId, id)).run()
+  db.delete(userMotorcycles).where(eq(userMotorcycles.id, id)).run()
 
-  logger.info({ userMotorcycleId: parsedId.data }, 'User motorcycle and associated data deleted')
+  logger.info({ userMotorcycleId: id }, 'User motorcycle and associated data deleted')
   res.status(204).send()
 })
 

@@ -1,12 +1,10 @@
 import { Router } from 'express'
 import { and, eq, ne } from 'drizzle-orm'
-import { z } from 'zod'
 import { db } from '../db/index.js'
 import { motorcycles, intervals } from '../db/schema/index.js'
+import { parseId } from '../lib/parseId.js'
 
 const router = Router()
-
-const idSchema = z.coerce.number().int().positive()
 
 router.get('/', (_req, res) => {
   const result = db
@@ -18,16 +16,13 @@ router.get('/', (_req, res) => {
 })
 
 router.get('/:id', (req, res) => {
-  const parsed = idSchema.safeParse(req.params.id)
-  if (!parsed.success) {
-    res.status(400).json({ error: 'Invalid motorcycle id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const motorcycle = db
     .select()
     .from(motorcycles)
-    .where(eq(motorcycles.id, parsed.data))
+    .where(eq(motorcycles.id, id))
     .get()
 
   if (!motorcycle) {
@@ -38,7 +33,7 @@ router.get('/:id', (req, res) => {
   const motorcycleIntervals = db
     .select()
     .from(intervals)
-    .where(eq(intervals.motorcycleId, parsed.data))
+    .where(eq(intervals.motorcycleId, id))
     .all()
 
   res.json({ ...motorcycle, intervals: motorcycleIntervals })
