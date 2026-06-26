@@ -1,4 +1,5 @@
 const MS_PER_DAY = 1000 * 60 * 60 * 24
+const VELOCITY_WINDOW_SIZE = 10
 
 export interface KmEntry {
   km: number
@@ -11,7 +12,8 @@ export interface VelocityResult {
   periodDays: number
 }
 
-export function computeVelocity(entries: KmEntry[], windowSize = 10): VelocityResult | null {
+export function computeVelocity(entries: KmEntry[], windowSize = VELOCITY_WINDOW_SIZE): VelocityResult | null {
+  if (entries.length < 2) return null
   const sorted = [...entries].sort((a, b) => a.recordedAt.getTime() - b.recordedAt.getTime())
   const window = sorted.slice(-windowSize)
 
