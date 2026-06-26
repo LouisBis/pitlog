@@ -50,7 +50,9 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
   // TouchSensor: delay lets the user scroll without triggering a drag on mobile
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
   )
 
   const { data: tickets, isLoading, isError } = useTickets(userMotoId)
@@ -58,13 +60,14 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
   const { mutate: importIntervals, isPending: isImporting } = useImportIntervals(userMotoId)
 
   const byStatus = useMemo(
-    () => TICKET_STATUSES.reduce<Record<TicketStatus, Ticket[]>>(
-      (acc, status) => {
-        acc[status] = (tickets ?? []).filter((t) => t.status === status)
-        return acc
-      },
-      {} as Record<TicketStatus, Ticket[]>,
-    ),
+    () =>
+      TICKET_STATUSES.reduce<Record<TicketStatus, Ticket[]>>(
+        (acc, status) => {
+          acc[status] = (tickets ?? []).filter((t) => t.status === status)
+          return acc
+        },
+        {} as Record<TicketStatus, Ticket[]>,
+      ),
     [tickets],
   )
 
@@ -109,9 +112,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
     <div className={styles.wrapper}>
       {tickets?.length === 0 && (
         <div className={styles.emptyBanner}>
-          <p className={styles.emptyText}>
-            {t(isCustom ? 'board.empty.custom' : 'board.empty.catalogue')}
-          </p>
+          <p className={styles.emptyText}>{t(isCustom ? 'board.empty.custom' : 'board.empty.catalogue')}</p>
           {!isCustom && (
             <Button size="sm" onClick={() => importIntervals()} disabled={isImporting}>
               {t('board.empty.import')}
@@ -136,9 +137,7 @@ export default function KanbanBoard({ userMotoId, currentKm, kmPerDay, isCustom 
           ))}
         </div>
         <DragOverlay dropAnimation={null}>
-          {activeTicket && (
-            <TicketCard ticket={activeTicket} currentKm={currentKm} kmPerDay={kmPerDay} overlay />
-          )}
+          {activeTicket && <TicketCard ticket={activeTicket} currentKm={currentKm} kmPerDay={kmPerDay} overlay />}
         </DragOverlay>
       </DndContext>
     </div>

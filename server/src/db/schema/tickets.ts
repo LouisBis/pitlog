@@ -3,7 +3,7 @@ import { intervals } from './intervals.js'
 import { userMotorcycles } from './userMotorcycles.js'
 
 export const TICKET_STATUSES = ['todo', 'part_ordered', 'in_progress', 'done'] as const
-export type TicketStatus = typeof TICKET_STATUSES[number]
+export type TicketStatus = (typeof TICKET_STATUSES)[number]
 
 export const tickets = sqliteTable('tickets', {
   id: integer('id').primaryKey({ autoIncrement: true }),

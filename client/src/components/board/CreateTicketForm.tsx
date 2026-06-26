@@ -68,11 +68,7 @@ export default function CreateTicketForm({ userMotoId, onClose }: Props) {
       />
       <label className={styles.switchLabel} htmlFor="recurring">
         {t('ticket.form.recurrence')}
-        <Switch
-          id="recurring"
-          checked={recurring}
-          onCheckedChange={setRecurring}
-        />
+        <Switch id="recurring" checked={recurring} onCheckedChange={setRecurring} />
       </label>
       {recurring && (
         <div className={styles.recurrence}>

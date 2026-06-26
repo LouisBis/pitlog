@@ -16,7 +16,7 @@ export interface AddMotorcyclePayload {
 }
 
 export const TICKET_STATUSES = ['todo', 'part_ordered', 'in_progress', 'done'] as const
-export type TicketStatus = typeof TICKET_STATUSES[number]
+export type TicketStatus = (typeof TICKET_STATUSES)[number]
 
 /** Motorcycle owned by the user, joined with catalogue data for display. */
 export interface UserMotorcycle {

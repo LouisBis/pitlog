@@ -23,22 +23,23 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
 
   // Cascade filtering: models depend on brand, years depend on brand + model.
   // Case-insensitive comparison lets users type freely without matching catalogue casing exactly.
-  const brands = useMemo(
-    () => [...new Set(catalogue.map((m) => m.brand))].sort(),
-    [catalogue],
-  )
+  const brands = useMemo(() => [...new Set(catalogue.map((m) => m.brand))].sort(), [catalogue])
   const models = useMemo(
-    () => [...new Set(
-      catalogue.filter((m) => m.brand.toLowerCase() === brand.toLowerCase()).map((m) => m.model)
-    )].sort(),
+    () =>
+      [...new Set(catalogue.filter((m) => m.brand.toLowerCase() === brand.toLowerCase()).map((m) => m.model))].sort(),
     [catalogue, brand],
   )
   const years = useMemo(
-    () => [...new Set(
-      catalogue
-        .filter((m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase())
-        .map((m) => m.year)
-    )].sort((a, b) => b - a),
+    () =>
+      [
+        ...new Set(
+          catalogue
+            .filter(
+              (m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase(),
+            )
+            .map((m) => m.year),
+        ),
+      ].sort((a, b) => b - a),
     [catalogue, brand, model],
   )
 
@@ -48,7 +49,12 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
     e.preventDefault()
     if (!isValid) return
     addMoto(
-      { brand: brand.trim(), model: model.trim(), year: Number(year), currentKm: Number(currentKm) },
+      {
+        brand: brand.trim(),
+        model: model.trim(),
+        year: Number(year),
+        currentKm: Number(currentKm),
+      },
       { onSuccess: onClose },
     )
   }
@@ -61,22 +67,32 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
         <Input
           placeholder={t('add_moto.brand')}
           value={brand}
-          onChange={(e) => { setBrand(e.target.value); setModel('') }}
+          onChange={(e) => {
+            setBrand(e.target.value)
+            setModel('')
+          }}
           list="brand-list"
           autoFocus
         />
         <datalist id="brand-list">
-          {brands.map((b) => <option key={b} value={b} />)}
+          {brands.map((b) => (
+            <option key={b} value={b} />
+          ))}
         </datalist>
 
         <Input
           placeholder={t('add_moto.model')}
           value={model}
-          onChange={(e) => { setModel(e.target.value); setYear('') }}
+          onChange={(e) => {
+            setModel(e.target.value)
+            setYear('')
+          }}
           list="model-list"
         />
         <datalist id="model-list">
-          {models.map((m) => <option key={m} value={m} />)}
+          {models.map((m) => (
+            <option key={m} value={m} />
+          ))}
         </datalist>
 
         <Input
@@ -86,7 +102,9 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
           list="year-list"
         />
         <datalist id="year-list">
-          {years.map((y) => <option key={y} value={y} />)}
+          {years.map((y) => (
+            <option key={y} value={y} />
+          ))}
         </datalist>
 
         <Input

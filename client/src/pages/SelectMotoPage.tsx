@@ -14,7 +14,13 @@ function MotoCardSkeleton() {
   return (
     <div className={styles.card} style={{ pointerEvents: 'none' }}>
       <div className={styles.cardInner}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'var(--space-3)',
+          }}
+        >
           <Skeleton height="0.625rem" width="4rem" />
           <Skeleton height="1.5rem" width="9rem" />
           <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
@@ -33,7 +39,13 @@ function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => vo
   const { mutate: deleteMoto, isPending } = useDeleteMotorcycle()
 
   return (
-    <div className={styles.card} onClick={onSelect} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onSelect()}>
+    <div
+      className={styles.card}
+      onClick={onSelect}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => e.key === 'Enter' && onSelect()}
+    >
       <div className={styles.cardInner}>
         <div>
           <p className={styles.brand}>{moto.brand}</p>
@@ -58,7 +70,10 @@ function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => vo
       ) : (
         <button
           className={styles.deleteBtn}
-          onClick={(e) => { e.stopPropagation(); setConfirming(true) }}
+          onClick={(e) => {
+            e.stopPropagation()
+            setConfirming(true)
+          }}
           aria-label={t('garage.delete')}
         >
           <TrashIcon size={18} weight="fill" />
@@ -142,8 +157,16 @@ export default function SelectMotoPage() {
                     key={moto.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, x: -16, transition: { duration: 0.15 } }}
-                    transition={{ delay: index * 0.07, duration: 0.25, ease: 'easeOut' }}
+                    exit={{
+                      opacity: 0,
+                      x: -16,
+                      transition: { duration: 0.15 },
+                    }}
+                    transition={{
+                      delay: index * 0.07,
+                      duration: 0.25,
+                      ease: 'easeOut',
+                    }}
                   >
                     <MotoCard moto={moto} onSelect={() => navigate(`/board/${moto.id}`)} />
                   </motion.div>

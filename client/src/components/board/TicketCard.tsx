@@ -24,7 +24,15 @@ interface Props {
 }
 
 /** Displays a ticket in read mode with urgency badges and parts list. Switches to edit mode inline. */
-export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, overlay = false, forceEdit = false, onForceEditDone }: Props) {
+export default function TicketCard({
+  ticket,
+  currentKm,
+  kmPerDay,
+  userMotoId,
+  overlay = false,
+  forceEdit = false,
+  onForceEditDone,
+}: Props) {
   const { t } = useTranslation()
   const [editingLocal, setEditingLocal] = useState(false)
   const editing = editingLocal || forceEdit
@@ -45,16 +53,17 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
   const urgency = useMemo(() => getUrgency(ticket, currentKm, kmPerDay), [ticket, currentKm, kmPerDay])
   const remaining = useMemo(() => getKmRemaining(ticket, currentKm), [ticket, currentKm])
   const estimatedDays = useMemo(
-    () => kmPerDay ? getEstimatedDays(ticket, currentKm, kmPerDay) : null,
+    () => (kmPerDay ? getEstimatedDays(ticket, currentKm, kmPerDay) : null),
     [ticket, currentKm, kmPerDay],
   )
 
   // --- Label formatting ---
-  const kmLabel = remaining === null
-    ? null
-    : remaining <= 0
-      ? t('ticket.urgency.overdue', { count: Math.abs(remaining) })
-      : t('ticket.urgency.remaining', { count: remaining })
+  const kmLabel =
+    remaining === null
+      ? null
+      : remaining <= 0
+        ? t('ticket.urgency.overdue', { count: Math.abs(remaining) })
+        : t('ticket.urgency.remaining', { count: remaining })
   const daysLabel = estimatedDays !== null ? t('ticket.urgency.estimated_days', { count: estimatedDays }) : null
 
   const className = [
@@ -62,7 +71,9 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
     isDragging && !overlay && styles.dragging,
     overlay && styles.overlay,
     editing && styles.editMode,
-  ].filter(Boolean).join(' ')
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   const openEdit = () => setEditingLocal(true)
   const closeEdit = () => {
@@ -102,7 +113,12 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
         )}
         {ticket.status === 'done' && !overlay && confirmingDelete && (
           <div className={styles.deleteConfirm} onPointerDown={(e) => e.stopPropagation()}>
-            <button type="button" className={styles.deleteConfirmYes} onClick={() => deleteTicket(ticket.id)} disabled={isDeleting}>
+            <button
+              type="button"
+              className={styles.deleteConfirmYes}
+              onClick={() => deleteTicket(ticket.id)}
+              disabled={isDeleting}
+            >
               {t('garage.delete_yes')}
             </button>
             <button type="button" className={styles.deleteConfirmNo} onClick={() => setConfirmingDelete(false)}>
@@ -113,48 +129,41 @@ export default function TicketCard({ ticket, currentKm, kmPerDay, userMotoId, ov
       </div>
 
       {editing && (
-        <TicketEditForm
-          ticket={ticket}
-          userMotoId={userMotoId ?? 0}
-          forceEdit={forceEdit}
-          onClose={closeEdit}
-        />
+        <TicketEditForm ticket={ticket} userMotoId={userMotoId ?? 0} forceEdit={forceEdit} onClose={closeEdit} />
       )}
 
       {!editing && (
         <>
-          {ticket.status === 'done' && ticket.doneKm !== null
-            ? (
-              <div className={styles.badges}>
-                <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
-              </div>
-            )
-            : (kmLabel || daysLabel) && (
+          {ticket.status === 'done' && ticket.doneKm !== null ? (
+            <div className={styles.badges}>
+              <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
+            </div>
+          ) : (
+            (kmLabel || daysLabel) && (
               <div className={styles.badges}>
                 {kmLabel && <Badge variant={urgency}>{kmLabel}</Badge>}
                 {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
               </div>
             )
-          }
+          )}
           {parts.length > 0 && (
             <ul className={styles.partsReadList}>
               {parts.map((part) => (
                 <li key={part.id} className={styles.partsReadItem}>
                   {part.quantity > 1 && <span className={styles.partsQty}>{part.quantity}×</span>}
-                  {part.url
-                    ? (
-                      <a
-                        href={part.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.partsLink}
-                        onPointerDown={(e) => e.stopPropagation()}
-                      >
-                        {part.name}
-                      </a>
-                    )
-                    : <span>{part.name}</span>
-                  }
+                  {part.url ? (
+                    <a
+                      href={part.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={styles.partsLink}
+                      onPointerDown={(e) => e.stopPropagation()}
+                    >
+                      {part.name}
+                    </a>
+                  ) : (
+                    <span>{part.name}</span>
+                  )}
                   {part.brand && <span className={styles.partsMeta}> · {part.brand}</span>}
                   {part.reference && <span className={styles.partsMeta}> · {part.reference}</span>}
                 </li>

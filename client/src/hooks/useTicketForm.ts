@@ -70,7 +70,9 @@ export function useTicketForm(ticket: Ticket, userMotoId: number, onClose: () =>
         {
           id: ticket.id,
           ...(operationChanged && { operation: form.operation.trim() }),
-          ...(targetKmChanged && { targetKm: form.targetKm ? Number(form.targetKm) : null }),
+          ...(targetKmChanged && {
+            targetKm: form.targetKm ? Number(form.targetKm) : null,
+          }),
         },
         {
           onSuccess: () => submitInterval(form.operation.trim()),

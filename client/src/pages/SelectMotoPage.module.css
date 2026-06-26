@@ -107,9 +107,10 @@
   text-align: left;
   width: 100%;
   box-shadow: var(--card-shadow);
-  transition: box-shadow var(--duration-fast) var(--easing-default),
-              transform var(--duration-fast) var(--easing-default),
-              border-color var(--duration-fast) var(--easing-default);
+  transition:
+    box-shadow var(--duration-fast) var(--easing-default),
+    transform var(--duration-fast) var(--easing-default),
+    border-color var(--duration-fast) var(--easing-default);
 }
 
 .card:hover {
