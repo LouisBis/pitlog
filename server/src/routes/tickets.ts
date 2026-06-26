@@ -5,6 +5,7 @@ import { db } from '../db/index.js'
 import { tickets, userMotorcycles, intervals, motorcycleIntervals, motorcycles, ticketParts, TICKET_STATUSES, type TicketStatus } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import logger from '../lib/logger.js'
+import { parseId } from '../lib/parseId.js'
 
 const updateTicketSchema = z.object({
   operation: z.string().min(1).optional(),
@@ -12,8 +13,6 @@ const updateTicketSchema = z.object({
 })
 
 const router = Router()
-
-const idSchema = z.coerce.number().int().positive()
 
 const createSchema = z.object({
   userMotorcycleId: z.number().int().positive(),
@@ -62,11 +61,8 @@ function resolveInterval(userMotorcycleId: number, intervalId: number) {
 }
 
 router.get('/', (req, res) => {
-  const parsed = idSchema.safeParse(req.query.userMotorcycleId)
-  if (!parsed.success) {
-    res.status(400).json({ error: 'Missing or invalid userMotorcycleId query param' })
-    return
-  }
+  const userMotorcycleId = parseId(req.query.userMotorcycleId, res)
+  if (userMotorcycleId === null) return
 
   const result = db
     .select({
@@ -90,7 +86,7 @@ router.get('/', (req, res) => {
         eq(motorcycleIntervals.userMotorcycleId, tickets.userMotorcycleId),
       )
     )
-    .where(eq(tickets.userMotorcycleId, parsed.data))
+    .where(eq(tickets.userMotorcycleId, userMotorcycleId))
     .all()
 
   res.json(result)
@@ -122,28 +118,25 @@ router.post('/', validateBody(createSchema), (req, res) => {
 })
 
 router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const { status } = res.locals.body as z.infer<typeof updateStatusSchema>
 
   const ticket = db
     .select()
     .from(tickets)
-    .where(eq(tickets.id, parsedId.data))
+    .where(eq(tickets.id, id))
     .get()
 
   if (!ticket) {
-    logger.warn({ ticketId: parsedId.data }, 'Ticket not found')
+    logger.warn({ ticketId: id }, 'Ticket not found')
     res.status(404).json({ error: 'Ticket not found' })
     return
   }
 
   if (!VALID_TRANSITIONS[ticket.status].includes(status)) {
-    logger.warn({ ticketId: parsedId.data, from: ticket.status, to: status }, 'Invalid status transition')
+    logger.warn({ ticketId: id, from: ticket.status, to: status }, 'Invalid status transition')
     res.status(422).json({ error: `Transition ${ticket.status} → ${status} not allowed` })
     return
   }
@@ -152,7 +145,7 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
   if (status === 'done') {
     const userMotoForKm = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
     if (!userMotoForKm) {
-      logger.warn({ ticketId: parsedId.data, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on done transition')
+      logger.warn({ ticketId: id, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on done transition')
       res.status(500).json({ error: 'User motorcycle not found' })
       return
     }
@@ -164,7 +157,7 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
   const [updated] = db
     .update(tickets)
     .set(updates)
-    .where(eq(tickets.id, parsedId.data))
+    .where(eq(tickets.id, id))
     .returning()
     .all()
 
@@ -196,15 +189,12 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
 })
 
 router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const { customKm, customDays, operation } = res.locals.body as z.infer<typeof updateIntervalSchema>
 
-  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
   if (!ticket) {
     res.status(404).json({ error: 'Ticket not found' })
     return
@@ -212,13 +202,13 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
 
   const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
   if (!userMoto) {
-    logger.warn({ ticketId: parsedId.data, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on interval update')
+    logger.warn({ ticketId: id, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on interval update')
     res.status(404).json({ error: 'User motorcycle not found' })
     return
   }
   const moto = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()
   if (!moto) {
-    logger.warn({ ticketId: parsedId.data, motorcycleId: userMoto.motorcycleId }, 'Motorcycle not found on interval update')
+    logger.warn({ ticketId: id, motorcycleId: userMoto.motorcycleId }, 'Motorcycle not found on interval update')
     res.status(404).json({ error: 'Motorcycle not found' })
     return
   }
@@ -254,7 +244,7 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
   const [updated] = db
     .update(tickets)
     .set({ targetKm: newTargetKm, targetDate: newTargetDate })
-    .where(eq(tickets.id, parsedId.data))
+    .where(eq(tickets.id, id))
     .returning()
     .all()
 
@@ -263,11 +253,8 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
 })
 
 router.patch('/:id', validateBody(updateTicketSchema), (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const body = res.locals.body as z.infer<typeof updateTicketSchema>
   if (!body.operation && body.targetKm === undefined) {
@@ -275,9 +262,9 @@ router.patch('/:id', validateBody(updateTicketSchema), (req, res) => {
     return
   }
 
-  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
   if (!ticket) {
-    logger.warn({ ticketId: parsedId.data }, 'Ticket not found for update')
+    logger.warn({ ticketId: id }, 'Ticket not found for update')
     res.status(404).json({ error: 'Ticket not found' })
     return
   }
@@ -288,7 +275,7 @@ router.patch('/:id', validateBody(updateTicketSchema), (req, res) => {
       ...(body.operation !== undefined && { operation: body.operation }),
       ...(body.targetKm !== undefined && { targetKm: body.targetKm }),
     })
-    .where(eq(tickets.id, parsedId.data))
+    .where(eq(tickets.id, id))
     .returning()
     .all()
 
@@ -297,22 +284,19 @@ router.patch('/:id', validateBody(updateTicketSchema), (req, res) => {
 })
 
 router.delete('/:id', (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
-  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
   if (!ticket) {
-    logger.warn({ ticketId: parsedId.data }, 'Ticket not found for deletion')
+    logger.warn({ ticketId: id }, 'Ticket not found for deletion')
     res.status(404).json({ error: 'Ticket not found' })
     return
   }
 
-  db.delete(ticketParts).where(eq(ticketParts.ticketId, parsedId.data)).run()
-  db.delete(tickets).where(eq(tickets.id, parsedId.data)).run()
-  logger.info({ ticketId: parsedId.data, operation: ticket.operation }, 'Ticket deleted')
+  db.delete(ticketParts).where(eq(ticketParts.ticketId, id)).run()
+  db.delete(tickets).where(eq(tickets.id, id)).run()
+  logger.info({ ticketId: id, operation: ticket.operation }, 'Ticket deleted')
   res.status(204).send()
 })
 
@@ -325,70 +309,62 @@ const createPartSchema = z.object({
 })
 
 router.get('/:id/parts', (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
-  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
   if (!ticket) {
     res.status(404).json({ error: 'Ticket not found' })
     return
   }
 
-  const parts = db.select().from(ticketParts).where(eq(ticketParts.ticketId, parsedId.data)).all()
+  const parts = db.select().from(ticketParts).where(eq(ticketParts.ticketId, id)).all()
   res.json(parts)
 })
 
 router.post('/:id/parts', validateBody(createPartSchema), (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  if (!parsedId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
 
   const body = res.locals.body as z.infer<typeof createPartSchema>
 
-  const ticket = db.select().from(tickets).where(eq(tickets.id, parsedId.data)).get()
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
   if (!ticket) {
-    logger.warn({ ticketId: parsedId.data }, 'Ticket not found for part creation')
+    logger.warn({ ticketId: id }, 'Ticket not found for part creation')
     res.status(404).json({ error: 'Ticket not found' })
     return
   }
 
   const [created] = db
     .insert(ticketParts)
-    .values({ ticketId: parsedId.data, ...body })
+    .values({ ticketId: id, ...body })
     .returning()
     .all()
 
-  logger.info({ partId: created.id, ticketId: parsedId.data, name: body.name }, 'Part added to ticket')
+  logger.info({ partId: created.id, ticketId: id, name: body.name }, 'Part added to ticket')
   res.status(201).json(created)
 })
 
 router.delete('/:id/parts/:partId', (req, res) => {
-  const parsedId = idSchema.safeParse(req.params.id)
-  const parsedPartId = idSchema.safeParse(req.params.partId)
-  if (!parsedId.success || !parsedPartId.success) {
-    res.status(400).json({ error: 'Invalid id' })
-    return
-  }
+  const id = parseId(req.params.id, res)
+  if (id === null) return
+  const partId = parseId(req.params.partId, res)
+  if (partId === null) return
 
   const part = db
     .select()
     .from(ticketParts)
-    .where(and(eq(ticketParts.id, parsedPartId.data), eq(ticketParts.ticketId, parsedId.data)))
+    .where(and(eq(ticketParts.id, partId), eq(ticketParts.ticketId, id)))
     .get()
 
   if (!part) {
-    logger.warn({ partId: parsedPartId.data, ticketId: parsedId.data }, 'Part not found for deletion')
+    logger.warn({ partId, ticketId: id }, 'Part not found for deletion')
     res.status(404).json({ error: 'Part not found' })
     return
   }
 
-  db.delete(ticketParts).where(eq(ticketParts.id, parsedPartId.data)).run()
-  logger.info({ partId: parsedPartId.data, ticketId: parsedId.data, name: part.name }, 'Part deleted')
+  db.delete(ticketParts).where(eq(ticketParts.id, partId)).run()
+  logger.info({ partId, ticketId: id, name: part.name }, 'Part deleted')
   res.status(204).send()
 })
 
