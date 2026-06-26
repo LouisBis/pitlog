@@ -9,13 +9,7 @@ interface Props extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'
 
 export function Input({ error, size = 'md', className, type, ...props }: Props) {
   const isNumeric = type === 'number'
-  const classes = [
-    styles.input,
-    styles[size],
-    error && styles.error,
-    isNumeric && styles.mono,
-    className,
-  ]
+  const classes = [styles.input, styles[size], error && styles.error, isNumeric && styles.mono, className]
     .filter(Boolean)
     .join(' ')
 

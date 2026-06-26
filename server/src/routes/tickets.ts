@@ -2,7 +2,16 @@ import { Router } from 'express'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { tickets, userMotorcycles, intervals, motorcycleIntervals, motorcycles, ticketParts, TICKET_STATUSES, type TicketStatus } from '../db/schema/index.js'
+import {
+  tickets,
+  userMotorcycles,
+  intervals,
+  motorcycleIntervals,
+  motorcycles,
+  ticketParts,
+  TICKET_STATUSES,
+  type TicketStatus,
+} from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import logger from '../lib/logger.js'
 import { parseId } from '../lib/parseId.js'
@@ -44,10 +53,7 @@ function resolveInterval(userMotorcycleId: number, intervalId: number) {
     .select()
     .from(motorcycleIntervals)
     .where(
-      and(
-        eq(motorcycleIntervals.userMotorcycleId, userMotorcycleId),
-        eq(motorcycleIntervals.intervalId, intervalId)
-      )
+      and(eq(motorcycleIntervals.userMotorcycleId, userMotorcycleId), eq(motorcycleIntervals.intervalId, intervalId)),
     )
     .get()
 
@@ -84,7 +90,7 @@ router.get('/', (req, res) => {
       and(
         eq(motorcycleIntervals.intervalId, tickets.intervalId),
         eq(motorcycleIntervals.userMotorcycleId, tickets.userMotorcycleId),
-      )
+      ),
     )
     .where(eq(tickets.userMotorcycleId, userMotorcycleId))
     .all()
@@ -95,11 +101,7 @@ router.get('/', (req, res) => {
 router.post('/', validateBody(createSchema), (req, res) => {
   const body = res.locals.body as z.infer<typeof createSchema>
 
-  const userMoto = db
-    .select()
-    .from(userMotorcycles)
-    .where(eq(userMotorcycles.id, body.userMotorcycleId))
-    .get()
+  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, body.userMotorcycleId)).get()
 
   if (!userMoto) {
     logger.warn({ userMotorcycleId: body.userMotorcycleId }, 'User motorcycle not found')
@@ -107,13 +109,16 @@ router.post('/', validateBody(createSchema), (req, res) => {
     return
   }
 
-  const [created] = db
-    .insert(tickets)
-    .values(body)
-    .returning()
-    .all()
+  const [created] = db.insert(tickets).values(body).returning().all()
 
-  logger.info({ ticketId: created.id, operation: created.operation, userMotorcycleId: body.userMotorcycleId }, 'Ticket created')
+  logger.info(
+    {
+      ticketId: created.id,
+      operation: created.operation,
+      userMotorcycleId: body.userMotorcycleId,
+    },
+    'Ticket created',
+  )
   res.status(201).json(created)
 })
 
@@ -123,11 +128,7 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
 
   const { status } = res.locals.body as z.infer<typeof updateStatusSchema>
 
-  const ticket = db
-    .select()
-    .from(tickets)
-    .where(eq(tickets.id, id))
-    .get()
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
 
   if (!ticket) {
     logger.warn({ ticketId: id }, 'Ticket not found')
@@ -145,7 +146,10 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
   if (status === 'done') {
     const userMotoForKm = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
     if (!userMotoForKm) {
-      logger.warn({ ticketId: id, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on done transition')
+      logger.warn(
+        { ticketId: id, userMotorcycleId: ticket.userMotorcycleId },
+        'User motorcycle not found on done transition',
+      )
       res.status(500).json({ error: 'User motorcycle not found' })
       return
     }
@@ -154,12 +158,7 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
     updates = { status, doneAt: null, doneKm: null }
   }
 
-  const [updated] = db
-    .update(tickets)
-    .set(updates)
-    .where(eq(tickets.id, id))
-    .returning()
-    .all()
+  const [updated] = db.update(tickets).set(updates).where(eq(tickets.id, id)).returning().all()
 
   if (status === 'done' && ticket.intervalId && updated.doneKm !== null && updated.doneAt !== null) {
     const effective = resolveInterval(ticket.userMotorcycleId, ticket.intervalId)
@@ -202,7 +201,10 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
 
   const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
   if (!userMoto) {
-    logger.warn({ ticketId: id, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on interval update')
+    logger.warn(
+      { ticketId: id, userMotorcycleId: ticket.userMotorcycleId },
+      'User motorcycle not found on interval update',
+    )
     res.status(404).json({ error: 'User motorcycle not found' })
     return
   }
@@ -217,12 +219,19 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
 
   if (!intervalId) {
     if (!operation) {
-      res.status(400).json({ error: 'operation is required for tickets without an existing interval' })
+      res.status(400).json({
+        error: 'operation is required for tickets without an existing interval',
+      })
       return
     }
     const [newInterval] = db
       .insert(intervals)
-      .values({ motorcycleId: moto.id, operation, intervalKm: customKm ?? null, intervalDays: customDays ?? null })
+      .values({
+        motorcycleId: moto.id,
+        operation,
+        intervalKm: customKm ?? null,
+        intervalDays: customDays ?? null,
+      })
       .returning()
       .all()
     intervalId = newInterval.id
@@ -231,7 +240,12 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
   }
 
   db.insert(motorcycleIntervals)
-    .values({ userMotorcycleId: ticket.userMotorcycleId, intervalId, customKm: customKm ?? null, customDays: customDays ?? null })
+    .values({
+      userMotorcycleId: ticket.userMotorcycleId,
+      intervalId,
+      customKm: customKm ?? null,
+      customDays: customDays ?? null,
+    })
     .onConflictDoUpdate({
       target: [motorcycleIntervals.userMotorcycleId, motorcycleIntervals.intervalId],
       set: { customKm: customKm ?? null, customDays: customDays ?? null },
@@ -279,7 +293,14 @@ router.patch('/:id', validateBody(updateTicketSchema), (req, res) => {
     .returning()
     .all()
 
-  logger.info({ ticketId: updated.id, operation: updated.operation, targetKm: updated.targetKm }, 'Ticket updated')
+  logger.info(
+    {
+      ticketId: updated.id,
+      operation: updated.operation,
+      targetKm: updated.targetKm,
+    },
+    'Ticket updated',
+  )
   res.json(updated)
 })
 

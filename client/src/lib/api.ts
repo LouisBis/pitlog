@@ -1,5 +1,16 @@
 import log from './logger'
-import type { AddMotorcyclePayload, CreateTicketPayload, UpdateTicketIntervalPayload, Motorcycle, Ticket, TicketPart, TicketStatus, UserMotorcycle, VelocityResult, CreatePartPayload } from '@/types'
+import type {
+  AddMotorcyclePayload,
+  CreateTicketPayload,
+  UpdateTicketIntervalPayload,
+  Motorcycle,
+  Ticket,
+  TicketPart,
+  TicketStatus,
+  UserMotorcycle,
+  VelocityResult,
+  CreatePartPayload,
+} from '@/types'
 
 export interface UpdateTicketPayload {
   operation?: string
@@ -41,11 +52,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 // --- API endpoints ---
 
 export const api = {
-  getMotorcycles: () =>
-    request<Motorcycle[]>('/api/v1/motorcycles'),
+  getMotorcycles: () => request<Motorcycle[]>('/api/v1/motorcycles'),
 
-  getUserMotorcycles: () =>
-    request<UserMotorcycle[]>('/api/v1/user-motorcycles'),
+  getUserMotorcycles: () => request<UserMotorcycle[]>('/api/v1/user-motorcycles'),
 
   addMotorcycle: (data: AddMotorcyclePayload) =>
     request<UserMotorcycle>('/api/v1/user-motorcycles', {
@@ -53,8 +62,7 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  getTickets: (userMotorcycleId: number) =>
-    request<Ticket[]>(`/api/v1/tickets?userMotorcycleId=${userMotorcycleId}`),
+  getTickets: (userMotorcycleId: number) => request<Ticket[]>(`/api/v1/tickets?userMotorcycleId=${userMotorcycleId}`),
 
   createTicket: (data: CreateTicketPayload) =>
     request<Ticket>('/api/v1/tickets', {
@@ -94,14 +102,14 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  deleteTicket: (id: number) =>
-    request<void>(`/api/v1/tickets/${id}`, { method: 'DELETE' }),
+  deleteTicket: (id: number) => request<void>(`/api/v1/tickets/${id}`, { method: 'DELETE' }),
 
   deleteMotorcycle: (userMotorcycleId: number) =>
-    request<void>(`/api/v1/user-motorcycles/${userMotorcycleId}`, { method: 'DELETE' }),
+    request<void>(`/api/v1/user-motorcycles/${userMotorcycleId}`, {
+      method: 'DELETE',
+    }),
 
-  getTicketParts: (ticketId: number) =>
-    request<TicketPart[]>(`/api/v1/tickets/${ticketId}/parts`),
+  getTicketParts: (ticketId: number) => request<TicketPart[]>(`/api/v1/tickets/${ticketId}/parts`),
 
   addTicketPart: (ticketId: number, data: CreatePartPayload) =>
     request<TicketPart>(`/api/v1/tickets/${ticketId}/parts`, {
@@ -110,5 +118,7 @@ export const api = {
     }),
 
   deleteTicketPart: (ticketId: number, partId: number) =>
-    request<void>(`/api/v1/tickets/${ticketId}/parts/${partId}`, { method: 'DELETE' }),
+    request<void>(`/api/v1/tickets/${ticketId}/parts/${partId}`, {
+      method: 'DELETE',
+    }),
 }

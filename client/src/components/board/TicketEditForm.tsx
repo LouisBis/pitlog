@@ -26,7 +26,13 @@ interface PartForm {
   url: string
 }
 
-const EMPTY_PART: PartForm = { name: '', brand: '', reference: '', quantity: '1', url: '' }
+const EMPTY_PART: PartForm = {
+  name: '',
+  brand: '',
+  reference: '',
+  quantity: '1',
+  url: '',
+}
 
 /** Inline edit form for a ticket: operation, target km, recurrence interval, and parts management. */
 export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose }: Props) {
@@ -50,7 +56,9 @@ export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose 
       {
         name: partForm.name.trim(),
         ...(partForm.brand.trim() && { brand: partForm.brand.trim() }),
-        ...(partForm.reference.trim() && { reference: partForm.reference.trim() }),
+        ...(partForm.reference.trim() && {
+          reference: partForm.reference.trim(),
+        }),
         ...(partForm.quantity && { quantity: Number(partForm.quantity) }),
         ...(partForm.url.trim() && { url: partForm.url.trim() }),
       },
@@ -60,7 +68,6 @@ export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose 
 
   return (
     <form className={styles.editForm} onSubmit={handleSubmit}>
-
       {/* --- Ticket fields --- */}
       <Input
         placeholder={t('ticket.edit.operation.placeholder')}
@@ -74,7 +81,14 @@ export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose 
         onChange={(e) => set('targetKm', e.target.value)}
         min={0}
       />
-      <label className={styles.editSection} style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--space-2)' }}>
+      <label
+        className={styles.editSection}
+        style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: 'var(--space-2)',
+        }}
+      >
         {t('ticket.form.recurrence')}
         <Switch id={`recurring-${ticket.id}`} checked={form.recurring} onCheckedChange={(v) => set('recurring', v)} />
       </label>
@@ -108,9 +122,7 @@ export default function TicketEditForm({ ticket, userMotoId, forceEdit, onClose 
       {/* --- Parts section --- */}
       <div className={styles.partsSection}>
         <p className={styles.partsSectionTitle}>{t('ticket.parts.title')}</p>
-        {forceEdit && parts.length === 0 && (
-          <p className={styles.partsHint}>{t('board.part_ordered_hint')}</p>
-        )}
+        {forceEdit && parts.length === 0 && <p className={styles.partsHint}>{t('board.part_ordered_hint')}</p>}
         {parts.length > 0 && (
           <ul className={styles.partsList}>
             {parts.map((part) => (

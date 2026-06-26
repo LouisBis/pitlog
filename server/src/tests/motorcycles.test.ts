@@ -8,18 +8,32 @@ beforeEach(() => {
   db.delete(intervals).run()
   db.delete(motorcycles).run()
 
-  db.insert(motorcycles).values([
-    { brand: 'Suzuki',  model: 'GSF 600 Bandit', year: 1997, isCustom: false },
-    { brand: 'Honda',   model: 'CB500',           year: 1998, isCustom: false },
-    { brand: 'Generic', model: 'Standard',        year: 0,    isCustom: false },
-    { brand: 'Honda',   model: 'CB500',           year: 2020, isCustom: true  },
-  ]).run()
+  db.insert(motorcycles)
+    .values([
+      { brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false },
+      { brand: 'Honda', model: 'CB500', year: 1998, isCustom: false },
+      { brand: 'Generic', model: 'Standard', year: 0, isCustom: false },
+      { brand: 'Honda', model: 'CB500', year: 2020, isCustom: true },
+    ])
+    .run()
 
   const [gsf600] = db.select().from(motorcycles).all()
-  db.insert(intervals).values([
-    { motorcycleId: gsf600.id, operation: 'Engine oil change', intervalKm: 6000, intervalDays: 365 },
-    { motorcycleId: gsf600.id, operation: 'Spark plugs replacement', intervalKm: 12000, intervalDays: null },
-  ]).run()
+  db.insert(intervals)
+    .values([
+      {
+        motorcycleId: gsf600.id,
+        operation: 'Engine oil change',
+        intervalKm: 6000,
+        intervalDays: 365,
+      },
+      {
+        motorcycleId: gsf600.id,
+        operation: 'Spark plugs replacement',
+        intervalKm: 12000,
+        intervalDays: null,
+      },
+    ])
+    .run()
 })
 
 describe('GET /api/v1/motorcycles', () => {

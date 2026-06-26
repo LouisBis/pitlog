@@ -16,15 +16,32 @@ beforeEach(() => {
 
   const [moto] = db
     .insert(motorcycles)
-    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false })
+    .values({
+      brand: 'Suzuki',
+      model: 'GSF 600 Bandit',
+      year: 1997,
+      isCustom: false,
+    })
     .returning()
     .all()
   catalogueMotoId = moto.id
 
-  db.insert(intervals).values([
-    { motorcycleId: catalogueMotoId, operation: 'Engine oil change', intervalKm: 6000, intervalDays: 365 },
-    { motorcycleId: catalogueMotoId, operation: 'Spark plugs', intervalKm: 12000, intervalDays: null },
-  ]).run()
+  db.insert(intervals)
+    .values([
+      {
+        motorcycleId: catalogueMotoId,
+        operation: 'Engine oil change',
+        intervalKm: 6000,
+        intervalDays: 365,
+      },
+      {
+        motorcycleId: catalogueMotoId,
+        operation: 'Spark plugs',
+        intervalKm: 12000,
+        intervalDays: null,
+      },
+    ])
+    .run()
 
   // Generic template — required for custom motorcycle seeding
   const [generic] = db
@@ -33,10 +50,22 @@ beforeEach(() => {
     .returning()
     .all()
 
-  db.insert(intervals).values([
-    { motorcycleId: generic.id, operation: 'Engine oil change', intervalKm: 5000, intervalDays: 365 },
-    { motorcycleId: generic.id, operation: 'Drive chain lubrication', intervalKm: 500, intervalDays: null },
-  ]).run()
+  db.insert(intervals)
+    .values([
+      {
+        motorcycleId: generic.id,
+        operation: 'Engine oil change',
+        intervalKm: 5000,
+        intervalDays: 365,
+      },
+      {
+        motorcycleId: generic.id,
+        operation: 'Drive chain lubrication',
+        intervalKm: 500,
+        intervalDays: null,
+      },
+    ])
+    .run()
 })
 
 describe('GET /api/v1/user-motorcycles', () => {
@@ -48,7 +77,11 @@ describe('GET /api/v1/user-motorcycles', () => {
 
   it('returns user motorcycles with catalogue info', async () => {
     db.insert(userMotorcycles)
-      .values({ motorcycleId: catalogueMotoId, currentKm: 8500, acquiredAt: new Date('2022-01-01') })
+      .values({
+        motorcycleId: catalogueMotoId,
+        currentKm: 8500,
+        acquiredAt: new Date('2022-01-01'),
+      })
       .run()
 
     const res = await request(app).get('/api/v1/user-motorcycles')
@@ -61,9 +94,12 @@ describe('GET /api/v1/user-motorcycles', () => {
 
 describe('POST /api/v1/user-motorcycles', () => {
   it('creates a user motorcycle matched to the catalogue and records initial km', async () => {
-    const res = await request(app)
-      .post('/api/v1/user-motorcycles')
-      .send({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, currentKm: 5000 })
+    const res = await request(app).post('/api/v1/user-motorcycles').send({
+      brand: 'Suzuki',
+      model: 'GSF 600 Bandit',
+      year: 1997,
+      currentKm: 5000,
+    })
 
     expect(res.status).toBe(201)
     expect(res.body.currentKm).toBe(5000)
@@ -76,9 +112,12 @@ describe('POST /api/v1/user-motorcycles', () => {
   })
 
   it('auto-seeds tickets from catalogue intervals on creation', async () => {
-    await request(app)
-      .post('/api/v1/user-motorcycles')
-      .send({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, currentKm: 5000 })
+    await request(app).post('/api/v1/user-motorcycles').send({
+      brand: 'Suzuki',
+      model: 'GSF 600 Bandit',
+      year: 1997,
+      currentKm: 5000,
+    })
 
     const [userMoto] = db.select().from(userMotorcycles).all()
     const seeded = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()
@@ -106,9 +145,14 @@ describe('POST /api/v1/user-motorcycles', () => {
   })
 
   it('seeds generic intervals even when Generic/Standard is absent from DB (self-heal)', async () => {
-    db.delete(intervals).where(eq(intervals.motorcycleId,
-      db.select({ id: motorcycles.id }).from(motorcycles).where(eq(motorcycles.brand, 'Generic')).get()?.id ?? -1
-    )).run()
+    db.delete(intervals)
+      .where(
+        eq(
+          intervals.motorcycleId,
+          db.select({ id: motorcycles.id }).from(motorcycles).where(eq(motorcycles.brand, 'Generic')).get()?.id ?? -1,
+        ),
+      )
+      .run()
     db.delete(motorcycles).where(eq(motorcycles.brand, 'Generic')).run()
 
     const res = await request(app)
@@ -122,26 +166,38 @@ describe('POST /api/v1/user-motorcycles', () => {
     expect(seeded.length).toBeGreaterThan(0)
     expect(seeded.some((t) => t.operation === 'Engine oil change')).toBe(true)
 
-    const generic = db.select().from(motorcycles).all().find((m) => m.brand === 'Generic' && m.model === 'Standard')
+    const generic = db
+      .select()
+      .from(motorcycles)
+      .all()
+      .find((m) => m.brand === 'Generic' && m.model === 'Standard')
     expect(generic).toBeDefined()
   })
 
   it('reuses an existing catalogue entry when brand+model+year already exists', async () => {
-    await request(app)
-      .post('/api/v1/user-motorcycles')
-      .send({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, currentKm: 5000 })
-    await request(app)
-      .post('/api/v1/user-motorcycles')
-      .send({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, currentKm: 8000 })
+    await request(app).post('/api/v1/user-motorcycles').send({
+      brand: 'Suzuki',
+      model: 'GSF 600 Bandit',
+      year: 1997,
+      currentKm: 5000,
+    })
+    await request(app).post('/api/v1/user-motorcycles').send({
+      brand: 'Suzuki',
+      model: 'GSF 600 Bandit',
+      year: 1997,
+      currentKm: 8000,
+    })
 
-    const suzukis = db.select().from(motorcycles).all().filter((m) => m.brand === 'Suzuki')
+    const suzukis = db
+      .select()
+      .from(motorcycles)
+      .all()
+      .filter((m) => m.brand === 'Suzuki')
     expect(suzukis).toHaveLength(1)
   })
 
   it('returns 400 for missing fields', async () => {
-    const res = await request(app)
-      .post('/api/v1/user-motorcycles')
-      .send({ brand: 'Suzuki', currentKm: 5000 })
+    const res = await request(app).post('/api/v1/user-motorcycles').send({ brand: 'Suzuki', currentKm: 5000 })
     expect(res.status).toBe(400)
   })
 })
@@ -150,7 +206,11 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
   it('creates tickets for all catalogue intervals when board is empty', async () => {
     const [userMoto] = db
       .insert(userMotorcycles)
-      .values({ motorcycleId: catalogueMotoId, currentKm: 8000, acquiredAt: new Date() })
+      .values({
+        motorcycleId: catalogueMotoId,
+        currentKm: 8000,
+        acquiredAt: new Date(),
+      })
       .returning()
       .all()
 
@@ -166,17 +226,23 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
   it('is idempotent — skips intervals already covered by an active ticket', async () => {
     const [userMoto] = db
       .insert(userMotorcycles)
-      .values({ motorcycleId: catalogueMotoId, currentKm: 8000, acquiredAt: new Date() })
+      .values({
+        motorcycleId: catalogueMotoId,
+        currentKm: 8000,
+        acquiredAt: new Date(),
+      })
       .returning()
       .all()
 
     const [interval] = db.select().from(intervals).where(eq(intervals.motorcycleId, catalogueMotoId)).all()
-    db.insert(tickets).values({
-      userMotorcycleId: userMoto.id,
-      intervalId: interval.id,
-      operation: interval.operation,
-      status: 'todo',
-    }).run()
+    db.insert(tickets)
+      .values({
+        userMotorcycleId: userMoto.id,
+        intervalId: interval.id,
+        operation: interval.operation,
+        status: 'todo',
+      })
+      .run()
 
     const res = await request(app).post(`/api/v1/user-motorcycles/${userMoto.id}/import-intervals`)
 
@@ -195,7 +261,11 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
       .all()
     const [userMoto] = db
       .insert(userMotorcycles)
-      .values({ motorcycleId: customMoto.id, currentKm: 1000, acquiredAt: new Date() })
+      .values({
+        motorcycleId: customMoto.id,
+        currentKm: 1000,
+        acquiredAt: new Date(),
+      })
       .returning()
       .all()
 
@@ -213,13 +283,15 @@ describe('PATCH /api/v1/user-motorcycles/:id/km', () => {
   it('updates km and adds a km history entry', async () => {
     const [userMoto] = db
       .insert(userMotorcycles)
-      .values({ motorcycleId: catalogueMotoId, currentKm: 8500, acquiredAt: new Date('2022-01-01') })
+      .values({
+        motorcycleId: catalogueMotoId,
+        currentKm: 8500,
+        acquiredAt: new Date('2022-01-01'),
+      })
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/user-motorcycles/${userMoto.id}/km`)
-      .send({ km: 9200 })
+    const res = await request(app).patch(`/api/v1/user-motorcycles/${userMoto.id}/km`).send({ km: 9200 })
 
     expect(res.status).toBe(200)
     expect(res.body.currentKm).toBe(9200)
@@ -231,21 +303,21 @@ describe('PATCH /api/v1/user-motorcycles/:id/km', () => {
   it('returns 422 when new km is less than current km', async () => {
     const [userMoto] = db
       .insert(userMotorcycles)
-      .values({ motorcycleId: catalogueMotoId, currentKm: 8500, acquiredAt: new Date('2022-01-01') })
+      .values({
+        motorcycleId: catalogueMotoId,
+        currentKm: 8500,
+        acquiredAt: new Date('2022-01-01'),
+      })
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/user-motorcycles/${userMoto.id}/km`)
-      .send({ km: 5000 })
+    const res = await request(app).patch(`/api/v1/user-motorcycles/${userMoto.id}/km`).send({ km: 5000 })
 
     expect(res.status).toBe(422)
   })
 
   it('returns 404 for unknown user motorcycle', async () => {
-    const res = await request(app)
-      .patch('/api/v1/user-motorcycles/999/km')
-      .send({ km: 9000 })
+    const res = await request(app).patch('/api/v1/user-motorcycles/999/km').send({ km: 9000 })
     expect(res.status).toBe(404)
   })
 })
@@ -254,16 +326,28 @@ describe('DELETE /api/v1/user-motorcycles/:id', () => {
   it('deletes the user motorcycle and its associated tickets and km history', async () => {
     const [userMoto] = db
       .insert(userMotorcycles)
-      .values({ motorcycleId: catalogueMotoId, currentKm: 8500, acquiredAt: new Date('2022-01-01') })
+      .values({
+        motorcycleId: catalogueMotoId,
+        currentKm: 8500,
+        acquiredAt: new Date('2022-01-01'),
+      })
       .returning()
       .all()
 
     db.insert(tickets)
-      .values({ userMotorcycleId: userMoto.id, operation: 'Oil change', status: 'todo' })
+      .values({
+        userMotorcycleId: userMoto.id,
+        operation: 'Oil change',
+        status: 'todo',
+      })
       .run()
 
     db.insert(kmHistory)
-      .values({ userMotorcycleId: userMoto.id, km: 8500, recordedAt: new Date() })
+      .values({
+        userMotorcycleId: userMoto.id,
+        km: 8500,
+        recordedAt: new Date(),
+      })
       .run()
 
     const res = await request(app).delete(`/api/v1/user-motorcycles/${userMoto.id}`)

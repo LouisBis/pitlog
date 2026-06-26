@@ -35,7 +35,10 @@ export default function KmUpdateForm({ userMotoId, currentKm, onClose }: Props) 
         error={error}
         placeholder={t('km_update.placeholder')}
         value={value}
-        onChange={(e) => { setValue(e.target.value); setError(false) }}
+        onChange={(e) => {
+          setValue(e.target.value)
+          setError(false)
+        }}
         min={currentKm + 1}
         autoFocus
       />

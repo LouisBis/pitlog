@@ -5,7 +5,9 @@
   border: 1px solid var(--column-border);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
-  transition: background 150ms ease, border-color 150ms ease;
+  transition:
+    background 150ms ease,
+    border-color 150ms ease;
 }
 
 .column.over {
@@ -44,9 +46,15 @@
 }
 
 @keyframes doneFlash {
-  0%   { box-shadow: 0 0 0 0 rgba(70, 179, 110, 0.7); }
-  50%  { box-shadow: 0 0 0 0.5rem rgba(70, 179, 110, 0.1); }
-  100% { box-shadow: 0 0 0 0 rgba(70, 179, 110, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(70, 179, 110, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 0.5rem rgba(70, 179, 110, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(70, 179, 110, 0);
+  }
 }
 
 .doneFlash {
@@ -63,8 +71,9 @@
   border: 1px dashed var(--color-border);
   border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: color var(--duration-fast) var(--easing-default),
-              border-color var(--duration-fast) var(--easing-default);
+  transition:
+    color var(--duration-fast) var(--easing-default),
+    border-color var(--duration-fast) var(--easing-default);
   text-align: center;
 }
 

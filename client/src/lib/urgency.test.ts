@@ -27,7 +27,11 @@ describe('getUrgency', () => {
   afterEach(() => vi.useRealTimers())
 
   it('returns ok for a done ticket regardless of km or date', () => {
-    const ticket = makeTicket({ status: 'done', targetKm: 100, targetDate: '2026-01-02' })
+    const ticket = makeTicket({
+      status: 'done',
+      targetKm: 100,
+      targetDate: '2026-01-02',
+    })
     expect(getUrgency(ticket, 5000)).toBe('ok')
   })
 

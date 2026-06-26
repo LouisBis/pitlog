@@ -42,7 +42,9 @@ export const useUpdateKm = (userMotorcycleId: number) => {
     mutationFn: (km: number) => api.updateKm(userMotorcycleId, km),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-motorcycles'] })
-      queryClient.invalidateQueries({ queryKey: ['velocity', userMotorcycleId] })
+      queryClient.invalidateQueries({
+        queryKey: ['velocity', userMotorcycleId],
+      })
     },
   })
 }

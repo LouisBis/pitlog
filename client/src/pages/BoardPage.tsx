@@ -40,14 +40,26 @@ export default function BoardPage() {
             {moto && (
               <>
                 <span className={styles.separator}>·</span>
-                <span className={styles.motoName}>{moto.brand} {moto.model}</span>
+                <span className={styles.motoName}>
+                  {moto.brand} {moto.model}
+                </span>
                 <span className={styles.separator}>·</span>
-                {editingKm
-                  ? <KmUpdateForm userMotoId={userMotoId} currentKm={moto.currentKm} onClose={() => setEditingKm(false)} />
-                  : <button type="button" className={styles.km} onClick={() => setEditingKm(true)} title={t('km_update.label')}>
-                      {t('common.km', { count: moto.currentKm })}
-                    </button>
-                }
+                {editingKm ? (
+                  <KmUpdateForm
+                    userMotoId={userMotoId}
+                    currentKm={moto.currentKm}
+                    onClose={() => setEditingKm(false)}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.km}
+                    onClick={() => setEditingKm(true)}
+                    title={t('km_update.label')}
+                  >
+                    {t('common.km', { count: moto.currentKm })}
+                  </button>
+                )}
               </>
             )}
             {moto && (

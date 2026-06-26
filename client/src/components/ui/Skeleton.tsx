@@ -7,10 +7,5 @@ interface Props {
 }
 
 export function Skeleton({ width, height, className }: Props) {
-  return (
-    <div
-      className={[styles.skeleton, className].filter(Boolean).join(' ')}
-      style={{ width, height }}
-    />
-  )
+  return <div className={[styles.skeleton, className].filter(Boolean).join(' ')} style={{ width, height }} />
 }

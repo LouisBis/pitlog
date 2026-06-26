@@ -1,6 +1,14 @@
 import { http, HttpResponse } from 'msw'
 import type { CreatePartPayload, CreateTicketPayload, TicketStatus, UpdateTicketIntervalPayload } from '@/types'
-import { mockUserMotorcycles, mockTickets, mockParts, mockVelocity, mockIntervals, nextId, nextMockPartId } from './data'
+import {
+  mockUserMotorcycles,
+  mockTickets,
+  mockParts,
+  mockVelocity,
+  mockIntervals,
+  nextId,
+  nextMockPartId,
+} from './data'
 import type { UpdateTicketPayload } from '@/lib/api'
 
 export const handlers = [

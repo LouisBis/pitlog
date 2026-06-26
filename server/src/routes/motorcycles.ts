@@ -19,22 +19,14 @@ router.get('/:id', (req, res) => {
   const id = parseId(req.params.id, res)
   if (id === null) return
 
-  const motorcycle = db
-    .select()
-    .from(motorcycles)
-    .where(eq(motorcycles.id, id))
-    .get()
+  const motorcycle = db.select().from(motorcycles).where(eq(motorcycles.id, id)).get()
 
   if (!motorcycle) {
     res.status(404).json({ error: 'Motorcycle not found' })
     return
   }
 
-  const motorcycleIntervals = db
-    .select()
-    .from(intervals)
-    .where(eq(intervals.motorcycleId, id))
-    .all()
+  const motorcycleIntervals = db.select().from(intervals).where(eq(intervals.motorcycleId, id)).all()
 
   res.json({ ...motorcycle, intervals: motorcycleIntervals })
 })

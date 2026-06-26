@@ -16,18 +16,20 @@ export const useTickets = (userMotorcycleId: number) =>
 export const usePatchTicketStatus = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, status }: { id: number; status: TicketStatus }) =>
-      api.patchTicketStatus(id, status),
+    mutationFn: ({ id, status }: { id: number; status: TicketStatus }) => api.patchTicketStatus(id, status),
 
     // --- Optimistic update ---
     onMutate: async ({ id, status }) => {
       // Cancel any in-flight refetch to prevent it from overwriting the optimistic state
-      await queryClient.cancelQueries({ queryKey: ['tickets', userMotorcycleId] })
+      await queryClient.cancelQueries({
+        queryKey: ['tickets', userMotorcycleId],
+      })
       const previous = queryClient.getQueryData<Ticket[]>(['tickets', userMotorcycleId])
       // Without a snapshot, onError would call setQueryData(key, undefined) and wipe the board
       if (!previous) return
-      queryClient.setQueryData<Ticket[]>(['tickets', userMotorcycleId], (old) =>
-        old?.map((t) => (t.id === id ? { ...t, status } : t)) ?? []
+      queryClient.setQueryData<Ticket[]>(
+        ['tickets', userMotorcycleId],
+        (old) => old?.map((t) => (t.id === id ? { ...t, status } : t)) ?? [],
       )
       return { previous }
     },
@@ -36,7 +38,9 @@ export const usePatchTicketStatus = (userMotorcycleId: number) => {
       log.error('[usePatchTicketStatus] failed, rolling back optimistic update')
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', userMotorcycleId],
+      })
     },
   })
 }
@@ -48,7 +52,9 @@ export const useCreateTicket = (userMotorcycleId: number) => {
     mutationFn: (data: Omit<CreateTicketPayload, 'userMotorcycleId'>) =>
       api.createTicket({ ...data, userMotorcycleId }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', userMotorcycleId],
+      })
     },
     onError: (err) => {
       log.error('[useCreateTicket] failed', err)
@@ -60,10 +66,11 @@ export const useCreateTicket = (userMotorcycleId: number) => {
 export const usePatchTicketInterval = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: number } & UpdateTicketIntervalPayload) =>
-      api.patchTicketInterval(id, data),
+    mutationFn: ({ id, ...data }: { id: number } & UpdateTicketIntervalPayload) => api.patchTicketInterval(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', userMotorcycleId],
+      })
     },
     onError: (err) => {
       log.error('[usePatchTicketInterval] failed', err)
@@ -75,10 +82,11 @@ export const usePatchTicketInterval = (userMotorcycleId: number) => {
 export const useUpdateTicket = (userMotorcycleId: number) => {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: number } & UpdateTicketPayload) =>
-      api.updateTicket(id, data),
+    mutationFn: ({ id, ...data }: { id: number } & UpdateTicketPayload) => api.updateTicket(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', userMotorcycleId],
+      })
     },
     onError: (err) => {
       log.error('[useUpdateTicket] failed', err)
@@ -92,7 +100,9 @@ export const useDeleteTicket = (userMotorcycleId: number) => {
   return useMutation({
     mutationFn: (id: number) => api.deleteTicket(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', userMotorcycleId],
+      })
     },
     onError: (err) => {
       log.error('[useDeleteTicket] failed', err)
@@ -106,7 +116,9 @@ export const useImportIntervals = (userMotorcycleId: number) => {
   return useMutation({
     mutationFn: () => api.importIntervals(userMotorcycleId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tickets', userMotorcycleId] })
+      queryClient.invalidateQueries({
+        queryKey: ['tickets', userMotorcycleId],
+      })
     },
     onError: (err) => {
       log.error('[useImportIntervals] failed', err)

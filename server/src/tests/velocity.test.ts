@@ -14,10 +14,12 @@ describe('computeVelocity', () => {
 
   it('returns null when all entries share the same date', () => {
     const now = day(0)
-    expect(computeVelocity([
-      { km: 10000, recordedAt: now },
-      { km: 10500, recordedAt: now },
-    ])).toBeNull()
+    expect(
+      computeVelocity([
+        { km: 10000, recordedAt: now },
+        { km: 10500, recordedAt: now },
+      ]),
+    ).toBeNull()
   })
 
   it('computes km/day from two entries', () => {
