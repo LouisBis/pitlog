@@ -2,36 +2,17 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import request from 'supertest'
 import { app } from '../app.js'
 import { db } from '../db/index.js'
-import { intervals, motorcycles } from '../db/schema/index.js'
+import { motorcycles } from '../db/schema/index.js'
 
 beforeEach(() => {
-  db.delete(intervals).run()
   db.delete(motorcycles).run()
 
   db.insert(motorcycles)
     .values([
-      { brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false },
-      { brand: 'Honda', model: 'CB500', year: 1998, isCustom: false },
-      { brand: 'Generic', model: 'Standard', year: 0, isCustom: false },
-      { brand: 'Honda', model: 'CB500', year: 2020, isCustom: true },
-    ])
-    .run()
-
-  const [gsf600] = db.select().from(motorcycles).all()
-  db.insert(intervals)
-    .values([
-      {
-        motorcycleId: gsf600.id,
-        operation: 'Engine oil change',
-        intervalKm: 6000,
-        intervalDays: 365,
-      },
-      {
-        motorcycleId: gsf600.id,
-        operation: 'Spark plugs replacement',
-        intervalKm: 12000,
-        intervalDays: null,
-      },
+      { brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1997' },
+      { brand: 'Honda', model: 'CB500', year: 1998, isCustom: false, catalogSlug: 'honda-cb500-1998' },
+      { brand: 'Generic', model: 'Standard', year: 0, isCustom: false, catalogSlug: null },
+      { brand: 'Honda', model: 'CB500', year: 2020, isCustom: true, catalogSlug: null },
     ])
     .run()
 })
@@ -48,13 +29,13 @@ describe('GET /api/v1/motorcycles', () => {
 })
 
 describe('GET /api/v1/motorcycles/:id', () => {
-  it('returns a motorcycle with its intervals', async () => {
+  it('returns a motorcycle with its catalogSlug', async () => {
     const [moto] = db.select().from(motorcycles).all()
     const res = await request(app).get(`/api/v1/motorcycles/${moto.id}`)
     expect(res.status).toBe(200)
     expect(res.body.brand).toBe('Suzuki')
-    expect(res.body.intervals).toHaveLength(2)
-    expect(res.body.intervals[0].operation).toBe('Engine oil change')
+    expect(res.body.catalogSlug).toBe('suzuki-gsf600-bandit-1997')
+    expect(res.body.intervals).toBeUndefined()
   })
 
   it('returns 400 for a non-numeric id', async () => {
