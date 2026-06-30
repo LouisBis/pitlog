@@ -6,4 +6,5 @@ export const motorcycles = sqliteTable('motorcycles', {
   model: text('model').notNull(),
   year: integer('year').notNull(),
   isCustom: integer('is_custom', { mode: 'boolean' }).notNull().default(false),
+  catalogSlug: text('catalog_slug'),
 })
