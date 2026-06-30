@@ -5,34 +5,42 @@ import { db } from '../db/index.js'
 import {
   tickets,
   userMotorcycles,
-  intervals,
-  motorcycleIntervals,
+  intervalOverrides,
+  customIntervals,
   motorcycles,
   ticketParts,
   TICKET_STATUSES,
   type TicketStatus,
 } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
+import { loadCatalogEntry } from '../lib/catalog.js'
 import logger from '../lib/logger.js'
 import { parseId } from '../lib/parseId.js'
-
-const updateTicketSchema = z.object({
-  operation: z.string().min(1).optional(),
-  targetKm: z.number().int().min(0).nullable().optional(),
-})
 
 const router = Router()
 
 const createSchema = z.object({
   userMotorcycleId: z.number().int().positive(),
   operation: z.string().min(1),
-  intervalId: z.number().int().positive().optional(),
+  catalogSlug: z.string().optional(),
+  intervalSlug: z.string().optional(),
   targetKm: z.number().int().min(0).optional(),
   targetDate: z.coerce.date().optional(),
 })
 
+const updateTicketSchema = z.object({
+  operation: z.string().min(1).optional(),
+  targetKm: z.number().int().min(0).nullable().optional(),
+})
+
 const updateStatusSchema = z.object({
   status: z.enum(TICKET_STATUSES),
+})
+
+const updateIntervalSchema = z.object({
+  customKm: z.number().int().positive().nullable().optional(),
+  customDays: z.number().int().positive().nullable().optional(),
+  operation: z.string().min(1).optional(),
 })
 
 const VALID_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
@@ -42,28 +50,38 @@ const VALID_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
   done: [],
 }
 
-const updateIntervalSchema = z.object({
-  customKm: z.number().int().positive().nullable().optional(),
-  customDays: z.number().int().positive().nullable().optional(),
-  operation: z.string().min(1).optional(),
-})
+/** Returns effective km/days for a ticket, applying intervalOverrides or customIntervals. */
+function resolveInterval(userMotorcycleId: number, ticket: typeof tickets.$inferSelect) {
+  if (ticket.catalogSlug && ticket.intervalSlug) {
+    const entry = loadCatalogEntry(ticket.catalogSlug)
+    const catalogInterval = entry?.intervals.find((i) => i.slug === ticket.intervalSlug)
+    if (!catalogInterval) return null
 
-function resolveInterval(userMotorcycleId: number, intervalId: number) {
-  const override = db
-    .select()
-    .from(motorcycleIntervals)
-    .where(
-      and(eq(motorcycleIntervals.userMotorcycleId, userMotorcycleId), eq(motorcycleIntervals.intervalId, intervalId)),
-    )
-    .get()
+    const override = db
+      .select()
+      .from(intervalOverrides)
+      .where(
+        and(
+          eq(intervalOverrides.userMotorcycleId, userMotorcycleId),
+          eq(intervalOverrides.catalogSlug, ticket.catalogSlug),
+          eq(intervalOverrides.intervalSlug, ticket.intervalSlug),
+        ),
+      )
+      .get()
 
-  const base = db.select().from(intervals).where(eq(intervals.id, intervalId)).get()
-  if (!base) return null
-
-  return {
-    intervalKm: override?.customKm ?? base.intervalKm,
-    intervalDays: override?.customDays ?? base.intervalDays,
+    return {
+      intervalKm: override?.customKm ?? catalogInterval.km,
+      intervalDays: override?.customDays ?? catalogInterval.days,
+    }
   }
+
+  if (ticket.customIntervalId) {
+    const custom = db.select().from(customIntervals).where(eq(customIntervals.id, ticket.customIntervalId)).get()
+    if (!custom) return null
+    return { intervalKm: custom.intervalKm, intervalDays: custom.intervalDays }
+  }
+
+  return null
 }
 
 router.get('/', (req, res) => {
@@ -74,22 +92,25 @@ router.get('/', (req, res) => {
     .select({
       id: tickets.id,
       userMotorcycleId: tickets.userMotorcycleId,
-      intervalId: tickets.intervalId,
+      catalogSlug: tickets.catalogSlug,
+      intervalSlug: tickets.intervalSlug,
+      customIntervalId: tickets.customIntervalId,
       operation: tickets.operation,
       status: tickets.status,
       targetKm: tickets.targetKm,
       targetDate: tickets.targetDate,
       doneKm: tickets.doneKm,
       doneAt: tickets.doneAt,
-      customKm: motorcycleIntervals.customKm,
-      customDays: motorcycleIntervals.customDays,
+      customKm: intervalOverrides.customKm,
+      customDays: intervalOverrides.customDays,
     })
     .from(tickets)
     .leftJoin(
-      motorcycleIntervals,
+      intervalOverrides,
       and(
-        eq(motorcycleIntervals.intervalId, tickets.intervalId),
-        eq(motorcycleIntervals.userMotorcycleId, tickets.userMotorcycleId),
+        eq(intervalOverrides.userMotorcycleId, tickets.userMotorcycleId),
+        eq(intervalOverrides.catalogSlug, tickets.catalogSlug),
+        eq(intervalOverrides.intervalSlug, tickets.intervalSlug),
       ),
     )
     .where(eq(tickets.userMotorcycleId, userMotorcycleId))
@@ -102,7 +123,6 @@ router.post('/', validateBody(createSchema), (req, res) => {
   const body = res.locals.body as z.infer<typeof createSchema>
 
   const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, body.userMotorcycleId)).get()
-
   if (!userMoto) {
     logger.warn({ userMotorcycleId: body.userMotorcycleId }, 'User motorcycle not found')
     res.status(404).json({ error: 'User motorcycle not found' })
@@ -111,14 +131,7 @@ router.post('/', validateBody(createSchema), (req, res) => {
 
   const [created] = db.insert(tickets).values(body).returning().all()
 
-  logger.info(
-    {
-      ticketId: created.id,
-      operation: created.operation,
-      userMotorcycleId: body.userMotorcycleId,
-    },
-    'Ticket created',
-  )
+  logger.info({ ticketId: created.id, operation: created.operation, userMotorcycleId: body.userMotorcycleId }, 'Ticket created')
   res.status(201).json(created)
 })
 
@@ -129,7 +142,6 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
   const { status } = res.locals.body as z.infer<typeof updateStatusSchema>
 
   const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
-
   if (!ticket) {
     logger.warn({ ticketId: id }, 'Ticket not found')
     res.status(404).json({ error: 'Ticket not found' })
@@ -146,10 +158,7 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
   if (status === 'done') {
     const userMotoForKm = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
     if (!userMotoForKm) {
-      logger.warn(
-        { ticketId: id, userMotorcycleId: ticket.userMotorcycleId },
-        'User motorcycle not found on done transition',
-      )
+      logger.warn({ ticketId: id, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on done transition')
       res.status(500).json({ error: 'User motorcycle not found' })
       return
     }
@@ -160,8 +169,9 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
 
   const [updated] = db.update(tickets).set(updates).where(eq(tickets.id, id)).returning().all()
 
-  if (status === 'done' && ticket.intervalId && updated.doneKm !== null && updated.doneAt !== null) {
-    const effective = resolveInterval(ticket.userMotorcycleId, ticket.intervalId)
+  const hasInterval = ticket.catalogSlug || ticket.customIntervalId
+  if (status === 'done' && hasInterval && updated.doneKm !== null && updated.doneAt !== null) {
+    const effective = resolveInterval(ticket.userMotorcycleId, ticket)
     if (effective) {
       const nextTargetKm = effective.intervalKm !== null ? updated.doneKm + effective.intervalKm : null
       const nextTargetDate =
@@ -172,7 +182,9 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
       db.insert(tickets)
         .values({
           userMotorcycleId: ticket.userMotorcycleId,
-          intervalId: ticket.intervalId,
+          catalogSlug: ticket.catalogSlug,
+          intervalSlug: ticket.intervalSlug,
+          customIntervalId: ticket.customIntervalId,
           operation: ticket.operation,
           status: 'todo',
           targetKm: nextTargetKm,
@@ -201,56 +213,50 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
 
   const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, ticket.userMotorcycleId)).get()
   if (!userMoto) {
-    logger.warn(
-      { ticketId: id, userMotorcycleId: ticket.userMotorcycleId },
-      'User motorcycle not found on interval update',
-    )
+    logger.warn({ ticketId: id, userMotorcycleId: ticket.userMotorcycleId }, 'User motorcycle not found on interval update')
     res.status(404).json({ error: 'User motorcycle not found' })
     return
   }
-  const moto = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()
-  if (!moto) {
-    logger.warn({ ticketId: id, motorcycleId: userMoto.motorcycleId }, 'Motorcycle not found on interval update')
-    res.status(404).json({ error: 'Motorcycle not found' })
-    return
-  }
 
-  let intervalId = ticket.intervalId
-
-  if (!intervalId) {
-    if (!operation) {
-      res.status(400).json({
-        error: 'operation is required for tickets without an existing interval',
+  if (ticket.catalogSlug && ticket.intervalSlug) {
+    db.insert(intervalOverrides)
+      .values({
+        userMotorcycleId: ticket.userMotorcycleId,
+        catalogSlug: ticket.catalogSlug,
+        intervalSlug: ticket.intervalSlug,
+        customKm: customKm ?? null,
+        customDays: customDays ?? null,
       })
+      .onConflictDoUpdate({
+        target: [intervalOverrides.userMotorcycleId, intervalOverrides.catalogSlug, intervalOverrides.intervalSlug],
+        set: { customKm: customKm ?? null, customDays: customDays ?? null },
+      })
+      .run()
+    logger.info({ ticketId: ticket.id, catalogSlug: ticket.catalogSlug, intervalSlug: ticket.intervalSlug, customKm, customDays }, 'Interval override upserted')
+  } else if (!ticket.customIntervalId) {
+    if (!operation) {
+      res.status(400).json({ error: 'operation is required for tickets without an existing interval' })
+      return
+    }
+    const moto = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()
+    if (!moto) {
+      res.status(404).json({ error: 'Motorcycle not found' })
       return
     }
     const [newInterval] = db
-      .insert(intervals)
-      .values({
-        motorcycleId: moto.id,
-        operation,
-        intervalKm: customKm ?? null,
-        intervalDays: customDays ?? null,
-      })
+      .insert(customIntervals)
+      .values({ motorcycleId: moto.id, operation, intervalKm: customKm ?? null, intervalDays: customDays ?? null })
       .returning()
       .all()
-    intervalId = newInterval.id
-    db.update(tickets).set({ intervalId, operation }).where(eq(tickets.id, ticket.id)).run()
-    logger.info({ ticketId: ticket.id, intervalId, operation }, 'Custom interval created for ticket')
+    db.update(tickets).set({ customIntervalId: newInterval.id, operation }).where(eq(tickets.id, ticket.id)).run()
+    logger.info({ ticketId: ticket.id, customIntervalId: newInterval.id, operation }, 'Custom interval created for ticket')
+  } else {
+    db.update(customIntervals)
+      .set({ intervalKm: customKm ?? null, intervalDays: customDays ?? null })
+      .where(eq(customIntervals.id, ticket.customIntervalId))
+      .run()
+    logger.info({ ticketId: ticket.id, customIntervalId: ticket.customIntervalId, customKm, customDays }, 'Custom interval updated')
   }
-
-  db.insert(motorcycleIntervals)
-    .values({
-      userMotorcycleId: ticket.userMotorcycleId,
-      intervalId,
-      customKm: customKm ?? null,
-      customDays: customDays ?? null,
-    })
-    .onConflictDoUpdate({
-      target: [motorcycleIntervals.userMotorcycleId, motorcycleIntervals.intervalId],
-      set: { customKm: customKm ?? null, customDays: customDays ?? null },
-    })
-    .run()
 
   const newTargetKm = customKm != null ? userMoto.currentKm + customKm : null
   const newTargetDate = customDays != null ? new Date(Date.now() + customDays * 24 * 60 * 60 * 1000) : null
@@ -262,7 +268,7 @@ router.patch('/:id/interval', validateBody(updateIntervalSchema), (req, res) => 
     .returning()
     .all()
 
-  logger.info({ ticketId: ticket.id, intervalId, customKm, customDays }, 'Ticket interval updated')
+  logger.info({ ticketId: ticket.id, customKm, customDays }, 'Ticket interval updated')
   res.json(updated)
 })
 
@@ -293,14 +299,7 @@ router.patch('/:id', validateBody(updateTicketSchema), (req, res) => {
     .returning()
     .all()
 
-  logger.info(
-    {
-      ticketId: updated.id,
-      operation: updated.operation,
-      targetKm: updated.targetKm,
-    },
-    'Ticket updated',
-  )
+  logger.info({ ticketId: updated.id, operation: updated.operation, targetKm: updated.targetKm }, 'Ticket updated')
   res.json(updated)
 })
 
