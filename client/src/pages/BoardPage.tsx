@@ -70,6 +70,14 @@ export default function BoardPage() {
                 </Link>
               </>
             )}
+            {moto?.catalogSlug && (
+              <>
+                <span className={styles.separator}>·</span>
+                <Link to={`/board/${userMotoId}/reference`} className={styles.back}>
+                  {t('nav.reference')}
+                </Link>
+              </>
+            )}
             {isError && <span className={styles.error}>{t('common.error.server')}</span>}
           </div>
         </div>

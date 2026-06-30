@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge'
 import { useDeleteTicket } from '@/queries/useTickets'
 import { useTicketParts } from '@/queries/useTicketParts'
 import TicketEditForm from './TicketEditForm'
+import TorquePanel from './TorquePanel'
 import styles from './TicketCard.module.css'
 
 interface Props {
@@ -145,6 +146,9 @@ export default function TicketCard({
                 {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
               </div>
             )
+          )}
+          {ticket.catalogSlug && ticket.intervalSlug && ticket.status !== 'done' && (
+            <TorquePanel catalogSlug={ticket.catalogSlug} intervalSlug={ticket.intervalSlug} />
           )}
           {parts.length > 0 && (
             <ul className={styles.partsReadList}>

@@ -1,6 +1,8 @@
 import log from './logger'
 import type {
   AddMotorcyclePayload,
+  CatalogEntry,
+  CatalogSummary,
   CreateTicketPayload,
   UpdateTicketIntervalPayload,
   Motorcycle,
@@ -121,4 +123,8 @@ export const api = {
     request<void>(`/api/v1/tickets/${ticketId}/parts/${partId}`, {
       method: 'DELETE',
     }),
+
+  getCatalogSummaries: () => request<CatalogSummary[]>('/api/v1/catalog'),
+
+  getCatalogEntry: (slug: string) => request<CatalogEntry>(`/api/v1/catalog/${slug}`),
 }

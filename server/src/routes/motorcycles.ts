@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import { and, eq, ne } from 'drizzle-orm'
 import { db } from '../db/index.js'
-import { motorcycles, intervals } from '../db/schema/index.js'
+import { motorcycles } from '../db/schema/index.js'
 import { parseId } from '../lib/parseId.js'
 
 const router = Router()
@@ -26,9 +26,7 @@ router.get('/:id', (req, res) => {
     return
   }
 
-  const motorcycleIntervals = db.select().from(intervals).where(eq(intervals.motorcycleId, id)).all()
-
-  res.json({ ...motorcycle, intervals: motorcycleIntervals })
+  res.json(motorcycle)
 })
 
 export default router

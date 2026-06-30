@@ -1,17 +1,28 @@
 import { http, HttpResponse } from 'msw'
 import type { CreatePartPayload, CreateTicketPayload, TicketStatus, UpdateTicketIntervalPayload } from '@/types'
 import {
+  mockCatalogEntries,
+  mockCatalogSummaries,
   mockUserMotorcycles,
   mockTickets,
   mockParts,
   mockVelocity,
-  mockIntervals,
   nextId,
   nextMockPartId,
 } from './data'
 import type { UpdateTicketPayload } from '@/lib/api'
 
 export const handlers = [
+  http.get('*/api/v1/catalog', () => {
+    return HttpResponse.json(mockCatalogSummaries)
+  }),
+
+  http.get('*/api/v1/catalog/:slug', ({ params }) => {
+    const entry = mockCatalogEntries.find((e) => e.slug === params.slug)
+    if (!entry) return new HttpResponse(null, { status: 404 })
+    return HttpResponse.json(entry)
+  }),
+
   http.get('*/api/v1/user-motorcycles', () => {
     return HttpResponse.json(mockUserMotorcycles)
   }),
@@ -67,7 +78,9 @@ export const handlers = [
     const ticket = {
       id: nextId(),
       userMotorcycleId: body.userMotorcycleId,
-      intervalId: body.intervalId ?? null,
+      catalogSlug: body.catalogSlug ?? null,
+      intervalSlug: body.intervalSlug ?? null,
+      customIntervalId: null,
       operation: body.operation,
       status: 'todo' as TicketStatus,
       targetKm: body.targetKm ?? null,
@@ -94,18 +107,21 @@ export const handlers = [
       ticket.doneKm = moto?.currentKm ?? null
       ticket.doneAt = new Date().toISOString()
 
-      if (ticket.intervalId !== null && ticket.doneKm !== null) {
-        const interval = mockIntervals[ticket.intervalId]
+      if (ticket.catalogSlug && ticket.intervalSlug && ticket.doneKm !== null) {
+        const entry = mockCatalogEntries.find((e) => e.slug === ticket.catalogSlug)
+        const interval = entry?.intervals.find((i) => i.slug === ticket.intervalSlug)
         if (interval) {
-          const nextTargetKm = interval.intervalKm !== null ? ticket.doneKm + interval.intervalKm : null
+          const nextTargetKm = interval.km !== null ? ticket.doneKm + interval.km : null
           const nextTargetDate =
-            interval.intervalDays !== null
-              ? new Date(Date.now() + interval.intervalDays * 24 * 60 * 60 * 1000).toISOString()
+            interval.days !== null
+              ? new Date(Date.now() + interval.days * 24 * 60 * 60 * 1000).toISOString()
               : null
           mockTickets.push({
             id: nextId(),
             userMotorcycleId: ticket.userMotorcycleId,
-            intervalId: ticket.intervalId,
+            catalogSlug: ticket.catalogSlug,
+            intervalSlug: ticket.intervalSlug,
+            customIntervalId: null,
             operation: ticket.operation,
             status: 'todo',
             targetKm: nextTargetKm,

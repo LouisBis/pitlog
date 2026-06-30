@@ -9,7 +9,8 @@
     "back_to_garage": "← Mes motos",
     "back_to_board": "← Tableau de bord",
     "back_to_home": "← Retour à l'accueil",
-    "history": "Historique"
+    "history": "Historique",
+    "reference": "Fiche technique"
   },
   "history": {
     "title": "Historique",
@@ -111,6 +112,16 @@
     "confirm": "Confirmer",
     "cancel": "Annuler",
     "error.lower": "La valeur doit être supérieure au compteur actuel"
+  },
+  "reference": {
+    "title": "Fiche technique",
+    "intervals.title": "Intervalles d'entretien",
+    "torque.title": "Couples de serrage",
+    "empty.intervals": "Aucun intervalle défini.",
+    "empty.torque": "Aucune valeur de couple définie.",
+    "nm": "{{count}} Nm",
+    "every_km": "Tous les {{count, number}} km",
+    "every_days": "Tous les {{count, number}} j"
   },
   "not_found": {
     "code": "404",
