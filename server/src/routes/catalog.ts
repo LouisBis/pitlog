@@ -6,13 +6,9 @@ const router = Router()
 
 /** Returns the catalog summary list (slug, brand, model, year only). */
 router.get('/', (_req, res) => {
-  const entries = loadAllCatalogEntries()
-  const summaries: CatalogSummary[] = entries.map(({ slug, brand, model, year }) => ({
-    slug,
-    brand,
-    model,
-    year,
-  }))
+  const summaries: CatalogSummary[] = loadAllCatalogEntries()
+    .filter((e) => e.brand !== 'Generic')
+    .map(({ slug, brand, model, year }) => ({ slug, brand, model, year }))
   logger.info({ count: summaries.length }, 'Catalog list served')
   res.json(summaries)
 })

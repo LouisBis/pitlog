@@ -16,6 +16,11 @@ describe('GET /api/v1/catalog', () => {
     expect(gsf.intervals).toBeUndefined()
     expect(gsf.torque_specs).toBeUndefined()
   })
+
+  it('does not expose generic-standard in the summary list', async () => {
+    const res = await request(app).get('/api/v1/catalog')
+    expect(res.body.find((e: { slug: string }) => e.slug === 'generic-standard')).toBeUndefined()
+  })
 })
 
 describe('GET /api/v1/catalog/:slug', () => {

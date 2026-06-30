@@ -5,7 +5,6 @@ import type {
   CatalogSummary,
   CreateTicketPayload,
   UpdateTicketIntervalPayload,
-  Motorcycle,
   Ticket,
   TicketPart,
   TicketStatus,
@@ -24,13 +23,16 @@ export interface UpdateTicketPayload {
 /** Typed error that carries the HTTP status and parsed response body.
  *  Lets callers branch on status code without parsing the error message. */
 export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly statusText: string,
-    public readonly body: unknown = null,
-  ) {
+  readonly status: number
+  readonly statusText: string
+  readonly body: unknown
+
+  constructor(status: number, statusText: string, body: unknown = null) {
     super(`${status} ${statusText}`)
     this.name = 'ApiError'
+    this.status = status
+    this.statusText = statusText
+    this.body = body
   }
 }
 
@@ -54,8 +56,6 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 // --- API endpoints ---
 
 export const api = {
-  getMotorcycles: () => request<Motorcycle[]>('/api/v1/motorcycles'),
-
   getUserMotorcycles: () => request<UserMotorcycle[]>('/api/v1/user-motorcycles'),
 
   addMotorcycle: (data: AddMotorcyclePayload) =>
