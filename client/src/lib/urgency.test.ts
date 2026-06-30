@@ -6,7 +6,9 @@ function makeTicket(overrides: Partial<Ticket> = {}): Ticket {
   return {
     id: 1,
     userMotorcycleId: 1,
-    intervalId: null,
+    catalogSlug: null,
+    intervalSlug: null,
+    customIntervalId: null,
     operation: 'Vidange',
     status: 'todo',
     targetKm: null,
