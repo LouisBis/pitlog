@@ -1,12 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { useCatalogEntry } from '@/queries/useCatalog'
-import type { CatalogEntry, TorqueSpec } from '@/types'
+import { getRelevantTorqueSpecs } from './torqueUtils'
 import styles from './TorquePanel.module.css'
-
-/** Returns torque specs from entry whose related_intervals include the given slug. */
-export function getRelevantTorqueSpecs(entry: CatalogEntry, intervalSlug: string): TorqueSpec[] {
-  return entry.torque_specs.filter((s) => s.related_intervals.includes(intervalSlug))
-}
 
 interface Props {
   catalogSlug: string

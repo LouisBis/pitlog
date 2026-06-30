@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { getRelevantTorqueSpecs } from './TorquePanel'
+import { getRelevantTorqueSpecs } from './torqueUtils'
 import type { CatalogEntry } from '@/types'
 
 const entry: CatalogEntry = {
