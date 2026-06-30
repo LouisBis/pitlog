@@ -6,6 +6,42 @@ export interface Motorcycle {
   year: number
   /** True when entered manually by the user — no catalogue intervals exist for it. */
   isCustom: boolean
+  catalogSlug: string | null
+}
+
+/** Catalog interval from a JSON catalog entry. */
+export interface CatalogInterval {
+  slug: string
+  operation: string
+  km: number | null
+  days: number | null
+}
+
+/** Torque specification from a catalog entry. */
+export interface TorqueSpec {
+  slug: string
+  component: string
+  nm: number
+  note: string | null
+  related_intervals: string[]
+}
+
+/** Full catalog entry (brand + model + intervals + torque specs). */
+export interface CatalogEntry {
+  slug: string
+  brand: string
+  model: string
+  year: number
+  intervals: CatalogInterval[]
+  torque_specs: TorqueSpec[]
+}
+
+/** Summary returned by GET /api/v1/catalog (no intervals/torque_specs). */
+export interface CatalogSummary {
+  slug: string
+  brand: string
+  model: string
+  year: number
 }
 
 export interface AddMotorcyclePayload {
@@ -28,14 +64,19 @@ export interface UserMotorcycle {
   model: string
   year: number
   isCustom: boolean
+  catalogSlug: string | null
 }
 
 /** Maintenance ticket on the kanban board. */
 export interface Ticket {
   id: number
   userMotorcycleId: number
-  /** Null when the ticket was created manually with no catalogue interval. */
-  intervalId: number | null
+  /** Set for catalog motorcycle tickets. Paired with intervalSlug. */
+  catalogSlug: string | null
+  /** Slug of the catalog interval this ticket tracks. */
+  intervalSlug: string | null
+  /** Set for custom motorcycle tickets. */
+  customIntervalId: number | null
   operation: string
   status: TicketStatus
   /** Odometer value at which the operation is due. */
@@ -62,7 +103,8 @@ export interface VelocityResult {
 export interface CreateTicketPayload {
   userMotorcycleId: number
   operation: string
-  intervalId?: number
+  catalogSlug?: string
+  intervalSlug?: string
   targetKm?: number
   targetDate?: string
 }
