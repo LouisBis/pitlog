@@ -1,18 +1,54 @@
-import type { Ticket, TicketPart, UserMotorcycle, VelocityResult } from '@/types'
+import type { CatalogEntry, CatalogSummary, Ticket, TicketPart, UserMotorcycle, VelocityResult } from '@/types'
 
-interface MockInterval {
-  id: number
-  intervalKm: number | null
-  intervalDays: number | null
-}
+export const mockCatalogEntries: CatalogEntry[] = [
+  {
+    slug: 'suzuki-gsf600-bandit-1997',
+    brand: 'Suzuki',
+    model: 'GSF 600 Bandit',
+    year: 1997,
+    intervals: [
+      { slug: 'oil-change', operation: 'Engine oil change', km: 6000, days: 365 },
+      { slug: 'oil-filter', operation: 'Engine oil filter', km: 12000, days: 730 },
+      { slug: 'air-filter-inspection', operation: 'Air filter inspection', km: 6000, days: 365 },
+      { slug: 'air-filter-replacement', operation: 'Air filter replacement', km: 18000, days: 1095 },
+      { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 12000, days: 730 },
+      { slug: 'chain-lubrication', operation: 'Drive chain lubrication', km: 1000, days: null },
+      { slug: 'valve-clearance-check', operation: 'Valve clearance check', km: 48000, days: null },
+      { slug: 'brake-fluid-replacement', operation: 'Brake fluid replacement', km: null, days: 730 },
+      { slug: 'brake-hose-replacement', operation: 'Brake hose replacement', km: null, days: 1460 },
+      { slug: 'fuel-line-replacement', operation: 'Fuel line replacement', km: null, days: 1460 },
+    ],
+    torque_specs: [
+      { slug: 'spark-plug', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
+      { slug: 'oil-drain-bolt', component: 'Oil drain bolt', nm: 35, note: null, related_intervals: ['oil-change', 'oil-filter'] },
+      { slug: 'front-axle', component: 'Front wheel axle', nm: 65, note: null, related_intervals: [] },
+    ],
+  },
+  {
+    slug: 'honda-cb500-1998',
+    brand: 'Honda',
+    model: 'CB500',
+    year: 1998,
+    intervals: [
+      { slug: 'oil-change', operation: 'Engine oil change', km: 8000, days: 365 },
+      { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 16000, days: null },
+      { slug: 'air-filter-replacement', operation: 'Air filter replacement', km: 24000, days: null },
+      { slug: 'chain-lubrication', operation: 'Drive chain lubrication', km: 1000, days: null },
+      { slug: 'brake-fluid-replacement', operation: 'Brake fluid replacement', km: null, days: 730 },
+    ],
+    torque_specs: [
+      { slug: 'spark-plug', component: 'Spark plug', nm: 16, note: 'Apply anti-seize compound', related_intervals: ['spark-plugs-replacement'] },
+      { slug: 'oil-drain-bolt', component: 'Oil drain bolt', nm: 30, note: null, related_intervals: ['oil-change'] },
+    ],
+  },
+]
 
-export const mockIntervals: Record<number, MockInterval> = {
-  1: { id: 1, intervalKm: 6000, intervalDays: 365 }, // Engine oil change
-  2: { id: 2, intervalKm: 6000, intervalDays: 365 }, // Air filter inspection
-  3: { id: 3, intervalKm: 12000, intervalDays: 730 }, // Spark plugs
-  4: { id: 4, intervalKm: 1000, intervalDays: null }, // Drive chain lubrication
-  5: { id: 5, intervalKm: null, intervalDays: 730 }, // Brake fluid
-}
+export const mockCatalogSummaries: CatalogSummary[] = mockCatalogEntries.map(({ slug, brand, model, year }) => ({
+  slug,
+  brand,
+  model,
+  year,
+}))
 
 export const mockUserMotorcycles: UserMotorcycle[] = [
   {
@@ -24,6 +60,7 @@ export const mockUserMotorcycles: UserMotorcycle[] = [
     model: 'GSF 600 Bandit',
     year: 1997,
     isCustom: false,
+    catalogSlug: 'suzuki-gsf600-bandit-1997',
   },
 ]
 
@@ -32,7 +69,9 @@ export const mockTickets: Ticket[] = [
   {
     id: 1,
     userMotorcycleId: 1,
-    intervalId: 1,
+    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    intervalSlug: 'oil-change',
+    customIntervalId: null,
     operation: 'Vidange moteur',
     status: 'todo',
     targetKm: 15000,
@@ -46,7 +85,9 @@ export const mockTickets: Ticket[] = [
   {
     id: 2,
     userMotorcycleId: 1,
-    intervalId: 2,
+    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    intervalSlug: 'air-filter-inspection',
+    customIntervalId: null,
     operation: 'Filtre à air',
     status: 'todo',
     targetKm: 15350,
@@ -60,7 +101,9 @@ export const mockTickets: Ticket[] = [
   {
     id: 3,
     userMotorcycleId: 1,
-    intervalId: 3,
+    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    intervalSlug: 'spark-plugs-replacement',
+    customIntervalId: null,
     operation: 'Bougies',
     status: 'todo',
     targetKm: 15650,
@@ -74,7 +117,9 @@ export const mockTickets: Ticket[] = [
   {
     id: 4,
     userMotorcycleId: 1,
-    intervalId: 4,
+    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    intervalSlug: 'chain-lubrication',
+    customIntervalId: null,
     operation: 'Lubrification chaîne',
     status: 'part_ordered',
     targetKm: 18000,
@@ -88,7 +133,9 @@ export const mockTickets: Ticket[] = [
   {
     id: 5,
     userMotorcycleId: 1,
-    intervalId: 2,
+    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    intervalSlug: 'air-filter-inspection',
+    customIntervalId: null,
     operation: 'Filtre à air',
     status: 'in_progress',
     targetKm: null,
@@ -98,11 +145,13 @@ export const mockTickets: Ticket[] = [
     customKm: null,
     customDays: null,
   },
-  // done — linked to interval 5 (brake fluid), will regenerate on next demo drag to done
+  // done — brake fluid, will regenerate on next demo drag to done
   {
     id: 6,
     userMotorcycleId: 1,
-    intervalId: 5,
+    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    intervalSlug: 'brake-fluid-replacement',
+    customIntervalId: null,
     operation: 'Liquide de frein',
     status: 'done',
     targetKm: 14000,
