@@ -1,0 +1,35 @@
+{
+  "slug": "honda-cb500-1998",
+  "brand": "Honda",
+  "model": "CB500",
+  "year": 1998,
+  "intervals": [
+    { "slug": "oil-change", "operation": "Engine oil change", "km": 6000, "days": 365 },
+    { "slug": "oil-filter", "operation": "Engine oil filter", "km": 6000, "days": 365 },
+    { "slug": "air-filter-cleaning", "operation": "Air filter cleaning", "km": 6000, "days": 365 },
+    { "slug": "air-filter-replacement", "operation": "Air filter replacement", "km": 18000, "days": 1095 },
+    { "slug": "spark-plugs-replacement", "operation": "Spark plugs replacement", "km": 12000, "days": null },
+    { "slug": "chain-tension", "operation": "Drive chain tension", "km": 800, "days": null },
+    { "slug": "chain-lubrication", "operation": "Drive chain lubrication", "km": 300, "days": null },
+    { "slug": "coolant-replacement", "operation": "Coolant replacement", "km": 36000, "days": 730 },
+    { "slug": "valve-clearance-check", "operation": "Valve clearance check", "km": 24000, "days": null },
+    { "slug": "brake-fluid-replacement", "operation": "Brake fluid replacement", "km": null, "days": 730 },
+    { "slug": "fork-oil-change", "operation": "Fork oil change", "km": 12000, "days": null }
+  ],
+  "torque_specs": [
+    {
+      "slug": "spark-plug",
+      "component": "Spark plug",
+      "nm": 16,
+      "note": "Apply anti-seize compound",
+      "related_intervals": ["spark-plugs-replacement"]
+    },
+    {
+      "slug": "oil-drain-bolt",
+      "component": "Oil drain bolt",
+      "nm": 30,
+      "note": null,
+      "related_intervals": ["oil-change", "oil-filter"]
+    }
+  ]
+}
