@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
 import { userMotorcycles, motorcycles, kmHistory, tickets, ticketParts } from '../db/schema/index.js'
@@ -79,13 +79,19 @@ router.post('/', validateBody(createSchema), (req, res) => {
   const isCustom = !catalogEntry
   const catalogSlug = catalogEntry?.slug ?? null
 
-  const [motorcycle] = db
-    .insert(motorcycles)
-    .values({ brand, model, year, isCustom, catalogSlug })
-    .returning()
-    .all()
+  const existing = db
+    .select()
+    .from(motorcycles)
+    .where(and(eq(motorcycles.brand, brand), eq(motorcycles.model, model), eq(motorcycles.year, year)))
+    .get()
 
-  logger.info({ motorcycleId: motorcycle.id, brand, model, year, isCustom, catalogSlug }, 'Motorcycle created')
+  const motorcycle =
+    existing ??
+    db.insert(motorcycles).values({ brand, model, year, isCustom, catalogSlug }).returning().get()
+
+  if (!existing) {
+    logger.info({ motorcycleId: motorcycle.id, brand, model, year, isCustom, catalogSlug }, 'Motorcycle created')
+  }
 
   const [userMoto] = db
     .insert(userMotorcycles)
