@@ -1,14 +1,3 @@
-/** Motorcycle from the catalogue (not user-owned). */
-export interface Motorcycle {
-  id: number
-  brand: string
-  model: string
-  year: number
-  /** True when entered manually by the user — no catalogue intervals exist for it. */
-  isCustom: boolean
-  catalogSlug: string | null
-}
-
 /** Catalog interval from a JSON catalog entry. */
 export interface CatalogInterval {
   slug: string

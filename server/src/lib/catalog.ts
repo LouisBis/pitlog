@@ -49,7 +49,16 @@ export function loadAllCatalogEntries(): CatalogEntry[] {
   return entries
 }
 
+let catalogCache: Map<string, CatalogEntry> | null = null
+
+function getCatalogCache(): Map<string, CatalogEntry> {
+  if (!catalogCache) {
+    catalogCache = new Map(loadAllCatalogEntries().map((e) => [e.slug, e]))
+  }
+  return catalogCache
+}
+
 /** Reads a single catalog entry by slug. Returns undefined if not found. */
 export function loadCatalogEntry(slug: string): CatalogEntry | undefined {
-  return loadAllCatalogEntries().find((e) => e.slug === slug)
+  return getCatalogCache().get(slug)
 }

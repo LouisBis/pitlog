@@ -2,13 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
 import type { AddMotorcyclePayload } from '@/types'
 
-/** Fetches the catalogue of available motorcycles (non-custom, non-Generic). */
-export const useMotorcycles = () =>
-  useQuery({
-    queryKey: ['motorcycles'],
-    queryFn: api.getMotorcycles,
-  })
-
 /** Fetches the current user's garage (all owned motorcycles). */
 export const useUserMotorcycles = () =>
   useQuery({

@@ -1,11 +1,11 @@
 import { Router } from 'express'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
 import { userMotorcycles, motorcycles, kmHistory, tickets, ticketParts } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
-import { loadCatalogEntry } from '../lib/catalog.js'
+import { loadCatalogEntry, loadAllCatalogEntries } from '../lib/catalog.js'
 import type { CatalogInterval } from '../lib/catalog.js'
 import logger from '../lib/logger.js'
 import { parseId } from '../lib/parseId.js'
@@ -70,20 +70,27 @@ router.get('/', (_req, res) => {
 router.post('/', validateBody(createSchema), (req, res) => {
   const { brand, model, year, currentKm } = res.locals.body as z.infer<typeof createSchema>
 
-  let motorcycle =
-    db
-      .select()
-      .from(motorcycles)
-      .where(eq(motorcycles.brand, brand))
-      .all()
-      .find((m) => m.model === model && m.year === year) ?? null
+  const catalogEntry = loadAllCatalogEntries().find(
+    (e) =>
+      e.brand.toLowerCase() === brand.toLowerCase() &&
+      e.model.toLowerCase() === model.toLowerCase() &&
+      e.year === year,
+  )
+  const isCustom = !catalogEntry
+  const catalogSlug = catalogEntry?.slug ?? null
 
-  if (!motorcycle) {
-    const [created] = db.insert(motorcycles).values({ brand, model, year, isCustom: true }).returning().all()
-    motorcycle = created
-    logger.info({ brand, model, year }, 'Custom motorcycle created')
-  } else {
-    logger.info({ motorcycleId: motorcycle.id, brand, model, year }, 'Catalogue motorcycle matched')
+  const existing = db
+    .select()
+    .from(motorcycles)
+    .where(and(eq(motorcycles.brand, brand), eq(motorcycles.model, model), eq(motorcycles.year, year)))
+    .get()
+
+  const motorcycle =
+    existing ??
+    db.insert(motorcycles).values({ brand, model, year, isCustom, catalogSlug }).returning().get()
+
+  if (!existing) {
+    logger.info({ motorcycleId: motorcycle.id, brand, model, year, isCustom, catalogSlug }, 'Motorcycle created')
   }
 
   const [userMoto] = db
@@ -94,17 +101,17 @@ router.post('/', validateBody(createSchema), (req, res) => {
 
   db.insert(kmHistory).values({ userMotorcycleId: userMoto.id, km: currentKm, recordedAt: new Date() }).run()
 
-  const effectiveSlug = motorcycle.isCustom ? 'generic-standard' : motorcycle.catalogSlug
+  const effectiveSlug = isCustom ? 'generic-standard' : catalogSlug
   if (effectiveSlug) {
     const entry = loadCatalogEntry(effectiveSlug)
     if (entry) seedCatalogTickets(userMoto.id, currentKm, effectiveSlug, entry.intervals)
   }
 
-  if (motorcycle.isCustom) {
+  if (isCustom) {
     logger.info({ userMotorcycleId: userMoto.id }, 'Custom motorcycle seeded with generic intervals')
   }
 
-  res.status(201).json({ ...userMoto, brand, model, year, isCustom: motorcycle.isCustom })
+  res.status(201).json({ ...userMoto, brand, model, year, isCustom, catalogSlug })
 })
 
 router.post('/:id/import-intervals', (req, res) => {

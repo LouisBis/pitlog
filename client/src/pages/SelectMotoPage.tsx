@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { TrashIcon, MotorcycleIcon } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useUserMotorcycles, useMotorcycles, useDeleteMotorcycle } from '@/queries/useUserMotorcycles'
+import { useUserMotorcycles, useDeleteMotorcycle } from '@/queries/useUserMotorcycles'
+import { useCatalogSummaries } from '@/queries/useCatalog'
 import AddMotoForm from '@/components/AddMotoForm'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
@@ -88,7 +89,7 @@ export default function SelectMotoPage() {
   const navigate = useNavigate()
   const [showForm, setShowForm] = useState(false)
   const { data: motos, isLoading, isError } = useUserMotorcycles()
-  const { data: catalogue = [] } = useMotorcycles()
+  const { data: catalogue = [] } = useCatalogSummaries()
 
   const isEmpty = !isLoading && !isError && motos?.length === 0
 

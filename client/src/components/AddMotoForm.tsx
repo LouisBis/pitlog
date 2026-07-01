@@ -1,14 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Motorcycle } from '@/types'
+import type { CatalogSummary } from '@/types'
 import { useAddMotorcycle } from '@/queries/useUserMotorcycles'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import styles from './AddMotoForm.module.css'
 
 interface Props {
-  /** Catalogue motorcycles used to populate the brand/model/year datalists. */
-  catalogue: Motorcycle[]
+  /** Catalogue entries used to populate the brand/model/year datalists. */
+  catalogue: CatalogSummary[]
   onClose: () => void
 }
 
