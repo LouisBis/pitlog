@@ -66,7 +66,7 @@ describe('POST /api/v1/user-motorcycles', () => {
     const [userMoto] = db.select().from(userMotorcycles).all()
     const seeded = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()
 
-    expect(seeded).toHaveLength(10)
+    expect(seeded).toHaveLength(11)
     const oilChange = seeded.find((t) => t.intervalSlug === 'oil-change')!
     expect(oilChange.status).toBe('todo')
     expect(oilChange.targetKm).toBe(5000 + 6000)
@@ -121,10 +121,10 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
     const res = await request(app).post(`/api/v1/user-motorcycles/${userMoto.id}/import-intervals`)
 
     expect(res.status).toBe(200)
-    expect(res.body.created).toBe(10)
+    expect(res.body.created).toBe(11)
 
     const seeded = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()
-    expect(seeded).toHaveLength(10)
+    expect(seeded).toHaveLength(11)
   })
 
   it('is idempotent — skips intervals already covered by an active ticket', async () => {
@@ -147,10 +147,10 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
     const res = await request(app).post(`/api/v1/user-motorcycles/${userMoto.id}/import-intervals`)
 
     expect(res.status).toBe(200)
-    expect(res.body.created).toBe(9)
+    expect(res.body.created).toBe(10)
 
     const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()
-    expect(all).toHaveLength(10)
+    expect(all).toHaveLength(11)
   })
 
   it('returns 422 when motorcycle has no catalogSlug', async () => {
