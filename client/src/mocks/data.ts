@@ -2,10 +2,11 @@ import type { CatalogEntry, CatalogSummary, Ticket, TicketPart, UserMotorcycle, 
 
 export const mockCatalogEntries: CatalogEntry[] = [
   {
-    slug: 'suzuki-gsf600-bandit-1997',
+    slug: 'suzuki-gsf600-bandit-1995-1999',
     brand: 'Suzuki',
     model: 'GSF 600 Bandit',
-    year: 1997,
+    year_start: 1995,
+    year_end: 1999,
     intervals: [
       { slug: 'oil-change', operation: 'Engine oil change', km: 6000, days: 365 },
       { slug: 'oil-filter', operation: 'Engine oil filter', km: 12000, days: 730 },
@@ -25,10 +26,11 @@ export const mockCatalogEntries: CatalogEntry[] = [
     ],
   },
   {
-    slug: 'honda-cb500-1998',
+    slug: 'honda-cb500-1994-2001',
     brand: 'Honda',
     model: 'CB500',
-    year: 1998,
+    year_start: 1994,
+    year_end: 2001,
     intervals: [
       { slug: 'oil-change', operation: 'Engine oil change', km: 8000, days: 365 },
       { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 16000, days: null },
@@ -43,11 +45,12 @@ export const mockCatalogEntries: CatalogEntry[] = [
   },
 ]
 
-export const mockCatalogSummaries: CatalogSummary[] = mockCatalogEntries.map(({ slug, brand, model, year }) => ({
+export const mockCatalogSummaries: CatalogSummary[] = mockCatalogEntries.map(({ slug, brand, model, year_start, year_end }) => ({
   slug,
   brand,
   model,
-  year,
+  year_start,
+  year_end,
 }))
 
 export const mockUserMotorcycles: UserMotorcycle[] = [
@@ -60,7 +63,7 @@ export const mockUserMotorcycles: UserMotorcycle[] = [
     model: 'GSF 600 Bandit',
     year: 1997,
     isCustom: false,
-    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
   },
 ]
 
@@ -69,7 +72,7 @@ export const mockTickets: Ticket[] = [
   {
     id: 1,
     userMotorcycleId: 1,
-    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
     intervalSlug: 'oil-change',
     customIntervalId: null,
     operation: 'Vidange moteur',
@@ -85,7 +88,7 @@ export const mockTickets: Ticket[] = [
   {
     id: 2,
     userMotorcycleId: 1,
-    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
     intervalSlug: 'air-filter-inspection',
     customIntervalId: null,
     operation: 'Filtre à air',
@@ -101,7 +104,7 @@ export const mockTickets: Ticket[] = [
   {
     id: 3,
     userMotorcycleId: 1,
-    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
     intervalSlug: 'spark-plugs-replacement',
     customIntervalId: null,
     operation: 'Bougies',
@@ -117,7 +120,7 @@ export const mockTickets: Ticket[] = [
   {
     id: 4,
     userMotorcycleId: 1,
-    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
     intervalSlug: 'chain-lubrication',
     customIntervalId: null,
     operation: 'Lubrification chaîne',
@@ -133,7 +136,7 @@ export const mockTickets: Ticket[] = [
   {
     id: 5,
     userMotorcycleId: 1,
-    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
     intervalSlug: 'air-filter-inspection',
     customIntervalId: null,
     operation: 'Filtre à air',
@@ -149,7 +152,7 @@ export const mockTickets: Ticket[] = [
   {
     id: 6,
     userMotorcycleId: 1,
-    catalogSlug: 'suzuki-gsf600-bandit-1997',
+    catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
     intervalSlug: 'brake-fluid-replacement',
     customIntervalId: null,
     operation: 'Liquide de frein',

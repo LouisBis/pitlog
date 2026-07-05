@@ -15,7 +15,7 @@ beforeEach(() => {
 
   const [moto] = db
     .insert(motorcycles)
-    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1997' })
+    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1995-1999' })
     .returning()
     .all()
   catalogueMotoId = moto.id
@@ -37,7 +37,7 @@ describe('GET /api/v1/user-motorcycles', () => {
     expect(res.status).toBe(200)
     expect(res.body[0].brand).toBe('Suzuki')
     expect(res.body[0].currentKm).toBe(8500)
-    expect(res.body[0].catalogSlug).toBe('suzuki-gsf600-bandit-1997')
+    expect(res.body[0].catalogSlug).toBe('suzuki-gsf600-bandit-1995-1999')
     expect(res.body[0].isCustom).toBe(false)
   })
 })
@@ -70,7 +70,7 @@ describe('POST /api/v1/user-motorcycles', () => {
     const oilChange = seeded.find((t) => t.intervalSlug === 'oil-change')!
     expect(oilChange.status).toBe('todo')
     expect(oilChange.targetKm).toBe(5000 + 6000)
-    expect(oilChange.catalogSlug).toBe('suzuki-gsf600-bandit-1997')
+    expect(oilChange.catalogSlug).toBe('suzuki-gsf600-bandit-1995-1999')
   })
 
   it('creates a custom motorcycle and seeds generic intervals', async () => {
@@ -137,7 +137,7 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
     db.insert(tickets)
       .values({
         userMotorcycleId: userMoto.id,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         operation: 'Engine oil change',
         status: 'todo',

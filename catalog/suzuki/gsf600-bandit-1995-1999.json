@@ -1,8 +1,9 @@
 {
-  "slug": "suzuki-gsf600-bandit-1997",
+  "slug": "suzuki-gsf600-bandit-1995-1999",
   "brand": "Suzuki",
   "model": "GSF 600 Bandit",
-  "year": 1997,
+  "year_start": 1995,
+  "year_end": 1999,
   "intervals": [
     { "slug": "oil-change", "operation": "Engine oil change", "km": 6000, "days": 365 },
     { "slug": "oil-filter", "operation": "Engine oil filter", "km": 12000, "days": 730 },

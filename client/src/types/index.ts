@@ -20,7 +20,8 @@ export interface CatalogEntry {
   slug: string
   brand: string
   model: string
-  year: number
+  year_start: number
+  year_end: number | null
   intervals: CatalogInterval[]
   torque_specs: TorqueSpec[]
 }
@@ -30,7 +31,8 @@ export interface CatalogSummary {
   slug: string
   brand: string
   model: string
-  year: number
+  year_start: number
+  year_end: number | null
 }
 
 export interface AddMotorcyclePayload {

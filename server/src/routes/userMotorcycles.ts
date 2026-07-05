@@ -74,7 +74,7 @@ router.post('/', validateBody(createSchema), (req, res) => {
     (e) =>
       e.brand.toLowerCase() === brand.toLowerCase() &&
       e.model.toLowerCase() === model.toLowerCase() &&
-      e.year === year,
+      e.year_start <= year && (e.year_end == null || year <= e.year_end),
   )
   const isCustom = !catalogEntry
   const catalogSlug = catalogEntry?.slug ?? null

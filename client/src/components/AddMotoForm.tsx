@@ -37,7 +37,10 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
             .filter(
               (m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase(),
             )
-            .map((m) => m.year),
+            .flatMap((m) => {
+              const end = m.year_end ?? new Date().getFullYear()
+              return Array.from({ length: end - m.year_start + 1 }, (_, i) => m.year_start + i)
+            }),
         ),
       ].sort((a, b) => b - a),
     [catalogue, brand, model],
