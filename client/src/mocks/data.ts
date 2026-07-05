@@ -26,6 +26,15 @@ export const mockCatalogEntries: CatalogEntry[] = [
     ],
   },
   {
+    slug: 'kawasaki-kle500-1991-1995',
+    brand: 'Kawasaki',
+    model: 'KLE 500',
+    year_start: 1991,
+    year_end: 1995,
+    intervals: [],
+    torque_specs: [],
+  },
+  {
     slug: 'honda-cb500-1994-2001',
     brand: 'Honda',
     model: 'CB500',
