@@ -8,11 +8,12 @@ describe('GET /api/v1/catalog', () => {
     expect(res.status).toBe(200)
     expect(Array.isArray(res.body)).toBe(true)
     expect(res.body.length).toBeGreaterThanOrEqual(3)
-    const gsf = res.body.find((e: { slug: string }) => e.slug === 'suzuki-gsf600-bandit-1997')
+    const gsf = res.body.find((e: { slug: string }) => e.slug === 'suzuki-gsf600-bandit-1995-1999')
     expect(gsf).toBeDefined()
     expect(gsf.brand).toBe('Suzuki')
     expect(gsf.model).toBe('GSF 600 Bandit')
-    expect(gsf.year).toBe(1997)
+    expect(gsf.year_start).toBe(1995)
+    expect(gsf.year_end).toBe(1999)
     expect(gsf.intervals).toBeUndefined()
     expect(gsf.torque_specs).toBeUndefined()
   })
@@ -25,9 +26,9 @@ describe('GET /api/v1/catalog', () => {
 
 describe('GET /api/v1/catalog/:slug', () => {
   it('returns full catalog entry with intervals and torque_specs', async () => {
-    const res = await request(app).get('/api/v1/catalog/honda-cb500-1998')
+    const res = await request(app).get('/api/v1/catalog/honda-cb500-1994-2001')
     expect(res.status).toBe(200)
-    expect(res.body.slug).toBe('honda-cb500-1998')
+    expect(res.body.slug).toBe('honda-cb500-1994-2001')
     expect(res.body.brand).toBe('Honda')
     expect(Array.isArray(res.body.intervals)).toBe(true)
     expect(res.body.intervals.length).toBeGreaterThan(0)

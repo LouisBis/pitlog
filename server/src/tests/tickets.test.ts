@@ -27,7 +27,7 @@ beforeEach(() => {
 
   const [moto] = db
     .insert(motorcycles)
-    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1997' })
+    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1995-1999' })
     .returning()
     .all()
   motoId = moto.id
@@ -62,7 +62,7 @@ describe('GET /api/v1/tickets', () => {
     db.insert(tickets)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         operation: 'Engine oil change',
         status: 'todo',
@@ -72,7 +72,7 @@ describe('GET /api/v1/tickets', () => {
     db.insert(intervalOverrides)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         customKm: 4000,
         customDays: null,
@@ -217,7 +217,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
       .insert(tickets)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         operation: 'Engine oil change',
         status: 'in_progress',
@@ -234,7 +234,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
     expect(next.status).toBe('todo')
     expect(next.operation).toBe('Engine oil change')
     expect(next.targetKm).toBe(8500 + 6000)
-    expect(next.catalogSlug).toBe('suzuki-gsf600-bandit-1997')
+    expect(next.catalogSlug).toBe('suzuki-gsf600-bandit-1995-1999')
     expect(next.intervalSlug).toBe('oil-change')
   })
 
@@ -244,7 +244,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
       .insert(tickets)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'brake-fluid-replacement',
         operation: 'Brake fluid replacement',
         status: 'in_progress',
@@ -278,7 +278,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
     db.insert(intervalOverrides)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         customKm: 4000,
         customDays: null,
@@ -289,7 +289,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
       .insert(tickets)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         operation: 'Engine oil change',
         status: 'in_progress',
@@ -389,7 +389,7 @@ describe('PATCH /api/v1/tickets/:id/interval', () => {
       .insert(tickets)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         operation: 'Engine oil change',
         status: 'todo',
@@ -445,7 +445,7 @@ describe('PATCH /api/v1/tickets/:id/interval', () => {
       .insert(tickets)
       .values({
         userMotorcycleId: userMotoId,
-        catalogSlug: 'suzuki-gsf600-bandit-1997',
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
         intervalSlug: 'oil-change',
         operation: 'Engine oil change',
         status: 'todo',
