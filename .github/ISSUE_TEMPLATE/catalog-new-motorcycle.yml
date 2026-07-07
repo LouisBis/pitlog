@@ -1,0 +1,43 @@
+name: "Catalog — New motorcycle"
+description: Request a motorcycle to be added to the community catalog
+labels: ["catalog"]
+body:
+  - type: input
+    id: brand
+    attributes:
+      label: Brand
+      placeholder: "e.g. Kawasaki"
+    validations:
+      required: true
+
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      placeholder: "e.g. KLE 500"
+    validations:
+      required: true
+
+  - type: input
+    id: years
+    attributes:
+      label: Year range
+      placeholder: "e.g. 1991-1995"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: data_available
+    attributes:
+      label: Available data
+      description: What data do you have access to?
+      options:
+        - label: Service manual (intervals)
+        - label: Service manual (torque specs)
+        - label: I can submit a PR with the data
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Any relevant details (manual edition, variant differences, etc.)

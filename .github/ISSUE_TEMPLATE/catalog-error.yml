@@ -1,0 +1,43 @@
+name: "Catalog — Error report"
+description: Report an incorrect interval or torque value in the catalog
+labels: ["catalog", "bug"]
+body:
+  - type: input
+    id: motorcycle
+    attributes:
+      label: Motorcycle
+      placeholder: "e.g. Suzuki GSF 600 Bandit 1997"
+    validations:
+      required: true
+
+  - type: input
+    id: field
+    attributes:
+      label: Field / slug
+      placeholder: "e.g. torque_spec: front-brake-caliper-mounting-bolt"
+    validations:
+      required: true
+
+  - type: input
+    id: current_value
+    attributes:
+      label: Current value in catalog
+      placeholder: "e.g. 25 N·m"
+    validations:
+      required: true
+
+  - type: input
+    id: correct_value
+    attributes:
+      label: Correct value
+      placeholder: "e.g. 39 N·m"
+    validations:
+      required: true
+
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      placeholder: "e.g. Suzuki GSF600 Service Manual 1995, page 2-18"
+    validations:
+      required: true
