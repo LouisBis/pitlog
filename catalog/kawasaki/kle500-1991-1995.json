@@ -1,8 +1,9 @@
 {
-  "slug": "kawasaki-kle500-2000",
+  "slug": "kawasaki-kle500-1991-1995",
   "brand": "Kawasaki",
   "model": "KLE 500",
-  "year": 2000,
+  "year_start": 1991,
+  "year_end": 1995,
   "intervals": [
     { "slug": "oil-change", "operation": "Engine oil change", "km": 10000, "days": 365 },
     { "slug": "oil-filter", "operation": "Engine oil filter", "km": 10000, "days": 365 },

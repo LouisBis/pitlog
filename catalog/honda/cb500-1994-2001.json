@@ -1,8 +1,9 @@
 {
-  "slug": "honda-cb500-1998",
+  "slug": "honda-cb500-1994-2001",
   "brand": "Honda",
   "model": "CB500",
-  "year": 1998,
+  "year_start": 1994,
+  "year_end": 2001,
   "intervals": [
     { "slug": "oil-change", "operation": "Engine oil change", "km": 6000, "days": 365 },
     { "slug": "oil-filter", "operation": "Engine oil filter", "km": 6000, "days": 365 },
