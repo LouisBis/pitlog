@@ -78,6 +78,11 @@ menu() {
   opt 13  "Update design tokens   pull latest @louisbis/pitlog-tokens"
   echo ""
 
+  section "CI"
+  opt 18  "Validate catalog       node scripts/validate-catalog.mjs"
+  opt 19  "Full CI dry run        lint + typecheck + tests + validate-catalog"
+  echo ""
+
   section "Shell"
   opt 14  "Shell → client"
   opt 15  "Shell → server"
@@ -108,6 +113,14 @@ while true; do
     12) run docker compose up -d --build server ;;
     17) run docker compose down -v && docker compose up -d --build ;;
     13) run docker compose exec client npm install @louisbis/pitlog-tokens@latest && run docker compose restart client ;;
+    18) run node scripts/validate-catalog.mjs ;;
+    19) run docker compose exec client npm run lint \
+     && run docker compose exec client npx tsc --noEmit \
+     && run docker compose exec server npx tsc --noEmit \
+     && run docker compose exec client npm test \
+     && run docker compose exec server npm test \
+     && run node scripts/validate-catalog.mjs \
+     && echo -e "\n    ${GREEN}${BOLD}✓ All CI checks passed.${RESET}" ;;
     14) docker compose exec client sh ;;
     15) docker compose exec server sh ;;
     q|Q) echo -e "\n    ${YELLOW}Bye.${RESET}\n"; exit 0 ;;
