@@ -1,6 +1,6 @@
 # Pitlog
 
-> Motorcycle maintenance logbook — predictive alerts, kanban board, LLM-assisted diagnostics.
+> Motorcycle maintenance logbook — kanban board, community catalog, LLM-assisted diagnostics.
 
 [![CI](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml)
 [![Deploy](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml)
@@ -180,6 +180,10 @@ The script opens an interactive menu. To start the full stack:
 | [localhost:3001/health](http://localhost:3001/health) | Health check |
 
 To run server tests, use option `7` from the menu.
+
+## Contributing
+
+Catalog contributions (new motorcycles, interval corrections, torque specs) are the most impactful way to help. See [CONTRIBUTING.md](CONTRIBUTING.md) for the catalog schema and PR process.
 
 ---
 
