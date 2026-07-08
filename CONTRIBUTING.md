@@ -119,7 +119,7 @@ If a motorcycle is already in the catalog but missing intervals or torque specs,
 Requirements: **Docker** and **Docker Compose** only.
 
 ```bash
-git clone git@github.com:LouisBis/pitlog.git
+git clone https://github.com/LouisBis/pitlog.git
 cd pitlog
 ./dev.sh   # interactive menu — option 1 to start the full stack
 ```

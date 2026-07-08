@@ -1,6 +1,6 @@
 # Pitlog
 
-> Motorcycle maintenance logbook — kanban board, community catalog, LLM-assisted diagnostics.
+> Motorcycle maintenance logbook — kanban board, community catalog.
 
 [![CI](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml)
 [![Deploy](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml)
@@ -33,13 +33,6 @@ Service intervals and torque specs for recognised models are stored in versioned
 - Drag & drop between columns
 - **Reference page** (`/board/:id/reference`): catalog intervals and torque specs for the current motorcycle
 - **Contextual torque hints**: relevant torque values shown inline on ticket cards
-
-### **Module 2 — LLM Diagnostics (Phase 3)**
-
-- Natural language chat: "metallic noise on acceleration"
-- Voice input via Web Speech API
-- Motorcycle context injected automatically into the prompt
-- Local LLM via Ollama (llama3.2) on VPS, streamed response
 
 ## Data model
 
@@ -126,14 +119,14 @@ A few deliberate choices worth noting:
 - **Versioned JSON catalog** — service intervals and torque specs live in `catalog/` as plain JSON files, versioned with the code. Adding a new model is a PR, not a database migration. The server loads them at startup via `CATALOG_PATH`; user overrides are stored in `interval_overrides`.
 - **MSW for the demo** — no backend on GitHub Pages. MSW intercepts fetch calls at the service worker level and returns realistic stateful mock data. [docs/adr/](docs/adr/)
 
-Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-011)
+Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-012)
 
 ## Stack
 
 | Layer           | Tool                              |
 | --------------- | --------------------------------- |
 | Frontend        | React 19 + TypeScript, Vite       |
-| State           | Zustand + TanStack Query          |
+| State           | TanStack Query                    |
 | i18n            | react-i18next                     |
 | Drag & drop     | dnd-kit                           |
 | Backend         | Express 5 + Node.js               |
@@ -147,14 +140,15 @@ Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-011)
 ```text
 pitlog/
   catalog/    # Versioned JSON catalog (intervals + torque specs per model)
-    suzuki/
     honda/
     kawasaki/
+    suzuki/
+    yamaha/
     generic/
   client/     # React + TypeScript
   server/     # Express + Node.js
   docs/
-    adr/      # Architecture Decision Records (ADR-001 to ADR-011)
+    adr/      # Architecture Decision Records (ADR-001 to ADR-012)
 ```
 
 ## Getting started
@@ -162,7 +156,7 @@ pitlog/
 **Requirements**: Docker + Docker Compose.
 
 ```bash
-git clone git@github.com:LouisBis/pitlog.git
+git clone https://github.com/LouisBis/pitlog.git
 cd pitlog
 ./dev.sh
 ```
@@ -181,10 +175,14 @@ The script opens an interactive menu. To start the full stack:
 
 To run server tests, use option `7` from the menu.
 
+## Roadmap
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for planned features (PDF export, push notifications, LLM diagnostics, multi-user).
+
 ## Contributing
 
 Catalog contributions (new motorcycles, interval corrections, torque specs) are the most impactful way to help. See [CONTRIBUTING.md](CONTRIBUTING.md) for the catalog schema and PR process.
 
 ---
 
-_Pitlog — "Journal de bord de tes révisions"_
+Pitlog — "Journal de bord de tes révisions"
