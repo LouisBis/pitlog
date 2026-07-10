@@ -3,10 +3,11 @@ import { getRelevantTorqueSpecs } from './torqueUtils'
 import type { CatalogEntry } from '@/types'
 
 const entry: CatalogEntry = {
-  slug: 'suzuki-gsf600-bandit-1997',
+  slug: 'suzuki-gsf600-bandit-1997-1997',
   brand: 'Suzuki',
   model: 'GSF 600 Bandit',
-  year: 1997,
+  year_start: 1997,
+  year_end: 1997,
   intervals: [],
   torque_specs: [
     { slug: 'spark-plug', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
