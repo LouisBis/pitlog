@@ -1,9 +1,39 @@
 import log from './logger'
-import type { AddMotorcyclePayload, CreateTicketPayload, UpdateTicketIntervalPayload, Motorcycle, Ticket, TicketPart, TicketStatus, UserMotorcycle, VelocityResult, CreatePartPayload } from '@/types'
+import type {
+  AddMotorcyclePayload,
+  CatalogEntry,
+  CatalogSummary,
+  CreateTicketPayload,
+  UpdateTicketIntervalPayload,
+  Ticket,
+  TicketPart,
+  TicketStatus,
+  UserMotorcycle,
+  VelocityResult,
+  CreatePartPayload,
+} from '@/types'
 
 export interface UpdateTicketPayload {
   operation?: string
   targetKm?: number | null
+}
+
+// --- HTTP primitives ---
+
+/** Typed error that carries the HTTP status and parsed response body.
+ *  Lets callers branch on status code without parsing the error message. */
+export class ApiError extends Error {
+  readonly status: number
+  readonly statusText: string
+  readonly body: unknown
+
+  constructor(status: number, statusText: string, body: unknown = null) {
+    super(`${status} ${statusText}`)
+    this.name = 'ApiError'
+    this.status = status
+    this.statusText = statusText
+    this.body = body
+  }
 }
 
 const BASE = import.meta.env.VITE_API_URL ?? ''
@@ -14,18 +44,19 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   })
   if (!res.ok) {
-    log.error(`[api] ${init?.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`)
-    throw new Error(`${res.status} ${res.statusText}`)
+    const body = await res.json().catch(() => null)
+    log.error(`[api] ${init?.method ?? 'GET'} ${path} → ${res.status} ${res.statusText}`, body)
+    throw new ApiError(res.status, res.statusText, body)
   }
+  // res.json() throws a SyntaxError on a 204 No Content response (empty body)
+  if (res.status === 204) return undefined as T
   return res.json() as Promise<T>
 }
 
-export const api = {
-  getMotorcycles: () =>
-    request<Motorcycle[]>('/api/v1/motorcycles'),
+// --- API endpoints ---
 
-  getUserMotorcycles: () =>
-    request<UserMotorcycle[]>('/api/v1/user-motorcycles'),
+export const api = {
+  getUserMotorcycles: () => request<UserMotorcycle[]>('/api/v1/user-motorcycles'),
 
   addMotorcycle: (data: AddMotorcyclePayload) =>
     request<UserMotorcycle>('/api/v1/user-motorcycles', {
@@ -33,8 +64,7 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  getTickets: (userMotorcycleId: number) =>
-    request<Ticket[]>(`/api/v1/tickets?userMotorcycleId=${userMotorcycleId}`),
+  getTickets: (userMotorcycleId: number) => request<Ticket[]>(`/api/v1/tickets?userMotorcycleId=${userMotorcycleId}`),
 
   createTicket: (data: CreateTicketPayload) =>
     request<Ticket>('/api/v1/tickets', {
@@ -74,14 +104,14 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
-  deleteTicket: (id: number) =>
-    request<void>(`/api/v1/tickets/${id}`, { method: 'DELETE' }),
+  deleteTicket: (id: number) => request<void>(`/api/v1/tickets/${id}`, { method: 'DELETE' }),
 
   deleteMotorcycle: (userMotorcycleId: number) =>
-    request<void>(`/api/v1/user-motorcycles/${userMotorcycleId}`, { method: 'DELETE' }),
+    request<void>(`/api/v1/user-motorcycles/${userMotorcycleId}`, {
+      method: 'DELETE',
+    }),
 
-  getTicketParts: (ticketId: number) =>
-    request<TicketPart[]>(`/api/v1/tickets/${ticketId}/parts`),
+  getTicketParts: (ticketId: number) => request<TicketPart[]>(`/api/v1/tickets/${ticketId}/parts`),
 
   addTicketPart: (ticketId: number, data: CreatePartPayload) =>
     request<TicketPart>(`/api/v1/tickets/${ticketId}/parts`, {
@@ -90,5 +120,11 @@ export const api = {
     }),
 
   deleteTicketPart: (ticketId: number, partId: number) =>
-    request<void>(`/api/v1/tickets/${ticketId}/parts/${partId}`, { method: 'DELETE' }),
+    request<void>(`/api/v1/tickets/${ticketId}/parts/${partId}`, {
+      method: 'DELETE',
+    }),
+
+  getCatalogSummaries: () => request<CatalogSummary[]>('/api/v1/catalog'),
+
+  getCatalogEntry: (slug: string) => request<CatalogEntry>(`/api/v1/catalog/${slug}`),
 }

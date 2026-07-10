@@ -9,18 +9,27 @@
     "back_to_garage": "← Mes motos",
     "back_to_board": "← Tableau de bord",
     "back_to_home": "← Retour à l'accueil",
-    "history": "Historique"
+    "history": "Historique",
+    "reference": "Fiche technique"
   },
   "history": {
     "title": "Historique",
     "empty": "Aucune action réalisée pour l'instant.",
     "parts_used": "Pièces utilisées"
   },
+  "home": {
+    "cta": "Ouvrir l'app",
+    "tagline2": "Anticipe. Entretiens. Contrôle."
+  },
   "garage": {
     "title": "Mes motos",
     "subtitle": "Sélectionne une moto pour accéder à son tableau de bord.",
     "tagline": "Journal de bord de tes révisions",
     "empty": "Aucune moto enregistrée.",
+    "empty_state": {
+      "title": "Ton garage est vide",
+      "subtitle": "Ajoute ta première moto pour commencer à suivre tes entretiens"
+    },
     "add": "Ajouter une moto",
     "delete": "Supprimer cette moto",
     "delete_confirm": "Supprimer définitivement ?",
@@ -103,6 +112,16 @@
     "confirm": "Confirmer",
     "cancel": "Annuler",
     "error.lower": "La valeur doit être supérieure au compteur actuel"
+  },
+  "reference": {
+    "title": "Fiche technique",
+    "intervals.title": "Intervalles d'entretien",
+    "torque.title": "Couples de serrage",
+    "empty.intervals": "Aucun intervalle défini.",
+    "empty.torque": "Aucune valeur de couple définie.",
+    "nm": "{{count}} Nm",
+    "every_km": "Tous les {{count, number}} km",
+    "every_days": "Tous les {{count, number}} j"
   },
   "not_found": {
     "code": "404",

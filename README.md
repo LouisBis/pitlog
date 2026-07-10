@@ -1,6 +1,6 @@
 # Pitlog
 
-> Motorcycle maintenance logbook — predictive alerts, kanban board, LLM-assisted diagnostics.
+> Motorcycle maintenance logbook — kanban board, community catalog.
 
 [![CI](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/ci.yml)
 [![Deploy](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml/badge.svg)](https://github.com/LouisBis/pitlog/actions/workflows/deploy.yml)
@@ -18,24 +18,21 @@
 
 Pitlog is a mobile-first PWA that turns your maintenance schedule into an actionable kanban board. Tickets are color-coded by urgency based on mileage and time, regenerate automatically when completed, and predict when your next service is due based on your riding velocity.
 
+Service intervals and torque specs for recognised models are stored in versioned JSON files under `catalog/` — no hardcoded data in the database.
+
 ## Modules
 
 ### **Module 1 — Maintenance Kanban (core)**
 
 - Multi-motorcycle garage — add any bike by brand / model / year
-- Catalogue matching: recognised models auto-seed tickets from predefined service intervals; unrecognised models fall back to a generic template
+- **Community catalog**: recognised models auto-seed tickets from service intervals defined in versioned JSON files (`catalog/<brand>/<model-year>.json`); unrecognised models fall back to a `generic-standard` catalog template
 - Board with columns: `To do` / `Part ordered` / `In progress` / `Done`
 - Tickets color-coded by urgency: 🔴 ≤ 200 km or ≤ 14 days / 🟠 ≤ 500 km or ≤ 30 days / 🟢 otherwise
 - Predictive mileage: estimates due dates based on your riding velocity (sliding window km/day)
 - Auto-regeneration: completing a ticket creates the next one automatically
 - Drag & drop between columns
-
-### **Module 2 — LLM Diagnostics (Phase 3)**
-
-- Natural language chat: "metallic noise on acceleration"
-- Voice input via Web Speech API
-- Motorcycle context injected automatically into the prompt
-- Local LLM via Ollama (llama3.2) on VPS, streamed response
+- **Reference page** (`/board/:id/reference`): catalog intervals and torque specs for the current motorcycle
+- **Contextual torque hints**: relevant torque values shown inline on ticket cards
 
 ## Data model
 
@@ -47,8 +44,9 @@ erDiagram
         text model
         int year
         bool is_custom
+        text catalog_slug
     }
-    intervals {
+    custom_intervals {
         int id PK
         int motorcycle_id FK
         text operation
@@ -67,10 +65,20 @@ erDiagram
         int km
         int recorded_at
     }
+    interval_overrides {
+        int id PK
+        int user_motorcycle_id FK
+        text catalog_slug
+        text interval_slug
+        int custom_km
+        int custom_days
+    }
     tickets {
         int id PK
         int user_motorcycle_id FK
-        int interval_id FK
+        text catalog_slug
+        text interval_slug
+        int custom_interval_id FK
         text operation
         text status
         int target_km
@@ -78,13 +86,26 @@ erDiagram
         int done_km
         int done_at
     }
+    ticket_parts {
+        int id PK
+        int ticket_id FK
+        text name
+        text brand
+        text reference
+        int quantity
+        text url
+    }
 
-    motorcycles ||--o{ intervals : "defines"
+    motorcycles ||--o{ custom_intervals : "defines custom"
     motorcycles ||--o{ user_motorcycles : "referenced by"
     user_motorcycles ||--o{ km_history : "tracks"
     user_motorcycles ||--o{ tickets : "has"
-    intervals |o--o{ tickets : "generates"
+    user_motorcycles ||--o{ interval_overrides : "overrides"
+    custom_intervals |o--o{ tickets : "tracks"
+    tickets ||--o{ ticket_parts : "has"
 ```
+
+Catalog intervals and torque specs are stored in `catalog/<brand>/<slug>.json` and loaded at runtime — they are not written to the database.
 
 ## Architecture
 
@@ -93,18 +114,19 @@ The client and server are fully decoupled — the React SPA communicates with th
 A few deliberate choices worth noting:
 
 - **SQLite over PostgreSQL** — single-user app, zero ops overhead, file-based persistence via a Docker volume. [ADR-002](docs/adr/002-sqlite-vs-postgres.md)
-- **Zustand + TanStack Query** — Zustand handles ephemeral UI state (drag, modals), TanStack Query owns server state and cache invalidation. No overlap, no boilerplate. [ADR-003](docs/adr/003-state-management.md)
+- **TanStack Query** — owns server state, cache invalidation, and optimistic updates (drag & drop). No separate UI state store needed. [ADR-003](docs/adr/003-state-management.md)
 - **Sliding window velocity** — km/day is computed over the last 10 odometer entries, not lifetime average. Recent riding behavior predicts near-term due dates better. [ADR-005](docs/adr/005-predictive-velocity.md)
+- **Versioned JSON catalog** — service intervals and torque specs live in `catalog/` as plain JSON files, versioned with the code. Adding a new model is a PR, not a database migration. The server loads them at startup via `CATALOG_PATH`; user overrides are stored in `interval_overrides`.
 - **MSW for the demo** — no backend on GitHub Pages. MSW intercepts fetch calls at the service worker level and returns realistic stateful mock data. [docs/adr/](docs/adr/)
 
-Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-011)
+Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-012)
 
 ## Stack
 
 | Layer           | Tool                              |
 | --------------- | --------------------------------- |
 | Frontend        | React 19 + TypeScript, Vite       |
-| State           | Zustand + TanStack Query          |
+| State           | TanStack Query                    |
 | i18n            | react-i18next                     |
 | Drag & drop     | dnd-kit                           |
 | Backend         | Express 5 + Node.js               |
@@ -117,10 +139,16 @@ Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-011)
 
 ```text
 pitlog/
+  catalog/    # Versioned JSON catalog (intervals + torque specs per model)
+    honda/
+    kawasaki/
+    suzuki/
+    yamaha/
+    generic/
   client/     # React + TypeScript
   server/     # Express + Node.js
   docs/
-    adr/      # Architecture Decision Records (ADR-001 to ADR-009)
+    adr/      # Architecture Decision Records (ADR-001 to ADR-012)
 ```
 
 ## Getting started
@@ -128,7 +156,7 @@ pitlog/
 **Requirements**: Docker + Docker Compose.
 
 ```bash
-git clone git@github.com:LouisBis/pitlog.git
+git clone https://github.com/LouisBis/pitlog.git
 cd pitlog
 ./dev.sh
 ```
@@ -147,6 +175,14 @@ The script opens an interactive menu. To start the full stack:
 
 To run server tests, use option `7` from the menu.
 
+## Roadmap
+
+See [docs/ROADMAP.md](docs/ROADMAP.md) for planned features (PDF export, push notifications, LLM diagnostics, multi-user).
+
+## Contributing
+
+Catalog contributions (new motorcycles, interval corrections, torque specs) are the most impactful way to help. See [CONTRIBUTING.md](CONTRIBUTING.md) for the catalog schema and PR process.
+
 ---
 
-_Pitlog — "Journal de bord de tes révisions"_
+Pitlog — "Journal de bord de tes révisions"

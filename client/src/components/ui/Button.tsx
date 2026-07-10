@@ -9,9 +9,7 @@ interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export function Button({ variant = 'primary', size = 'md', className, ...props }: Props) {
-  const classes = [styles.btn, styles[variant], styles[size], className]
-    .filter(Boolean)
-    .join(' ')
+  const classes = [styles.btn, styles[variant], styles[size], className].filter(Boolean).join(' ')
 
   return <button className={classes} {...props} />
 }

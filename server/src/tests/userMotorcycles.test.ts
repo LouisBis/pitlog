@@ -3,40 +3,22 @@ import request from 'supertest'
 import { eq } from 'drizzle-orm'
 import { app } from '../app.js'
 import { db } from '../db/index.js'
-import { intervals, kmHistory, motorcycles, tickets, userMotorcycles } from '../db/schema/index.js'
+import { kmHistory, motorcycles, tickets, userMotorcycles } from '../db/schema/index.js'
 
 let catalogueMotoId: number
 
 beforeEach(() => {
   db.delete(tickets).run()
   db.delete(kmHistory).run()
-  db.delete(intervals).run()
   db.delete(userMotorcycles).run()
   db.delete(motorcycles).run()
 
   const [moto] = db
     .insert(motorcycles)
-    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false })
+    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1995-1999' })
     .returning()
     .all()
   catalogueMotoId = moto.id
-
-  db.insert(intervals).values([
-    { motorcycleId: catalogueMotoId, operation: 'Engine oil change', intervalKm: 6000, intervalDays: 365 },
-    { motorcycleId: catalogueMotoId, operation: 'Spark plugs', intervalKm: 12000, intervalDays: null },
-  ]).run()
-
-  // Generic template — required for custom motorcycle seeding
-  const [generic] = db
-    .insert(motorcycles)
-    .values({ brand: 'Generic', model: 'Standard', year: 0, isCustom: false })
-    .returning()
-    .all()
-
-  db.insert(intervals).values([
-    { motorcycleId: generic.id, operation: 'Engine oil change', intervalKm: 5000, intervalDays: 365 },
-    { motorcycleId: generic.id, operation: 'Drive chain lubrication', intervalKm: 500, intervalDays: null },
-  ]).run()
 })
 
 describe('GET /api/v1/user-motorcycles', () => {
@@ -46,7 +28,7 @@ describe('GET /api/v1/user-motorcycles', () => {
     expect(res.body).toHaveLength(0)
   })
 
-  it('returns user motorcycles with catalogue info', async () => {
+  it('returns user motorcycles with catalogue info including catalogSlug', async () => {
     db.insert(userMotorcycles)
       .values({ motorcycleId: catalogueMotoId, currentKm: 8500, acquiredAt: new Date('2022-01-01') })
       .run()
@@ -55,6 +37,7 @@ describe('GET /api/v1/user-motorcycles', () => {
     expect(res.status).toBe(200)
     expect(res.body[0].brand).toBe('Suzuki')
     expect(res.body[0].currentKm).toBe(8500)
+    expect(res.body[0].catalogSlug).toBe('suzuki-gsf600-bandit-1995-1999')
     expect(res.body[0].isCustom).toBe(false)
   })
 })
@@ -83,11 +66,11 @@ describe('POST /api/v1/user-motorcycles', () => {
     const [userMoto] = db.select().from(userMotorcycles).all()
     const seeded = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()
 
-    expect(seeded).toHaveLength(2)
-    const oilChange = seeded.find((t) => t.operation === 'Engine oil change')!
+    expect(seeded).toHaveLength(11)
+    const oilChange = seeded.find((t) => t.intervalSlug === 'oil-change')!
     expect(oilChange.status).toBe('todo')
     expect(oilChange.targetKm).toBe(5000 + 6000)
-    expect(oilChange.intervalId).toBeTruthy()
+    expect(oilChange.catalogSlug).toBe('suzuki-gsf600-bandit-1995-1999')
   })
 
   it('creates a custom motorcycle and seeds generic intervals', async () => {
@@ -99,10 +82,10 @@ describe('POST /api/v1/user-motorcycles', () => {
     expect(res.body.isCustom).toBe(true)
 
     const seeded = db.select().from(tickets).all()
-    expect(seeded).toHaveLength(2)
-    const oilChange = seeded.find((t) => t.operation === 'Engine oil change')!
-    expect(oilChange.status).toBe('todo')
+    expect(seeded).toHaveLength(6)
+    const oilChange = seeded.find((t) => t.intervalSlug === 'oil-change')!
     expect(oilChange.targetKm).toBe(3000 + 5000)
+    expect(oilChange.catalogSlug).toBe('generic-standard')
   })
 
   it('reuses an existing catalogue entry when brand+model+year already exists', async () => {
@@ -113,14 +96,16 @@ describe('POST /api/v1/user-motorcycles', () => {
       .post('/api/v1/user-motorcycles')
       .send({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, currentKm: 8000 })
 
-    const suzukis = db.select().from(motorcycles).all().filter((m) => m.brand === 'Suzuki')
+    const suzukis = db
+      .select()
+      .from(motorcycles)
+      .all()
+      .filter((m) => m.brand === 'Suzuki')
     expect(suzukis).toHaveLength(1)
   })
 
   it('returns 400 for missing fields', async () => {
-    const res = await request(app)
-      .post('/api/v1/user-motorcycles')
-      .send({ brand: 'Suzuki', currentKm: 5000 })
+    const res = await request(app).post('/api/v1/user-motorcycles').send({ brand: 'Suzuki', currentKm: 5000 })
     expect(res.status).toBe(400)
   })
 })
@@ -136,10 +121,10 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
     const res = await request(app).post(`/api/v1/user-motorcycles/${userMoto.id}/import-intervals`)
 
     expect(res.status).toBe(200)
-    expect(res.body.created).toBe(2)
+    expect(res.body.created).toBe(11)
 
     const seeded = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()
-    expect(seeded).toHaveLength(2)
+    expect(seeded).toHaveLength(11)
   })
 
   it('is idempotent — skips intervals already covered by an active ticket', async () => {
@@ -149,24 +134,26 @@ describe('POST /api/v1/user-motorcycles/:id/import-intervals', () => {
       .returning()
       .all()
 
-    const [interval] = db.select().from(intervals).where(eq(intervals.motorcycleId, catalogueMotoId)).all()
-    db.insert(tickets).values({
-      userMotorcycleId: userMoto.id,
-      intervalId: interval.id,
-      operation: interval.operation,
-      status: 'todo',
-    }).run()
+    db.insert(tickets)
+      .values({
+        userMotorcycleId: userMoto.id,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        operation: 'Engine oil change',
+        status: 'todo',
+      })
+      .run()
 
     const res = await request(app).post(`/api/v1/user-motorcycles/${userMoto.id}/import-intervals`)
 
     expect(res.status).toBe(200)
-    expect(res.body.created).toBe(1)
+    expect(res.body.created).toBe(10)
 
     const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMoto.id)).all()
-    expect(all).toHaveLength(2)
+    expect(all).toHaveLength(11)
   })
 
-  it('returns 422 when motorcycle has no catalogue intervals', async () => {
+  it('returns 422 when motorcycle has no catalogSlug', async () => {
     const [customMoto] = db
       .insert(motorcycles)
       .values({ brand: 'Custom', model: 'One-off', year: 2000, isCustom: true })
@@ -196,9 +183,7 @@ describe('PATCH /api/v1/user-motorcycles/:id/km', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/user-motorcycles/${userMoto.id}/km`)
-      .send({ km: 9200 })
+    const res = await request(app).patch(`/api/v1/user-motorcycles/${userMoto.id}/km`).send({ km: 9200 })
 
     expect(res.status).toBe(200)
     expect(res.body.currentKm).toBe(9200)
@@ -214,17 +199,12 @@ describe('PATCH /api/v1/user-motorcycles/:id/km', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/user-motorcycles/${userMoto.id}/km`)
-      .send({ km: 5000 })
-
+    const res = await request(app).patch(`/api/v1/user-motorcycles/${userMoto.id}/km`).send({ km: 5000 })
     expect(res.status).toBe(422)
   })
 
   it('returns 404 for unknown user motorcycle', async () => {
-    const res = await request(app)
-      .patch('/api/v1/user-motorcycles/999/km')
-      .send({ km: 9000 })
+    const res = await request(app).patch('/api/v1/user-motorcycles/999/km').send({ km: 9000 })
     expect(res.status).toBe(404)
   })
 })
@@ -237,13 +217,8 @@ describe('DELETE /api/v1/user-motorcycles/:id', () => {
       .returning()
       .all()
 
-    db.insert(tickets)
-      .values({ userMotorcycleId: userMoto.id, operation: 'Oil change', status: 'todo' })
-      .run()
-
-    db.insert(kmHistory)
-      .values({ userMotorcycleId: userMoto.id, km: 8500, recordedAt: new Date() })
-      .run()
+    db.insert(tickets).values({ userMotorcycleId: userMoto.id, operation: 'Oil change', status: 'todo' }).run()
+    db.insert(kmHistory).values({ userMotorcycleId: userMoto.id, km: 8500, recordedAt: new Date() }).run()
 
     const res = await request(app).delete(`/api/v1/user-motorcycles/${userMoto.id}`)
     expect(res.status).toBe(204)

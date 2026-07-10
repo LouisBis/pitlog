@@ -1,16 +1,18 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { Motorcycle } from '@/types'
+import type { CatalogSummary } from '@/types'
 import { useAddMotorcycle } from '@/queries/useUserMotorcycles'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import styles from './AddMotoForm.module.css'
 
 interface Props {
-  catalogue: Motorcycle[]
+  /** Catalogue entries used to populate the brand/model/year datalists. */
+  catalogue: CatalogSummary[]
   onClose: () => void
 }
 
+/** Form to add a motorcycle to the user's garage. Catalogue-backed datalists for brand/model/year. */
 export default function AddMotoForm({ catalogue, onClose }: Props) {
   const { t } = useTranslation()
   const [brand, setBrand] = useState('')
@@ -19,15 +21,30 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
   const [currentKm, setCurrentKm] = useState('')
   const { mutate: addMoto, isPending, isError } = useAddMotorcycle()
 
-  const brands = [...new Set(catalogue.map((m) => m.brand))].sort()
-  const models = [...new Set(
-    catalogue.filter((m) => m.brand.toLowerCase() === brand.toLowerCase()).map((m) => m.model)
-  )].sort()
-  const years = [...new Set(
-    catalogue
-      .filter((m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase())
-      .map((m) => m.year)
-  )].sort((a, b) => b - a)
+  // Cascade filtering: models depend on brand, years depend on brand + model.
+  // Case-insensitive comparison lets users type freely without matching catalogue casing exactly.
+  const brands = useMemo(() => [...new Set(catalogue.map((m) => m.brand))].sort(), [catalogue])
+  const models = useMemo(
+    () =>
+      [...new Set(catalogue.filter((m) => m.brand.toLowerCase() === brand.toLowerCase()).map((m) => m.model))].sort(),
+    [catalogue, brand],
+  )
+  const years = useMemo(
+    () =>
+      [
+        ...new Set(
+          catalogue
+            .filter(
+              (m) => m.brand.toLowerCase() === brand.toLowerCase() && m.model.toLowerCase() === model.toLowerCase(),
+            )
+            .flatMap((m) => {
+              const end = m.year_end ?? new Date().getFullYear()
+              return Array.from({ length: end - m.year_start + 1 }, (_, i) => m.year_start + i)
+            }),
+        ),
+      ].sort((a, b) => b - a),
+    [catalogue, brand, model],
+  )
 
   const isValid = brand.trim() && model.trim() && Number(year) >= 1900 && Number(currentKm) >= 0
 
@@ -35,7 +52,12 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
     e.preventDefault()
     if (!isValid) return
     addMoto(
-      { brand: brand.trim(), model: model.trim(), year: Number(year), currentKm: Number(currentKm) },
+      {
+        brand: brand.trim(),
+        model: model.trim(),
+        year: Number(year),
+        currentKm: Number(currentKm),
+      },
       { onSuccess: onClose },
     )
   }
@@ -48,22 +70,32 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
         <Input
           placeholder={t('add_moto.brand')}
           value={brand}
-          onChange={(e) => { setBrand(e.target.value); setModel('') }}
+          onChange={(e) => {
+            setBrand(e.target.value)
+            setModel('')
+          }}
           list="brand-list"
           autoFocus
         />
         <datalist id="brand-list">
-          {brands.map((b) => <option key={b} value={b} />)}
+          {brands.map((b) => (
+            <option key={b} value={b} />
+          ))}
         </datalist>
 
         <Input
           placeholder={t('add_moto.model')}
           value={model}
-          onChange={(e) => { setModel(e.target.value); setYear('') }}
+          onChange={(e) => {
+            setModel(e.target.value)
+            setYear('')
+          }}
           list="model-list"
         />
         <datalist id="model-list">
-          {models.map((m) => <option key={m} value={m} />)}
+          {models.map((m) => (
+            <option key={m} value={m} />
+          ))}
         </datalist>
 
         <Input
@@ -73,7 +105,9 @@ export default function AddMotoForm({ catalogue, onClose }: Props) {
           list="year-list"
         />
         <datalist id="year-list">
-          {years.map((y) => <option key={y} value={y} />)}
+          {years.map((y) => (
+            <option key={y} value={y} />
+          ))}
         </datalist>
 
         <Input

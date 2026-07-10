@@ -8,7 +8,11 @@ import { Badge } from '@/components/ui/Badge'
 import type { Ticket } from '@/types'
 import styles from './HistoryPage.module.css'
 
-const DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
+const DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+})
 
 function HistoryRow({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation()
@@ -19,12 +23,8 @@ function HistoryRow({ ticket }: { ticket: Ticket }) {
       <div className={styles.rowMain}>
         <span className={styles.operation}>{ticket.operation}</span>
         <div className={styles.meta}>
-          {ticket.doneKm !== null && (
-            <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
-          )}
-          {ticket.doneAt && (
-            <span className={styles.date}>{DATE_FORMAT.format(new Date(ticket.doneAt))}</span>
-          )}
+          {ticket.doneKm !== null && <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>}
+          {ticket.doneAt && <span className={styles.date}>{DATE_FORMAT.format(new Date(ticket.doneAt))}</span>}
         </div>
       </div>
       {parts.length > 0 && (
@@ -34,10 +34,13 @@ function HistoryRow({ ticket }: { ticket: Ticket }) {
             {parts.map((part) => (
               <li key={part.id} className={styles.part}>
                 {part.quantity > 1 && <span className={styles.partQty}>{part.quantity}×</span>}
-                {part.url
-                  ? <a href={part.url} target="_blank" rel="noopener noreferrer" className={styles.partLink}>{part.name}</a>
-                  : <span>{part.name}</span>
-                }
+                {part.url ? (
+                  <a href={part.url} target="_blank" rel="noopener noreferrer" className={styles.partLink}>
+                    {part.name}
+                  </a>
+                ) : (
+                  <span>{part.name}</span>
+                )}
                 {part.brand && <span className={styles.partMeta}> · {part.brand}</span>}
                 {part.reference && <span className={styles.partMeta}> · {part.reference}</span>}
               </li>
@@ -86,7 +89,9 @@ export default function HistoryPage() {
             {moto && (
               <>
                 <span className={styles.separator}>·</span>
-                <span className={styles.motoName}>{moto.brand} {moto.model}</span>
+                <span className={styles.motoName}>
+                  {moto.brand} {moto.model}
+                </span>
               </>
             )}
           </div>
@@ -99,9 +104,7 @@ export default function HistoryPage() {
         {isLoading && <p className={styles.state}>{t('common.loading')}</p>}
         {isError && <p className={styles.state}>{t('common.error.loading')}</p>}
 
-        {!isLoading && !isError && done.length === 0 && (
-          <p className={styles.state}>{t('history.empty')}</p>
-        )}
+        {!isLoading && !isError && done.length === 0 && <p className={styles.state}>{t('history.empty')}</p>}
 
         {done.length > 0 && (
           <div className={styles.list}>

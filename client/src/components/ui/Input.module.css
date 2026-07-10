@@ -20,8 +20,14 @@
 
 /* ── Sizes ───────────────────────────────────────────── */
 
-.md { padding: var(--space-2) var(--space-3); font-size: var(--text-base); }
-.sm { padding: var(--space-1) var(--space-2);  font-size: var(--text-sm);  }
+.md {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-base);
+}
+.sm {
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-sm);
+}
 
 /* ── States ──────────────────────────────────────────── */
 
@@ -39,4 +45,6 @@
   -webkit-appearance: none;
   margin: 0;
 }
-.input[type='number'] { -moz-appearance: textfield; }
+.input[type='number'] {
+  -moz-appearance: textfield;
+}

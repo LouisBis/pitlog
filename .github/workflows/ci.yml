@@ -13,6 +13,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
         working-directory: client
@@ -28,6 +30,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
         working-directory: client
@@ -43,6 +47,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
       - name: Install dependencies
         run: npm ci
         working-directory: server
@@ -58,6 +64,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
         working-directory: client
@@ -73,12 +81,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
       - name: Install dependencies
         run: npm ci
         working-directory: server
       - name: Run tests
         run: npm test
         working-directory: server
+
+  validate-catalog:
+    name: Validate catalog
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate catalog JSON files
+        run: node scripts/validate-catalog.mjs
 
   docker-health:
     name: Docker health
@@ -106,6 +127,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
         working-directory: client

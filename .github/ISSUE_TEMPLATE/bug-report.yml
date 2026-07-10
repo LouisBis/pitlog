@@ -1,0 +1,29 @@
+name: "Bug report"
+description: Report a bug in the application
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Go to...\n2. Click...\n3. See error"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser / OS
+      placeholder: "e.g. Firefox 127 / macOS"

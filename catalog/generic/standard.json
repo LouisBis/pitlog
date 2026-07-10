@@ -1,0 +1,15 @@
+{
+  "slug": "generic-standard",
+  "brand": "Generic",
+  "model": "Standard",
+  "year": 0,
+  "intervals": [
+    { "slug": "oil-change", "operation": "Engine oil change", "km": 5000, "days": 365 },
+    { "slug": "air-filter-inspection", "operation": "Air filter inspection", "km": 10000, "days": null },
+    { "slug": "spark-plugs-replacement", "operation": "Spark plugs replacement", "km": 10000, "days": null },
+    { "slug": "chain-lubrication", "operation": "Drive chain lubrication", "km": 500, "days": null },
+    { "slug": "chain-tension", "operation": "Drive chain tension", "km": 1000, "days": null },
+    { "slug": "brake-fluid-replacement", "operation": "Brake fluid replacement", "km": null, "days": 730 }
+  ],
+  "torque_specs": []
+}

@@ -5,6 +5,7 @@ import logger from './lib/logger.js'
 import motorcyclesRouter from './routes/motorcycles.js'
 import userMotorcyclesRouter from './routes/userMotorcycles.js'
 import ticketsRouter from './routes/tickets.js'
+import catalogRouter from './routes/catalog.js'
 
 export const app = express()
 
@@ -15,6 +16,7 @@ app.use(pinoHttp({ logger }))
 app.use('/api/v1/motorcycles', motorcyclesRouter)
 app.use('/api/v1/user-motorcycles', userMotorcyclesRouter)
 app.use('/api/v1/tickets', ticketsRouter)
+app.use('/api/v1/catalog', catalogRouter)
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })

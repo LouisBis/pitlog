@@ -95,12 +95,8 @@
           "name": "intervals_motorcycle_id_motorcycles_id_fk",
           "tableFrom": "intervals",
           "tableTo": "motorcycles",
-          "columnsFrom": [
-            "motorcycle_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["motorcycle_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -148,12 +144,8 @@
           "name": "user_motorcycles_motorcycle_id_motorcycles_id_fk",
           "tableFrom": "user_motorcycles",
           "tableTo": "motorcycles",
-          "columnsFrom": [
-            "motorcycle_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["motorcycle_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -200,12 +192,8 @@
           "name": "km_history_user_motorcycle_id_user_motorcycles_id_fk",
           "tableFrom": "km_history",
           "tableTo": "user_motorcycles",
-          "columnsFrom": [
-            "user_motorcycle_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_motorcycle_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -288,12 +276,8 @@
           "name": "tickets_user_motorcycle_id_user_motorcycles_id_fk",
           "tableFrom": "tickets",
           "tableTo": "user_motorcycles",
-          "columnsFrom": [
-            "user_motorcycle_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_motorcycle_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -301,12 +285,8 @@
           "name": "tickets_interval_id_intervals_id_fk",
           "tableFrom": "tickets",
           "tableTo": "intervals",
-          "columnsFrom": [
-            "interval_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["interval_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -357,10 +337,7 @@
       "indexes": {
         "motorcycle_intervals_user_motorcycle_id_interval_id_unique": {
           "name": "motorcycle_intervals_user_motorcycle_id_interval_id_unique",
-          "columns": [
-            "user_motorcycle_id",
-            "interval_id"
-          ],
+          "columns": ["user_motorcycle_id", "interval_id"],
           "isUnique": true
         }
       },
@@ -369,12 +346,8 @@
           "name": "motorcycle_intervals_user_motorcycle_id_user_motorcycles_id_fk",
           "tableFrom": "motorcycle_intervals",
           "tableTo": "user_motorcycles",
-          "columnsFrom": [
-            "user_motorcycle_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_motorcycle_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -382,12 +355,8 @@
           "name": "motorcycle_intervals_interval_id_intervals_id_fk",
           "tableFrom": "motorcycle_intervals",
           "tableTo": "intervals",
-          "columnsFrom": [
-            "interval_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["interval_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -456,12 +425,8 @@
           "name": "ticket_parts_ticket_id_tickets_id_fk",
           "tableFrom": "ticket_parts",
           "tableTo": "tickets",
-          "columnsFrom": [
-            "ticket_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["ticket_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

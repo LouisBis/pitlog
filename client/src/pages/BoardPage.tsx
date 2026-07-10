@@ -34,20 +34,32 @@ export default function BoardPage() {
         <div className={styles.identity}>
           <span className={styles.logo}>Pitlog</span>
           <div className={styles.meta}>
-            <button type="button" className={styles.back} onClick={() => navigate('/')}>
+            <button type="button" className={styles.back} onClick={() => navigate('/garage')}>
               {t('nav.back_to_garage')}
             </button>
             {moto && (
               <>
                 <span className={styles.separator}>·</span>
-                <span className={styles.motoName}>{moto.brand} {moto.model}</span>
+                <span className={styles.motoName}>
+                  {moto.brand} {moto.model}
+                </span>
                 <span className={styles.separator}>·</span>
-                {editingKm
-                  ? <KmUpdateForm userMotoId={userMotoId} currentKm={moto.currentKm} onClose={() => setEditingKm(false)} />
-                  : <button type="button" className={styles.km} onClick={() => setEditingKm(true)} title={t('km_update.label')}>
-                      {t('common.km', { count: moto.currentKm })}
-                    </button>
-                }
+                {editingKm ? (
+                  <KmUpdateForm
+                    userMotoId={userMotoId}
+                    currentKm={moto.currentKm}
+                    onClose={() => setEditingKm(false)}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.km}
+                    onClick={() => setEditingKm(true)}
+                    title={t('km_update.label')}
+                  >
+                    {t('common.km', { count: moto.currentKm })}
+                  </button>
+                )}
               </>
             )}
             {moto && (
@@ -55,6 +67,14 @@ export default function BoardPage() {
                 <span className={styles.separator}>·</span>
                 <Link to={`/board/${userMotoId}/history`} className={styles.back}>
                   {t('nav.history')}
+                </Link>
+              </>
+            )}
+            {moto?.catalogSlug && (
+              <>
+                <span className={styles.separator}>·</span>
+                <Link to={`/board/${userMotoId}/reference`} className={styles.back}>
+                  {t('nav.reference')}
                 </Link>
               </>
             )}

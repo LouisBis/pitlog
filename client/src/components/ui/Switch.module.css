@@ -14,7 +14,7 @@
   background: var(--color-text-muted);
 }
 
-.root[data-state="checked"] {
+.root[data-state='checked'] {
   background: var(--brand-accent);
 }
 
@@ -36,6 +36,6 @@
   box-shadow: var(--shadow-card);
 }
 
-.root[data-state="checked"] .thumb {
+.root[data-state='checked'] .thumb {
   translate: calc(var(--space-8) - var(--space-4) - var(--space-1)) -50%;
 }

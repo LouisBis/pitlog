@@ -3,23 +3,31 @@ import request from 'supertest'
 import { eq } from 'drizzle-orm'
 import { app } from '../app.js'
 import { db } from '../db/index.js'
-import { intervals, kmHistory, motorcycles, userMotorcycles, tickets, motorcycleIntervals, ticketParts } from '../db/schema/index.js'
+import {
+  intervalOverrides,
+  customIntervals,
+  kmHistory,
+  motorcycles,
+  userMotorcycles,
+  tickets,
+  ticketParts,
+} from '../db/schema/index.js'
 
 let motoId: number
 let userMotoId: number
 
 beforeEach(() => {
-  db.delete(motorcycleIntervals).run()
+  db.delete(intervalOverrides).run()
   db.delete(ticketParts).run()
   db.delete(tickets).run()
+  db.delete(customIntervals).run()
   db.delete(kmHistory).run()
-  db.delete(intervals).run()
   db.delete(userMotorcycles).run()
   db.delete(motorcycles).run()
 
   const [moto] = db
     .insert(motorcycles)
-    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false })
+    .values({ brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997, isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1995-1999' })
     .returning()
     .all()
   motoId = moto.id
@@ -50,19 +58,25 @@ describe('GET /api/v1/tickets', () => {
     expect(res.body[0].operation).toBe('Oil change')
   })
 
-  it('includes customKm and customDays from motorcycle_intervals override', async () => {
-    const [interval] = db
-      .insert(intervals)
-      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
-      .returning()
-      .all()
-
+  it('includes customKm and customDays from interval_overrides', async () => {
     db.insert(tickets)
-      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo' })
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        operation: 'Engine oil change',
+        status: 'todo',
+      })
       .run()
 
-    db.insert(motorcycleIntervals)
-      .values({ userMotorcycleId: userMotoId, intervalId: interval.id, customKm: 4000, customDays: null })
+    db.insert(intervalOverrides)
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        customKm: 4000,
+        customDays: null,
+      })
       .run()
 
     const res = await request(app).get(`/api/v1/tickets?userMotorcycleId=${userMotoId}`)
@@ -100,16 +114,12 @@ describe('POST /api/v1/tickets', () => {
   })
 
   it('returns 404 for unknown userMotorcycleId', async () => {
-    const res = await request(app)
-      .post('/api/v1/tickets')
-      .send({ userMotorcycleId: 999, operation: 'Oil change' })
+    const res = await request(app).post('/api/v1/tickets').send({ userMotorcycleId: 999, operation: 'Oil change' })
     expect(res.status).toBe(404)
   })
 
   it('returns 400 for missing fields', async () => {
-    const res = await request(app)
-      .post('/api/v1/tickets')
-      .send({ userMotorcycleId: userMotoId })
+    const res = await request(app).post('/api/v1/tickets').send({ userMotorcycleId: userMotoId })
     expect(res.status).toBe(400)
   })
 })
@@ -122,9 +132,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}/status`)
-      .send({ status: 'in_progress' })
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}/status`).send({ status: 'in_progress' })
 
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('in_progress')
@@ -137,9 +145,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}/status`)
-      .send({ status: 'done' })
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}/status`).send({ status: 'done' })
 
     expect(res.status).toBe(200)
     expect(res.body.status).toBe('done')
@@ -161,8 +167,16 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
   })
 
   it('returns 422 for invalid transitions (todo → done, part_ordered → done)', async () => {
-    const [t1] = db.insert(tickets).values({ userMotorcycleId: userMotoId, operation: 'A', status: 'todo' }).returning().all()
-    const [t2] = db.insert(tickets).values({ userMotorcycleId: userMotoId, operation: 'B', status: 'part_ordered' }).returning().all()
+    const [t1] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'A', status: 'todo' })
+      .returning()
+      .all()
+    const [t2] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'B', status: 'part_ordered' })
+      .returning()
+      .all()
 
     expect((await request(app).patch(`/api/v1/tickets/${t1.id}/status`).send({ status: 'done' })).status).toBe(422)
     expect((await request(app).patch(`/api/v1/tickets/${t2.id}/status`).send({ status: 'done' })).status).toBe(422)
@@ -182,9 +196,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
   })
 
   it('returns 404 for unknown ticket', async () => {
-    const res = await request(app)
-      .patch('/api/v1/tickets/999/status')
-      .send({ status: 'done' })
+    const res = await request(app).patch('/api/v1/tickets/999/status').send({ status: 'done' })
     expect(res.status).toBe(404)
   })
 
@@ -195,22 +207,21 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}/status`)
-      .send({ status: 'invalid_status' })
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}/status`).send({ status: 'invalid_status' })
     expect(res.status).toBe(400)
   })
 
-  it('regenerates next ticket when done and intervalId is set', async () => {
-    const [interval] = db
-      .insert(intervals)
-      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
-      .returning()
-      .all()
-
+  it('regenerates next ticket when done and catalog interval is set', async () => {
+    // GSF 600 Bandit catalog: oil-change → 6000 km
     const [ticket] = db
       .insert(tickets)
-      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'in_progress' })
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        operation: 'Engine oil change',
+        status: 'in_progress',
+      })
       .returning()
       .all()
 
@@ -221,21 +232,23 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
 
     const next = all.find((t) => t.id !== ticket.id)!
     expect(next.status).toBe('todo')
-    expect(next.operation).toBe('Oil change')
-    expect(next.targetKm).toBe(8500 + 6000) // doneKm + intervalKm
-    expect(next.intervalId).toBe(interval.id)
+    expect(next.operation).toBe('Engine oil change')
+    expect(next.targetKm).toBe(8500 + 6000)
+    expect(next.catalogSlug).toBe('suzuki-gsf600-bandit-1995-1999')
+    expect(next.intervalSlug).toBe('oil-change')
   })
 
-  it('regenerates with targetDate when interval has intervalDays', async () => {
-    const [interval] = db
-      .insert(intervals)
-      .values({ motorcycleId: motoId, operation: 'Brake fluid', intervalKm: null, intervalDays: 730 })
-      .returning()
-      .all()
-
+  it('regenerates with targetDate when catalog interval has only days', async () => {
+    // GSF 600 Bandit catalog: brake-fluid-replacement → 730 days, no km
     const [ticket] = db
       .insert(tickets)
-      .values({ userMotorcycleId: userMotoId, operation: 'Brake fluid', intervalId: interval.id, status: 'in_progress' })
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'brake-fluid-replacement',
+        operation: 'Brake fluid replacement',
+        status: 'in_progress',
+      })
       .returning()
       .all()
 
@@ -247,7 +260,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
     expect(next.targetDate).toBeTruthy()
   })
 
-  it('does not regenerate when ticket has no intervalId', async () => {
+  it('does not regenerate when ticket has no interval', async () => {
     const [ticket] = db
       .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Custom check', status: 'in_progress' })
@@ -260,20 +273,27 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
     expect(all).toHaveLength(1)
   })
 
-  it('regenerates using motorcycle_intervals override instead of catalogue default', async () => {
-    const [interval] = db
-      .insert(intervals)
-      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
-      .returning()
-      .all()
-
-    db.insert(motorcycleIntervals)
-      .values({ userMotorcycleId: userMotoId, intervalId: interval.id, customKm: 4000, customDays: null })
+  it('regenerates using interval_overrides instead of catalogue default', async () => {
+    // Catalog default is 6000 km, override sets 4000 km
+    db.insert(intervalOverrides)
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        customKm: 4000,
+        customDays: null,
+      })
       .run()
 
     const [ticket] = db
       .insert(tickets)
-      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'in_progress' })
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        operation: 'Engine oil change',
+        status: 'in_progress',
+      })
       .returning()
       .all()
 
@@ -281,7 +301,7 @@ describe('PATCH /api/v1/tickets/:id/status', () => {
 
     const all = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
     const next = all.find((t) => t.id !== ticket.id)!
-    expect(next.targetKm).toBe(8500 + 4000) // uses custom 4000, not catalogue 6000
+    expect(next.targetKm).toBe(8500 + 4000)
   })
 })
 
@@ -293,9 +313,7 @@ describe('PATCH /api/v1/tickets/:id', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}`)
-      .send({ operation: 'Full oil change' })
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}`).send({ operation: 'Full oil change' })
 
     expect(res.status).toBe(200)
     expect(res.body.operation).toBe('Full oil change')
@@ -308,9 +326,7 @@ describe('PATCH /api/v1/tickets/:id', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}`)
-      .send({ targetKm: 12000 })
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}`).send({ targetKm: 12000 })
 
     expect(res.status).toBe(200)
     expect(res.body.targetKm).toBe(12000)
@@ -323,18 +339,14 @@ describe('PATCH /api/v1/tickets/:id', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}`)
-      .send({ targetKm: null })
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}`).send({ targetKm: null })
 
     expect(res.status).toBe(200)
     expect(res.body.targetKm).toBeNull()
   })
 
   it('returns 404 for unknown ticket', async () => {
-    const res = await request(app)
-      .patch('/api/v1/tickets/999')
-      .send({ operation: 'Oil change' })
+    const res = await request(app).patch('/api/v1/tickets/999').send({ operation: 'Oil change' })
     expect(res.status).toBe(404)
   })
 
@@ -345,9 +357,7 @@ describe('PATCH /api/v1/tickets/:id', () => {
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}`)
-      .send({})
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}`).send({})
     expect(res.status).toBe(400)
   })
 })
@@ -374,32 +384,31 @@ describe('DELETE /api/v1/tickets/:id', () => {
 })
 
 describe('PATCH /api/v1/tickets/:id/interval', () => {
-  it('creates a motorcycle_intervals override for an existing catalogue interval', async () => {
-    const [interval] = db
-      .insert(intervals)
-      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
-      .returning()
-      .all()
-
+  it('upserts an interval_overrides entry for a catalog ticket', async () => {
     const [ticket] = db
       .insert(tickets)
-      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo', targetKm: 14500 })
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        operation: 'Engine oil change',
+        status: 'todo',
+        targetKm: 14500,
+      })
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}/interval`)
-      .send({ customKm: 4000 })
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}/interval`).send({ customKm: 4000 })
 
     expect(res.status).toBe(200)
     expect(res.body.targetKm).toBe(8500 + 4000)
 
-    const override = db.select().from(motorcycleIntervals).all()
-    expect(override).toHaveLength(1)
-    expect(override[0].customKm).toBe(4000)
+    const overrides = db.select().from(intervalOverrides).all()
+    expect(overrides).toHaveLength(1)
+    expect(overrides[0].customKm).toBe(4000)
   })
 
-  it('creates an interval entry and links it for a custom ticket without intervalId', async () => {
+  it('creates a customIntervals entry and links it for a ticket with no interval', async () => {
     const [ticket] = db
       .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Fork oil', status: 'todo' })
@@ -413,61 +422,58 @@ describe('PATCH /api/v1/tickets/:id/interval', () => {
     expect(res.status).toBe(200)
 
     const updatedTicket = db.select().from(tickets).where(eq(tickets.id, ticket.id)).get()!
-    expect(updatedTicket.intervalId).not.toBeNull()
+    expect(updatedTicket.customIntervalId).not.toBeNull()
 
-    const override = db.select().from(motorcycleIntervals).all()
-    expect(override).toHaveLength(1)
-    expect(override[0].customKm).toBe(12000)
+    const custom = db.select().from(customIntervals).all()
+    expect(custom).toHaveLength(1)
+    expect(custom[0].intervalKm).toBe(12000)
   })
 
-  it('returns 400 when operation is missing for a custom ticket', async () => {
+  it('returns 400 when operation is missing for a custom ticket with no interval', async () => {
     const [ticket] = db
       .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Fork oil', status: 'todo' })
       .returning()
       .all()
 
-    const res = await request(app)
-      .patch(`/api/v1/tickets/${ticket.id}/interval`)
-      .send({ customKm: 12000 })
-
+    const res = await request(app).patch(`/api/v1/tickets/${ticket.id}/interval`).send({ customKm: 12000 })
     expect(res.status).toBe(400)
   })
 
-  it('updates an existing motorcycle_intervals record on second call', async () => {
-    const [interval] = db
-      .insert(intervals)
-      .values({ motorcycleId: motoId, operation: 'Oil change', intervalKm: 6000, intervalDays: null })
-      .returning()
-      .all()
-
+  it('updates an existing interval_overrides record on second call', async () => {
     const [ticket] = db
       .insert(tickets)
-      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', intervalId: interval.id, status: 'todo' })
+      .values({
+        userMotorcycleId: userMotoId,
+        catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+        intervalSlug: 'oil-change',
+        operation: 'Engine oil change',
+        status: 'todo',
+      })
       .returning()
       .all()
 
     await request(app).patch(`/api/v1/tickets/${ticket.id}/interval`).send({ customKm: 4000 })
     await request(app).patch(`/api/v1/tickets/${ticket.id}/interval`).send({ customKm: 3500 })
 
-    const overrides = db.select().from(motorcycleIntervals).all()
+    const overrides = db.select().from(intervalOverrides).all()
     expect(overrides).toHaveLength(1)
     expect(overrides[0].customKm).toBe(3500)
   })
 
   it('returns 404 for unknown ticket', async () => {
-    const res = await request(app)
-      .patch('/api/v1/tickets/999/interval')
-      .send({ customKm: 5000 })
+    const res = await request(app).patch('/api/v1/tickets/999/interval').send({ customKm: 5000 })
     expect(res.status).toBe(404)
   })
 })
 
 describe('GET /api/v1/tickets/:id/parts', () => {
   it('returns empty array when no parts', async () => {
-    const [ticket] = db.insert(tickets)
+    const [ticket] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
     const res = await request(app).get(`/api/v1/tickets/${ticket.id}/parts`)
     expect(res.status).toBe(200)
@@ -475,9 +481,11 @@ describe('GET /api/v1/tickets/:id/parts', () => {
   })
 
   it('returns parts for the given ticket', async () => {
-    const [ticket] = db.insert(tickets)
+    const [ticket] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
     db.insert(ticketParts)
       .values({ ticketId: ticket.id, name: 'Oil filter', brand: 'Mann', quantity: 1 })
@@ -498,13 +506,19 @@ describe('GET /api/v1/tickets/:id/parts', () => {
 
 describe('POST /api/v1/tickets/:id/parts', () => {
   it('creates a part for a ticket', async () => {
-    const [ticket] = db.insert(tickets)
+    const [ticket] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
-    const res = await request(app)
-      .post(`/api/v1/tickets/${ticket.id}/parts`)
-      .send({ name: 'Oil filter', brand: 'Mann', reference: 'W811/80', quantity: 1, url: 'https://example.com/filter' })
+    const res = await request(app).post(`/api/v1/tickets/${ticket.id}/parts`).send({
+      name: 'Oil filter',
+      brand: 'Mann',
+      reference: 'W811/80',
+      quantity: 1,
+      url: 'https://example.com/filter',
+    })
 
     expect(res.status).toBe(201)
     expect(res.body.name).toBe('Oil filter')
@@ -515,47 +529,44 @@ describe('POST /api/v1/tickets/:id/parts', () => {
   })
 
   it('defaults quantity to 1', async () => {
-    const [ticket] = db.insert(tickets)
+    const [ticket] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
-    const res = await request(app)
-      .post(`/api/v1/tickets/${ticket.id}/parts`)
-      .send({ name: 'Drain bolt' })
+    const res = await request(app).post(`/api/v1/tickets/${ticket.id}/parts`).send({ name: 'Drain bolt' })
 
     expect(res.status).toBe(201)
     expect(res.body.quantity).toBe(1)
   })
 
   it('returns 404 for unknown ticket', async () => {
-    const res = await request(app)
-      .post('/api/v1/tickets/999/parts')
-      .send({ name: 'Filter' })
+    const res = await request(app).post('/api/v1/tickets/999/parts').send({ name: 'Filter' })
     expect(res.status).toBe(404)
   })
 
   it('returns 400 when name is missing', async () => {
-    const [ticket] = db.insert(tickets)
+    const [ticket] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
-    const res = await request(app)
-      .post(`/api/v1/tickets/${ticket.id}/parts`)
-      .send({ brand: 'Mann' })
-
+    const res = await request(app).post(`/api/v1/tickets/${ticket.id}/parts`).send({ brand: 'Mann' })
     expect(res.status).toBe(400)
   })
 })
 
 describe('DELETE /api/v1/tickets/:id/parts/:partId', () => {
   it('deletes a part', async () => {
-    const [ticket] = db.insert(tickets)
+    const [ticket] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
-    const [part] = db.insert(ticketParts)
-      .values({ ticketId: ticket.id, name: 'Oil filter', quantity: 1 })
-      .returning().all()
+    const [part] = db.insert(ticketParts).values({ ticketId: ticket.id, name: 'Oil filter', quantity: 1 }).returning().all()
 
     const res = await request(app).delete(`/api/v1/tickets/${ticket.id}/parts/${part.id}`)
     expect(res.status).toBe(204)
@@ -565,26 +576,30 @@ describe('DELETE /api/v1/tickets/:id/parts/:partId', () => {
   })
 
   it('returns 404 for unknown part', async () => {
-    const [ticket] = db.insert(tickets)
+    const [ticket] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
     const res = await request(app).delete(`/api/v1/tickets/${ticket.id}/parts/999`)
     expect(res.status).toBe(404)
   })
 
   it('returns 404 when part does not belong to the ticket', async () => {
-    const [ticket1] = db.insert(tickets)
+    const [ticket1] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
-    const [ticket2] = db.insert(tickets)
+    const [ticket2] = db
+      .insert(tickets)
       .values({ userMotorcycleId: userMotoId, operation: 'Brake pads', status: 'todo' })
-      .returning().all()
+      .returning()
+      .all()
 
-    const [part] = db.insert(ticketParts)
-      .values({ ticketId: ticket2.id, name: 'Brake pad', quantity: 2 })
-      .returning().all()
+    const [part] = db.insert(ticketParts).values({ ticketId: ticket2.id, name: 'Brake pad', quantity: 2 }).returning().all()
 
     const res = await request(app).delete(`/api/v1/tickets/${ticket1.id}/parts/${part.id}`)
     expect(res.status).toBe(404)
