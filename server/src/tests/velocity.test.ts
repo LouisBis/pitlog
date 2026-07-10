@@ -22,6 +22,17 @@ describe('computeVelocity', () => {
     ).toBeNull()
   })
 
+  it('returns null when entries are less than 1 day apart', () => {
+    const base = new Date()
+    const fiveMinutesLater = new Date(base.getTime() + 5 * 60 * 1000)
+    expect(
+      computeVelocity([
+        { km: 10000, recordedAt: base },
+        { km: 10500, recordedAt: fiveMinutesLater },
+      ]),
+    ).toBeNull()
+  })
+
   it('computes km/day from two entries', () => {
     const result = computeVelocity([
       { km: 10000, recordedAt: day(-10) },
