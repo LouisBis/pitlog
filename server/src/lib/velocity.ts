@@ -25,7 +25,8 @@ export function computeVelocity(entries: KmEntry[], windowSize = VELOCITY_WINDOW
   const periodMs = last.recordedAt.getTime() - first.recordedAt.getTime()
   const periodDays = periodMs / MS_PER_DAY
 
-  if (periodDays === 0) return null
+  // < 1 guards against two entries minutes apart inflating kmPerDay to millions
+  if (periodDays < 1) return null
 
   const kmPerDay = (last.km - first.km) / periodDays
 
