@@ -157,7 +157,8 @@
       "fuel-injection-sync": "Synchronisation injection",
       "front-brake-check": "Contrôle frein avant",
       "rear-brake-check": "Contrôle frein arrière",
-      "chassis-bolts-check": "Contrôle visserie châssis"
+      "chassis-bolts-check": "Contrôle visserie châssis",
+      "tire-inspection": "Contrôle pneus (profil, pression, état)"
     }
   }
 }
