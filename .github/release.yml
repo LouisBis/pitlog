@@ -1,0 +1,12 @@
+changelog:
+  categories:
+    - title: "✨ Features"
+      labels: ["feat", "enhancement"]
+    - title: "🐛 Bug fixes"
+      labels: ["bug", "fix"]
+    - title: "🏍️ Catalog"
+      labels: ["catalog"]
+    - title: "📖 Docs & DX"
+      labels: ["documentation", "chore", "dx"]
+    - title: "🔧 Other"
+      labels: ["*"]
