@@ -127,5 +127,38 @@
     "code": "404",
     "title": "Page introuvable",
     "subtitle": "Cette URL n'existe pas."
+  },
+  "catalog": {
+    "intervals": {
+      "oil-change": "Vidange huile moteur",
+      "oil-filter": "Remplacement filtre à huile",
+      "oil-filter-replacement": "Remplacement filtre à huile",
+      "air-filter-inspection": "Inspection filtre à air",
+      "air-filter-cleaning": "Nettoyage filtre à air",
+      "air-filter-replacement": "Remplacement filtre à air",
+      "spark-plugs-replacement": "Remplacement bougies",
+      "spark-plug-check": "Contrôle et nettoyage bougies",
+      "spark-plug-replacement": "Remplacement bougies",
+      "chain-tension": "Réglage tension chaîne",
+      "chain-lubrication": "Lubrification chaîne",
+      "chain-check-lubrication": "Contrôle, réglage et lubrification chaîne",
+      "coolant-replacement": "Remplacement liquide de refroidissement",
+      "coolant-level-check": "Contrôle niveau liquide de refroidissement",
+      "valve-clearance-check": "Contrôle jeu aux soupapes",
+      "brake-fluid-replacement": "Remplacement liquide de frein",
+      "brake-fluid-change": "Remplacement liquide de frein",
+      "brake-hose-replacement": "Remplacement flexibles de frein",
+      "brake-hose-inspection": "Inspection flexibles de frein",
+      "fork-oil-change": "Remplacement huile de fourche",
+      "steering-head-check": "Contrôle roulement de direction",
+      "steering-bearing-check": "Contrôle roulement de direction",
+      "fuel-line-replacement": "Remplacement durites d'essence",
+      "fuel-line-inspection": "Inspection durites d'essence",
+      "fuel-injection-sync": "Synchronisation injection",
+      "front-brake-check": "Contrôle frein avant",
+      "rear-brake-check": "Contrôle frein arrière",
+      "chassis-bolts-check": "Contrôle visserie châssis",
+      "tire-inspection": "Contrôle pneus (profil, pression, état)"
+    }
   }
 }
