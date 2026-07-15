@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
 import type { Ticket } from '@/types'
 import { getUrgency, getKmRemaining, getEstimatedDays } from '@/lib/urgency'
+import { getOperationLabel } from '@/lib/catalogI18n'
 import { Badge } from '@/components/ui/Badge'
 import { useDeleteTicket } from '@/queries/useTickets'
 import { useTicketParts } from '@/queries/useTicketParts'
@@ -89,7 +90,7 @@ export default function TicketCard({
       {...(overlay || editing ? {} : { ...listeners, ...attributes })}
     >
       <div className={styles.header}>
-        <p className={styles.operation}>{ticket.operation}</p>
+        <p className={styles.operation}>{getOperationLabel(ticket, t)}</p>
         {ticket.status !== 'done' && !overlay && (
           <button
             type="button"
