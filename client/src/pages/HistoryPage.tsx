@@ -6,6 +6,7 @@ import { useTickets } from '@/queries/useTickets'
 import { useTicketParts } from '@/queries/useTicketParts'
 import { Badge } from '@/components/ui/Badge'
 import type { Ticket } from '@/types'
+import { getOperationLabel } from '@/lib/catalogI18n'
 import styles from './HistoryPage.module.css'
 
 const DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', {
@@ -21,7 +22,7 @@ function HistoryRow({ ticket }: { ticket: Ticket }) {
   return (
     <div className={styles.row}>
       <div className={styles.rowMain}>
-        <span className={styles.operation}>{ticket.operation}</span>
+        <span className={styles.operation}>{getOperationLabel(ticket, t)}</span>
         <div className={styles.meta}>
           {ticket.doneKm !== null && <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>}
           {ticket.doneAt && <span className={styles.date}>{DATE_FORMAT.format(new Date(ticket.doneAt))}</span>}
