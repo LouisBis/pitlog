@@ -7,5 +7,5 @@ test('garage page loads with mock motorcycle', async ({ page }) => {
 
 test('board page loads with mock tickets', async ({ page }) => {
   await page.goto('/pitlog/board/1')
-  await expect(page.getByText('Vidange moteur')).toBeVisible()
+  await expect(page.getByText('Vidange huile moteur')).toBeVisible()
 })
