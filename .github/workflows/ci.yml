@@ -144,6 +144,21 @@ jobs:
         run: npx playwright test
         working-directory: client
 
+  check-version-tag:
+    name: Version not yet tagged
+    runs-on: ubuntu-latest
+    if: github.base_ref == 'main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fail if tag already exists
+        run: |
+          VERSION=$(node -p "require('./client/package.json').version")
+          if git ls-remote --tags origin "refs/tags/v$VERSION" | grep -q .; then
+            echo "❌ Tag v$VERSION already exists — bump the version before merging to main."
+            exit 1
+          fi
+          echo "✅ v$VERSION is untagged, good to merge."
+
   branch-policy:
     name: Branch policy
     runs-on: ubuntu-latest
