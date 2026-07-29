@@ -1,21 +1,17 @@
 ## 🏍️ What's new
 
-Patch release — bug fixes, open source launch cleanup, and a new catalog entry.
+Patch release — i18n fix, release automation, and CI improvements.
 
-### 🐛 Bug fixes
+### ✨ Features
 
-- **Velocity false urgency** — tickets were turning red immediately after a km update, even with 10 000+ km remaining. Two `km_history` entries recorded minutes apart (motorcycle creation + first update) produced an astronomically high km/day. Fixed by ignoring velocity windows shorter than 1 day.
+- **Translated operation names** — catalog ticket cards and history page now display operation names in French (`Vidange huile moteur`, `Remplacement bougies`, etc.) instead of the raw English strings from the database. User-created tickets are unaffected.
 
-### ✨ Catalog
+### 🔧 DX & CI
 
-- Added **Yamaha MT-07** (2014–2017) with full service intervals
-
-### 📖 Docs & DX
-
-- README: remove unshipped LLM feature, fix stack table (Zustand was not used), fix SSH clone URLs, add Yamaha to catalog structure
-- ROADMAP: translated to English, published to repo, restructured (V2 = LLM diagnostics on current architecture)
-- CONTRIBUTING: fix SSH clone URL
-- ADR-007 renamed from `lingui` to `react-i18next`
+- Release automation: GitHub release created automatically on every merge to `main`
+- Dependabot redirected to `dev` instead of `main`
+- Fix two TS type errors blocking the deploy build
+- Fix smoke test asserting on the now-translated operation label
 
 ---
 
