@@ -167,7 +167,10 @@ jobs:
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium
         working-directory: client
-      - name: Run Chromatic
+      - name: Capture snapshots (Playwright)
+        run: npx playwright test e2e/visual.spec.ts
+        working-directory: client
+      - name: Upload to Chromatic
         run: npm run test:visual
         working-directory: client
         env:
