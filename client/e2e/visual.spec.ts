@@ -1,27 +1,27 @@
-import { test } from '@chromatic-com/playwright'
+import { test, takeSnapshot } from '@chromatic-com/playwright'
 
 // HomePage excluded: Three.js ASCII animation renders new frames every tick — no stable screenshot possible
 
-test('Garage', async ({ page, takeSnapshot }) => {
+test('Garage', async ({ page }, testInfo) => {
   await page.goto('/pitlog/garage')
   await page.waitForLoadState('networkidle')
-  await takeSnapshot(page, 'Garage')
+  await takeSnapshot(page, 'Garage', testInfo)
 })
 
-test('Board', async ({ page, takeSnapshot }) => {
+test('Board', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1')
   await page.waitForLoadState('networkidle')
-  await takeSnapshot(page, 'Board')
+  await takeSnapshot(page, 'Board', testInfo)
 })
 
-test('History', async ({ page, takeSnapshot }) => {
+test('History', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1/history')
   await page.waitForLoadState('networkidle')
-  await takeSnapshot(page, 'History')
+  await takeSnapshot(page, 'History', testInfo)
 })
 
-test('Reference', async ({ page, takeSnapshot }) => {
+test('Reference', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1/reference')
   await page.waitForLoadState('networkidle')
-  await takeSnapshot(page, 'Reference')
+  await takeSnapshot(page, 'Reference', testInfo)
 })
