@@ -167,11 +167,14 @@ jobs:
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium
         working-directory: client
-      - name: Capture snapshots (Playwright)
-        run: npx playwright test e2e/visual.spec.ts
-        working-directory: client
-      - name: Upload to Chromatic
-        run: npm run test:visual
+      - name: Run Chromatic (captures + uploads)
+        # Auto-accept on dev/main (new baseline); exit 1 on feature branches to force review
+        run: |
+          if [ "${{ github.ref }}" = "refs/heads/dev" ] || [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            npm run test:visual -- --auto-accept-changes
+          else
+            npm run test:visual
+          fi
         working-directory: client
         env:
           CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
