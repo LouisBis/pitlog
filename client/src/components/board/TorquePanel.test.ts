@@ -29,7 +29,7 @@ describe('getRelevantTorqueSpecs', () => {
       ...entry,
       torque_specs: [
         ...entry.torque_specs,
-        { slug: 'drain-gasket', component: 'Drain gasket', nm: 5, note: null, related_intervals: ['oil-change'] },
+        { slug: 'drain-gasket', category: 'engine' as const, component: 'Drain gasket', nm: 5, note: null, related_intervals: ['oil-change'] },
       ],
     }
     const specs = getRelevantTorqueSpecs(entry2, 'oil-change')

@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react'
 import type { CategorySlug } from '@/types'
 
 interface Props {
@@ -5,7 +6,7 @@ interface Props {
   size?: number
 }
 
-const icons: Record<CategorySlug, JSX.Element> = {
+const icons: Record<CategorySlug, ReactElement> = {
   engine: (
     <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="14" y="20" width="36" height="24" rx="3" stroke="currentColor" strokeWidth="2"/>

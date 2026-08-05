@@ -7,22 +7,32 @@ export const mockCatalogEntries: CatalogEntry[] = [
     model: 'GSF 600 Bandit',
     year_start: 1995,
     year_end: 1999,
-    intervals: [
-      { slug: 'oil-change', operation: 'Engine oil change', km: 6000, days: 365 },
-      { slug: 'oil-filter', operation: 'Engine oil filter', km: 12000, days: 730 },
-      { slug: 'air-filter-inspection', operation: 'Air filter inspection', km: 6000, days: 365 },
-      { slug: 'air-filter-replacement', operation: 'Air filter replacement', km: 18000, days: 1095 },
-      { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 12000, days: 730 },
-      { slug: 'chain-lubrication', operation: 'Drive chain lubrication', km: 1000, days: null },
-      { slug: 'valve-clearance-check', operation: 'Valve clearance check', km: 48000, days: null },
-      { slug: 'brake-fluid-replacement', operation: 'Brake fluid replacement', km: null, days: 730 },
-      { slug: 'brake-hose-replacement', operation: 'Brake hose replacement', km: null, days: 1460 },
-      { slug: 'fuel-line-replacement', operation: 'Fuel line replacement', km: null, days: 1460 },
+    categories: [
+      {
+        slug: 'engine',
+        intervals: [
+          { slug: 'oil-change', operation: 'Engine oil change', km: 6000, days: 365 },
+          { slug: 'oil-filter', operation: 'Engine oil filter', km: 12000, days: 730 },
+          { slug: 'air-filter-inspection', operation: 'Air filter inspection', km: 6000, days: 365 },
+          { slug: 'air-filter-replacement', operation: 'Air filter replacement', km: 18000, days: 1095 },
+          { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 12000, days: 730 },
+          { slug: 'valve-clearance-check', operation: 'Valve clearance check', km: 48000, days: null },
+        ],
+      },
+      { slug: 'fuel', intervals: [{ slug: 'fuel-line-replacement', operation: 'Fuel line replacement', km: null, days: 1460 }] },
+      { slug: 'transmission', intervals: [{ slug: 'chain-lubrication', operation: 'Drive chain lubrication', km: 1000, days: null }] },
+      {
+        slug: 'brakes',
+        intervals: [
+          { slug: 'brake-fluid-replacement', operation: 'Brake fluid replacement', km: null, days: 730 },
+          { slug: 'brake-hose-replacement', operation: 'Brake hose replacement', km: null, days: 1460 },
+        ],
+      },
     ],
     torque_specs: [
-      { slug: 'spark-plug', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
-      { slug: 'oil-drain-bolt', component: 'Oil drain bolt', nm: 35, note: null, related_intervals: ['oil-change', 'oil-filter'] },
-      { slug: 'front-axle', component: 'Front wheel axle', nm: 65, note: null, related_intervals: [] },
+      { slug: 'spark-plug', category: 'engine', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
+      { slug: 'oil-drain-bolt', category: 'engine', component: 'Oil drain bolt', nm: 35, note: null, related_intervals: ['oil-change', 'oil-filter'] },
+      { slug: 'front-axle', category: 'chassis', component: 'Front wheel axle', nm: 65, note: null, related_intervals: [] },
     ],
   },
   {
@@ -31,7 +41,7 @@ export const mockCatalogEntries: CatalogEntry[] = [
     model: 'KLE 500',
     year_start: 1991,
     year_end: 1995,
-    intervals: [],
+    categories: [],
     torque_specs: [],
   },
   {
@@ -40,16 +50,21 @@ export const mockCatalogEntries: CatalogEntry[] = [
     model: 'CB500',
     year_start: 1994,
     year_end: 2001,
-    intervals: [
-      { slug: 'oil-change', operation: 'Engine oil change', km: 8000, days: 365 },
-      { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 16000, days: null },
-      { slug: 'air-filter-replacement', operation: 'Air filter replacement', km: 24000, days: null },
-      { slug: 'chain-lubrication', operation: 'Drive chain lubrication', km: 1000, days: null },
-      { slug: 'brake-fluid-replacement', operation: 'Brake fluid replacement', km: null, days: 730 },
+    categories: [
+      {
+        slug: 'engine',
+        intervals: [
+          { slug: 'oil-change', operation: 'Engine oil change', km: 8000, days: 365 },
+          { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 16000, days: null },
+          { slug: 'air-filter-replacement', operation: 'Air filter replacement', km: 24000, days: null },
+        ],
+      },
+      { slug: 'transmission', intervals: [{ slug: 'chain-lubrication', operation: 'Drive chain lubrication', km: 1000, days: null }] },
+      { slug: 'brakes', intervals: [{ slug: 'brake-fluid-replacement', operation: 'Brake fluid replacement', km: null, days: 730 }] },
     ],
     torque_specs: [
-      { slug: 'spark-plug', component: 'Spark plug', nm: 16, note: 'Apply anti-seize compound', related_intervals: ['spark-plugs-replacement'] },
-      { slug: 'oil-drain-bolt', component: 'Oil drain bolt', nm: 30, note: null, related_intervals: ['oil-change'] },
+      { slug: 'spark-plug', category: 'engine', component: 'Spark plug', nm: 16, note: 'Apply anti-seize compound', related_intervals: ['spark-plugs-replacement'] },
+      { slug: 'oil-drain-bolt', category: 'engine', component: 'Oil drain bolt', nm: 30, note: null, related_intervals: ['oil-change'] },
     ],
   },
 ]
