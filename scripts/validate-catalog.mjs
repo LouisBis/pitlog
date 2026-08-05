@@ -103,6 +103,7 @@ function validateEntry(filePath, raw) {
         if (typeof spec.slug !== 'string') { error(file, `${ctx}: slug must be a string`); continue }
         if (torqueSlugs.has(spec.slug)) error(file, `${ctx}: duplicate slug "${spec.slug}"`)
         torqueSlugs.add(spec.slug)
+        if (!ALLOWED_CATEGORY_SLUGS.has(spec.category)) error(file, `${ctx}: category must be a valid CategorySlug`)
         if (typeof spec.component !== 'string') error(file, `${ctx}: component must be a string`)
         if (typeof spec.nm !== 'number' || spec.nm <= 0) error(file, `${ctx}: nm must be a positive number`)
         if (!Array.isArray(spec.related_intervals)) {

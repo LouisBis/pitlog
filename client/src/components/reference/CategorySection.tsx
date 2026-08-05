@@ -8,13 +8,13 @@ interface Props {
   category: CatalogCategory
 }
 
-/** Displays one mechanical category with its header illustration and interval rows. */
+/** Displays one mechanical category as a collapsible section with its intervals. */
 export default function CategorySection({ category }: Props) {
   const { t } = useTranslation()
 
   return (
-    <section className={styles.section}>
-      <div className={styles.header}>
+    <details open className={styles.details}>
+      <summary className={styles.summary}>
         <CategoryIcon slug={category.slug} size={56} />
         <div className={styles.headerMeta}>
           <span className={styles.categoryLabel}>{t(`catalog.categories.${category.slug}`)}</span>
@@ -24,7 +24,12 @@ export default function CategorySection({ category }: Props) {
               : t('reference.interval_count', { count: category.intervals.length })}
           </span>
         </div>
-      </div>
+        <span className={styles.chevron} aria-hidden>
+          <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" width="16" height="16">
+            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </span>
+      </summary>
 
       <div className={styles.list}>
         {category.intervals.map((interval) => (
@@ -47,6 +52,6 @@ export default function CategorySection({ category }: Props) {
           </div>
         ))}
       </div>
-    </section>
+    </details>
   )
 }

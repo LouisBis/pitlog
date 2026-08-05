@@ -11,6 +11,7 @@ export interface CatalogInterval {
 
 export interface TorqueSpec {
   slug: string
+  category: CategorySlug
   component: string
   nm: number
   note: string | null

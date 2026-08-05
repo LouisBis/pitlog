@@ -45,6 +45,7 @@
   "torque_specs": [
     {
       "slug": "spark-plug",
+      "category": "engine",
       "component": "Spark plug",
       "nm": 16,
       "note": "Apply anti-seize compound",
@@ -52,6 +53,7 @@
     },
     {
       "slug": "oil-drain-bolt",
+      "category": "engine",
       "component": "Oil drain bolt",
       "nm": 30,
       "note": null,

@@ -60,97 +60,19 @@
     }
   ],
   "torque_specs": [
-    {
-      "slug": "spark-plug",
-      "component": "Spark plug",
-      "nm": 13,
-      "note": null,
-      "related_intervals": ["spark-plug-check", "spark-plug-replacement"]
-    },
-    {
-      "slug": "cylinder-head-cover-bolt",
-      "component": "Cylinder head cover bolt",
-      "nm": 10,
-      "note": "4 pcs — M6",
-      "related_intervals": ["valve-clearance-check"]
-    },
-    {
-      "slug": "oil-drain-bolt",
-      "component": "Engine oil drain bolt",
-      "nm": 43,
-      "note": "M14",
-      "related_intervals": ["oil-change"]
-    },
-    {
-      "slug": "oil-filter-cartridge",
-      "component": "Oil filter cartridge",
-      "nm": 17,
-      "note": "M20",
-      "related_intervals": ["oil-filter-replacement"]
-    },
-    {
-      "slug": "front-brake-caliper-bolt",
-      "component": "Front brake caliper bolt",
-      "nm": 40,
-      "note": "2 pcs — M10",
-      "related_intervals": ["front-brake-check"]
-    },
-    {
-      "slug": "rear-brake-caliper-retaining-bolt",
-      "component": "Rear brake caliper retaining bolt",
-      "nm": 27,
-      "note": "M12",
-      "related_intervals": ["rear-brake-check"]
-    },
-    {
-      "slug": "front-wheel-axle",
-      "component": "Front wheel axle",
-      "nm": 65,
-      "note": "M16",
-      "related_intervals": ["tire-inspection"]
-    },
-    {
-      "slug": "rear-wheel-axle-nut",
-      "component": "Rear wheel axle nut",
-      "nm": 105,
-      "note": "M18",
-      "related_intervals": ["tire-inspection"]
-    },
-    {
-      "slug": "rear-wheel-sprocket-nut",
-      "component": "Rear wheel sprocket nut",
-      "nm": 80,
-      "note": "6 pcs — M10",
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "drive-chain-puller-locknut",
-      "component": "Drive chain puller locknut",
-      "nm": 16,
-      "note": "2 pcs — M8",
-      "related_intervals": ["chain-check-lubrication"]
-    },
-    {
-      "slug": "drive-sprocket-nut",
-      "component": "Drive sprocket nut",
-      "nm": 95,
-      "note": "M22 — stake after tightening",
-      "related_intervals": ["chain-check-lubrication"]
-    },
-    {
-      "slug": "pivot-shaft-nut",
-      "component": "Pivot shaft nut (swingarm)",
-      "nm": 110,
-      "note": "M16",
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "sidestand-bolt",
-      "component": "Sidestand bolt",
-      "nm": 63,
-      "note": "2 pcs — M10",
-      "related_intervals": ["chassis-bolts-check"]
-    }
+    { "slug": "spark-plug", "category": "engine", "component": "Spark plug", "nm": 13, "note": null, "related_intervals": ["spark-plug-check", "spark-plug-replacement"] },
+    { "slug": "cylinder-head-cover-bolt", "category": "engine", "component": "Cylinder head cover bolt", "nm": 10, "note": "4 pcs — M6", "related_intervals": ["valve-clearance-check"] },
+    { "slug": "oil-drain-bolt", "category": "engine", "component": "Engine oil drain bolt", "nm": 43, "note": "M14", "related_intervals": ["oil-change"] },
+    { "slug": "oil-filter-cartridge", "category": "engine", "component": "Oil filter cartridge", "nm": 17, "note": "M20", "related_intervals": ["oil-filter-replacement"] },
+    { "slug": "front-brake-caliper-bolt", "category": "brakes", "component": "Front brake caliper bolt", "nm": 40, "note": "2 pcs — M10", "related_intervals": ["front-brake-check"] },
+    { "slug": "rear-brake-caliper-retaining-bolt", "category": "brakes", "component": "Rear brake caliper retaining bolt", "nm": 27, "note": "M12", "related_intervals": ["rear-brake-check"] },
+    { "slug": "front-wheel-axle", "category": "chassis", "component": "Front wheel axle", "nm": 65, "note": "M16", "related_intervals": ["tire-inspection"] },
+    { "slug": "rear-wheel-axle-nut", "category": "chassis", "component": "Rear wheel axle nut", "nm": 105, "note": "M18", "related_intervals": ["tire-inspection"] },
+    { "slug": "rear-wheel-sprocket-nut", "category": "transmission", "component": "Rear wheel sprocket nut", "nm": 80, "note": "6 pcs — M10", "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "drive-chain-puller-locknut", "category": "transmission", "component": "Drive chain puller locknut", "nm": 16, "note": "2 pcs — M8", "related_intervals": ["chain-check-lubrication"] },
+    { "slug": "drive-sprocket-nut", "category": "transmission", "component": "Drive sprocket nut", "nm": 95, "note": "M22 — stake after tightening", "related_intervals": ["chain-check-lubrication"] },
+    { "slug": "pivot-shaft-nut", "category": "chassis", "component": "Pivot shaft nut (swingarm)", "nm": 110, "note": "M16", "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "sidestand-bolt", "category": "chassis", "component": "Sidestand bolt", "nm": 63, "note": "2 pcs — M10", "related_intervals": ["chassis-bolts-check"] }
   ],
   "bolt_torque_chart": [
     { "diameter_mm": 6, "conventional_nm": 6, "grade7_nm": null },
