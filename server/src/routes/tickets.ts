@@ -54,7 +54,7 @@ const VALID_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
 function resolveInterval(userMotorcycleId: number, ticket: typeof tickets.$inferSelect) {
   if (ticket.catalogSlug && ticket.intervalSlug) {
     const entry = loadCatalogEntry(ticket.catalogSlug)
-    const catalogInterval = entry?.intervals.find((i) => i.slug === ticket.intervalSlug)
+    const catalogInterval = entry?.categories.flatMap((c) => c.intervals).find((i) => i.slug === ticket.intervalSlug)
     if (!catalogInterval) return null
 
     const override = db

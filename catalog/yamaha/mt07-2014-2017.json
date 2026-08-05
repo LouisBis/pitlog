@@ -4,25 +4,60 @@
   "model": "MT-07",
   "year_start": 2014,
   "year_end": 2017,
-  "intervals": [
-    { "slug": "oil-change", "operation": "Engine oil change", "km": 10000, "days": 365 },
-    { "slug": "oil-filter-replacement", "operation": "Engine oil filter replacement", "km": 20000, "days": null },
-    { "slug": "spark-plug-check", "operation": "Spark plug check and cleaning", "km": 10000, "days": null },
-    { "slug": "spark-plug-replacement", "operation": "Spark plug replacement", "km": 20000, "days": null },
-    { "slug": "air-filter-replacement", "operation": "Air filter element replacement", "km": 40000, "days": null },
-    { "slug": "valve-clearance-check", "operation": "Valve clearance check and adjustment", "km": 40000, "days": null },
-    { "slug": "fuel-line-inspection", "operation": "Fuel line inspection", "km": 10000, "days": 365 },
-    { "slug": "fuel-injection-sync", "operation": "Fuel injection synchronisation", "km": 10000, "days": 365 },
-    { "slug": "chain-check-lubrication", "operation": "Drive chain check, adjustment and lubrication", "km": 800, "days": null },
-    { "slug": "front-brake-check", "operation": "Front brake check (fluid level, leaks, operation)", "km": 10000, "days": 365 },
-    { "slug": "rear-brake-check", "operation": "Rear brake check (fluid level, leaks, operation)", "km": 10000, "days": 365 },
-    { "slug": "brake-fluid-replacement", "operation": "Brake fluid replacement", "km": null, "days": 730 },
-    { "slug": "brake-hose-inspection", "operation": "Brake hose inspection", "km": 20000, "days": 365 },
-    { "slug": "coolant-level-check", "operation": "Coolant level check", "km": 10000, "days": 365 },
-    { "slug": "coolant-replacement", "operation": "Coolant replacement", "km": null, "days": 1095 },
-    { "slug": "tire-inspection", "operation": "Tire inspection (tread depth, pressure, condition)", "km": 10000, "days": 365 },
-    { "slug": "steering-bearing-check", "operation": "Steering bearing check", "km": 10000, "days": null },
-    { "slug": "chassis-bolts-check", "operation": "Chassis fasteners check", "km": 10000, "days": 365 }
+  "categories": [
+    {
+      "slug": "engine",
+      "intervals": [
+        { "slug": "oil-change", "operation": "Engine oil change", "km": 10000, "days": 365 },
+        { "slug": "oil-filter-replacement", "operation": "Engine oil filter replacement", "km": 20000, "days": null },
+        { "slug": "spark-plug-check", "operation": "Spark plug check and cleaning", "km": 10000, "days": null },
+        { "slug": "spark-plug-replacement", "operation": "Spark plug replacement", "km": 20000, "days": null },
+        { "slug": "air-filter-replacement", "operation": "Air filter element replacement", "km": 40000, "days": null },
+        { "slug": "valve-clearance-check", "operation": "Valve clearance check and adjustment", "km": 40000, "days": null }
+      ]
+    },
+    {
+      "slug": "cooling",
+      "intervals": [
+        { "slug": "coolant-level-check", "operation": "Coolant level check", "km": 10000, "days": 365 },
+        { "slug": "coolant-replacement", "operation": "Coolant replacement", "km": null, "days": 1095 }
+      ]
+    },
+    {
+      "slug": "fuel",
+      "intervals": [
+        { "slug": "fuel-line-inspection", "operation": "Fuel line inspection", "km": 10000, "days": 365 },
+        { "slug": "fuel-injection-sync", "operation": "Fuel injection synchronisation", "km": 10000, "days": 365 }
+      ]
+    },
+    {
+      "slug": "transmission",
+      "intervals": [
+        { "slug": "chain-check-lubrication", "operation": "Drive chain check, adjustment and lubrication", "km": 800, "days": null }
+      ]
+    },
+    {
+      "slug": "brakes",
+      "intervals": [
+        { "slug": "front-brake-check", "operation": "Front brake check (fluid level, leaks, operation)", "km": 10000, "days": 365 },
+        { "slug": "rear-brake-check", "operation": "Rear brake check (fluid level, leaks, operation)", "km": 10000, "days": 365 },
+        { "slug": "brake-fluid-replacement", "operation": "Brake fluid replacement", "km": null, "days": 730 },
+        { "slug": "brake-hose-inspection", "operation": "Brake hose inspection", "km": 20000, "days": 365 }
+      ]
+    },
+    {
+      "slug": "chassis",
+      "intervals": [
+        { "slug": "steering-bearing-check", "operation": "Steering bearing check", "km": 10000, "days": null },
+        { "slug": "chassis-bolts-check", "operation": "Chassis fasteners check", "km": 10000, "days": 365 }
+      ]
+    },
+    {
+      "slug": "tires",
+      "intervals": [
+        { "slug": "tire-inspection", "operation": "Tire inspection (tread depth, pressure, condition)", "km": 10000, "days": 365 }
+      ]
+    }
   ],
   "torque_specs": [
     {

@@ -40,7 +40,7 @@ function validateEntry(filePath, raw) {
   }
 
   // Required top-level fields
-  const required = ['slug', 'brand', 'model', 'intervals', 'torque_specs']
+  const required = ['slug', 'brand', 'model', 'categories', 'torque_specs']
   for (const field of required) {
     if (entry[field] === undefined) error(file, `missing field: ${field}`)
   }
@@ -66,23 +66,34 @@ function validateEntry(filePath, raw) {
     }
   }
 
-  // Intervals
-  if (!Array.isArray(entry.intervals)) {
-    error(file, 'intervals must be an array')
+  const ALLOWED_CATEGORY_SLUGS = new Set(['engine', 'cooling', 'fuel', 'transmission', 'brakes', 'chassis', 'tires'])
+
+  // Categories
+  if (!Array.isArray(entry.categories)) {
+    error(file, 'categories must be an array')
   } else {
     const intervalSlugs = new Set()
-    for (const [i, interval] of entry.intervals.entries()) {
-      const ctx = `intervals[${i}]`
-      if (typeof interval.slug !== 'string') { error(file, `${ctx}: slug must be a string`); continue }
-      if (intervalSlugs.has(interval.slug)) error(file, `${ctx}: duplicate slug "${interval.slug}"`)
-      intervalSlugs.add(interval.slug)
-      if (typeof interval.operation !== 'string') error(file, `${ctx}: operation must be a string`)
-      if (interval.km === undefined) error(file, `${ctx}: missing field km`)
-      if (interval.days === undefined) error(file, `${ctx}: missing field days`)
-      if (interval.km === null && interval.days === null) error(file, `${ctx}: km and days cannot both be null`)
+    const categorySlugs = new Set()
+    for (const [ci, cat] of entry.categories.entries()) {
+      const catCtx = `categories[${ci}]`
+      if (typeof cat.slug !== 'string') { error(file, `${catCtx}: slug must be a string`); continue }
+      if (!ALLOWED_CATEGORY_SLUGS.has(cat.slug)) error(file, `${catCtx}: unknown category slug "${cat.slug}"`)
+      if (categorySlugs.has(cat.slug)) error(file, `${catCtx}: duplicate category slug "${cat.slug}"`)
+      categorySlugs.add(cat.slug)
+      if (!Array.isArray(cat.intervals)) { error(file, `${catCtx}: intervals must be an array`); continue }
+      for (const [i, interval] of cat.intervals.entries()) {
+        const ctx = `${catCtx}.intervals[${i}]`
+        if (typeof interval.slug !== 'string') { error(file, `${ctx}: slug must be a string`); continue }
+        if (intervalSlugs.has(interval.slug)) error(file, `${ctx}: duplicate slug "${interval.slug}"`)
+        intervalSlugs.add(interval.slug)
+        if (typeof interval.operation !== 'string') error(file, `${ctx}: operation must be a string`)
+        if (interval.km === undefined) error(file, `${ctx}: missing field km`)
+        if (interval.days === undefined) error(file, `${ctx}: missing field days`)
+        if (interval.km === null && interval.days === null) error(file, `${ctx}: km and days cannot both be null`)
+      }
     }
 
-    // Torque specs
+    // Torque specs (validate related_intervals against the flat set)
     if (!Array.isArray(entry.torque_specs)) {
       error(file, 'torque_specs must be an array')
     } else {
@@ -98,7 +109,7 @@ function validateEntry(filePath, raw) {
           error(file, `${ctx}: related_intervals must be an array`)
         } else {
           for (const ref of spec.related_intervals) {
-            if (!intervalSlugs.has(ref)) error(file, `${ctx}: related_interval "${ref}" not found in intervals`)
+            if (!intervalSlugs.has(ref)) error(file, `${ctx}: related_interval "${ref}" not found in any category`)
           }
         }
       }

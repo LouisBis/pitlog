@@ -8,7 +8,7 @@ const entry: CatalogEntry = {
   model: 'GSF 600 Bandit',
   year_start: 1997,
   year_end: 1997,
-  intervals: [],
+  categories: [],
   torque_specs: [
     { slug: 'spark-plug', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
     { slug: 'oil-drain-bolt', component: 'Oil drain bolt', nm: 35, note: null, related_intervals: ['oil-change', 'oil-filter'] },

@@ -17,13 +17,20 @@ export interface TorqueSpec {
   related_intervals: string[]
 }
 
+export type CategorySlug = 'engine' | 'cooling' | 'fuel' | 'transmission' | 'brakes' | 'chassis' | 'tires'
+
+export interface CatalogCategory {
+  slug: CategorySlug
+  intervals: CatalogInterval[]
+}
+
 export interface CatalogEntry {
   slug: string
   brand: string
   model: string
   year_start: number
   year_end: number | null
-  intervals: CatalogInterval[]
+  categories: CatalogCategory[]
   torque_specs: TorqueSpec[]
 }
 
