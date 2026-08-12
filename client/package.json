@@ -18,7 +18,7 @@
     "@louisbis/pitlog-tokens": "^1.1.0",
     "@phosphor-icons/react": "^2.1.7",
     "@radix-ui/react-switch": "^1.3.1",
-    "@tanstack/react-query": "^5.75.0",
+    "@tanstack/react-query": "^5.101.4",
     "@types/three": "^0.184.1",
     "framer-motion": "^12.43.0",
     "i18next": "^26.3.6",
