@@ -7,7 +7,16 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 10
+    groups:
+      react-ecosystem:
+        patterns: ["react", "react-dom", "@tanstack/*", "@dnd-kit/*"]
+      vite:
+        patterns: ["vite", "@vitejs/*", "vite-*"]
+      testing:
+        patterns: ["vitest", "msw", "@testing-library/*", "playwright", "@playwright/*"]
+      types:
+        patterns: ["@types/*"]
 
   - package-ecosystem: npm
     directory: /server
@@ -16,6 +25,9 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    groups:
+      server-deps:
+        patterns: ["express", "pino", "better-sqlite3", "zod", "supertest"]
 
   - package-ecosystem: github-actions
     directory: /
