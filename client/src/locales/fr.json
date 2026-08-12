@@ -117,11 +117,16 @@
     "title": "Fiche technique",
     "intervals.title": "Intervalles d'entretien",
     "torque.title": "Couples de serrage",
+    "torque.label": "Spécifications",
     "empty.intervals": "Aucun intervalle défini.",
     "empty.torque": "Aucune valeur de couple définie.",
     "nm": "{{count}} Nm",
     "every_km": "Tous les {{count, number}} km",
-    "every_days": "Tous les {{count, number}} j"
+    "every_days": "Tous les {{count, number}} j",
+    "unit_km": "km",
+    "unit_days": "j",
+    "interval_count": "{{count}} opérations",
+    "interval_count_one": "1 opération"
   },
   "not_found": {
     "code": "404",
@@ -129,6 +134,15 @@
     "subtitle": "Cette URL n'existe pas."
   },
   "catalog": {
+    "categories": {
+      "engine": "Moteur",
+      "cooling": "Refroidissement",
+      "fuel": "Carburant",
+      "transmission": "Transmission",
+      "brakes": "Freins",
+      "chassis": "Châssis",
+      "tires": "Pneumatiques"
+    },
     "intervals": {
       "oil-change": "Vidange huile moteur",
       "oil-filter": "Remplacement filtre à huile",

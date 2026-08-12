@@ -1,12 +1,15 @@
-import type { Ticket } from '@/types'
+import type { Ticket, CatalogInterval } from '@/types'
 
-/** Returns a translated operation label for catalog tickets, falls back to ticket.operation for user-created tickets. */
+type LabelSource =
+  | Pick<Ticket, 'intervalSlug' | 'operation'>
+  | Pick<CatalogInterval, 'slug' | 'operation'>
+
+/** Returns a translated operation label. Works for catalog Tickets (intervalSlug) and raw CatalogIntervals (slug). Falls back to item.operation if no translation key exists. */
 export function getOperationLabel(
-  ticket: Ticket,
+  item: LabelSource,
   t: (key: string, fallback: string) => string
 ): string {
-  if (ticket.intervalSlug) {
-    return t(`catalog.intervals.${ticket.intervalSlug}`, ticket.operation)
-  }
-  return ticket.operation
+  const slug = 'intervalSlug' in item ? item.intervalSlug : item.slug
+  if (slug) return t(`catalog.intervals.${slug}`, item.operation)
+  return item.operation
 }

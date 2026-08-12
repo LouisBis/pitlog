@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { getOperationLabel } from './catalogI18n'
-import type { Ticket } from '@/types'
+import type { Ticket, CatalogInterval } from '@/types'
 
 function makeTicket(overrides: Partial<Ticket> = {}): Ticket {
   return {
@@ -42,5 +42,15 @@ describe('getOperationLabel', () => {
   it('returns ticket.operation for a user-created ticket (no intervalSlug)', () => {
     const ticket = makeTicket({ operation: 'Vidange perso' })
     expect(getOperationLabel(ticket, t)).toBe('Vidange perso')
+  })
+
+  it('returns translated label for a CatalogInterval (slug field)', () => {
+    const interval: CatalogInterval = { slug: 'oil-change', operation: 'Engine oil change', km: 6000, days: 365 }
+    expect(getOperationLabel(interval, t)).toBe('Vidange huile moteur')
+  })
+
+  it('returns operation for a CatalogInterval with unknown slug', () => {
+    const interval: CatalogInterval = { slug: 'unknown-op', operation: 'Some operation', km: null, days: 30 }
+    expect(getOperationLabel(interval, t)).toBe('Some operation')
   })
 })

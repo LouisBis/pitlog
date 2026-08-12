@@ -109,7 +109,7 @@ export const handlers = [
 
       if (ticket.catalogSlug && ticket.intervalSlug && ticket.doneKm !== null) {
         const entry = mockCatalogEntries.find((e) => e.slug === ticket.catalogSlug)
-        const interval = entry?.intervals.find((i) => i.slug === ticket.intervalSlug)
+        const interval = entry?.categories.flatMap((c) => c.intervals).find((i) => i.slug === ticket.intervalSlug)
         if (interval) {
           const nextTargetKm = interval.km !== null ? ticket.doneKm + interval.km : null
           const nextTargetDate =
