@@ -11,10 +11,18 @@ export interface CatalogInterval {
 
 export interface TorqueSpec {
   slug: string
+  category: CategorySlug
   component: string
   nm: number
   note: string | null
   related_intervals: string[]
+}
+
+export type CategorySlug = 'engine' | 'cooling' | 'fuel' | 'transmission' | 'brakes' | 'chassis' | 'tires'
+
+export interface CatalogCategory {
+  slug: CategorySlug
+  intervals: CatalogInterval[]
 }
 
 export interface CatalogEntry {
@@ -23,7 +31,7 @@ export interface CatalogEntry {
   model: string
   year_start: number
   year_end: number | null
-  intervals: CatalogInterval[]
+  categories: CatalogCategory[]
   torque_specs: TorqueSpec[]
 }
 

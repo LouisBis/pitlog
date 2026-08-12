@@ -3,42 +3,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
 import { useCatalogEntry } from '@/queries/useCatalog'
-import type { CatalogInterval, TorqueSpec } from '@/types'
+import CategorySection from '@/components/reference/CategorySection'
+import TorqueSection from '@/components/reference/TorqueSection'
 import styles from './ReferencePage.module.css'
 
-/** Single interval row in the reference table. */
-function IntervalRow({ interval }: { interval: CatalogInterval }) {
-  const { t } = useTranslation()
-  return (
-    <div className={styles.row}>
-      <span className={styles.operation}>{interval.operation}</span>
-      <div className={styles.recurrence}>
-        {interval.km !== null && (
-          <span className={styles.tag}>{t('reference.every_km', { count: interval.km })}</span>
-        )}
-        {interval.days !== null && (
-          <span className={styles.tag}>{t('reference.every_days', { count: interval.days })}</span>
-        )}
-      </div>
-    </div>
-  )
-}
-
-/** Single torque spec row. */
-function TorqueRow({ spec }: { spec: TorqueSpec }) {
-  const { t } = useTranslation()
-  return (
-    <div className={styles.row}>
-      <span className={styles.operation}>{spec.component}</span>
-      <div className={styles.recurrence}>
-        <span className={styles.torqueValue}>{t('reference.nm', { count: spec.nm })}</span>
-        {spec.note && <span className={styles.note}>{spec.note}</span>}
-      </div>
-    </div>
-  )
-}
-
-/** Reference page showing catalog intervals and torque specs for the current motorcycle. */
+/** Technical reference page — catalog intervals grouped by category + torque specs. */
 export default function ReferencePage() {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
@@ -48,7 +17,6 @@ export default function ReferencePage() {
 
   const { data: motos } = useUserMotorcycles()
   const moto = motos?.find((m) => m.id === userMotoId)
-
   const { data: entry, isLoading, isError } = useCatalogEntry(moto?.catalogSlug)
 
   useEffect(() => {
@@ -78,9 +46,7 @@ export default function ReferencePage() {
             {moto && (
               <>
                 <span className={styles.separator}>·</span>
-                <span className={styles.motoName}>
-                  {moto.brand} {moto.model}
-                </span>
+                <span className={styles.motoName}>{moto.brand} {moto.model}</span>
               </>
             )}
           </div>
@@ -88,38 +54,22 @@ export default function ReferencePage() {
       </header>
 
       <main className={styles.main}>
-        <h1 className={styles.title}>{t('reference.title')}</h1>
+        <h1 className={styles.pageTitle}>{t('reference.title')}</h1>
+        {moto && (
+          <p className={styles.pageSubtitle}>
+            {moto.brand} {moto.model} · {entry?.year_start}–{entry?.year_end ?? '…'}
+          </p>
+        )}
 
         {isLoading && <p className={styles.state}>{t('common.loading')}</p>}
         {isError && <p className={styles.state}>{t('common.error.loading')}</p>}
 
         {entry && (
           <>
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t('reference.intervals.title')}</h2>
-              {entry.intervals.length === 0 ? (
-                <p className={styles.state}>{t('reference.empty.intervals')}</p>
-              ) : (
-                <div className={styles.list}>
-                  {entry.intervals.map((interval) => (
-                    <IntervalRow key={interval.slug} interval={interval} />
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section className={styles.section}>
-              <h2 className={styles.sectionTitle}>{t('reference.torque.title')}</h2>
-              {entry.torque_specs.length === 0 ? (
-                <p className={styles.state}>{t('reference.empty.torque')}</p>
-              ) : (
-                <div className={styles.list}>
-                  {entry.torque_specs.map((spec) => (
-                    <TorqueRow key={spec.slug} spec={spec} />
-                  ))}
-                </div>
-              )}
-            </section>
+            {entry.categories.map((cat) => (
+              <CategorySection key={cat.slug} category={cat} />
+            ))}
+            <TorqueSection specs={entry.torque_specs} />
           </>
         )}
       </main>

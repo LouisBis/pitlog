@@ -25,14 +25,15 @@ describe('GET /api/v1/catalog', () => {
 })
 
 describe('GET /api/v1/catalog/:slug', () => {
-  it('returns full catalog entry with intervals and torque_specs', async () => {
+  it('returns full catalog entry with categories and torque_specs', async () => {
     const res = await request(app).get('/api/v1/catalog/honda-cb500-1994-2001')
     expect(res.status).toBe(200)
     expect(res.body.slug).toBe('honda-cb500-1994-2001')
     expect(res.body.brand).toBe('Honda')
-    expect(Array.isArray(res.body.intervals)).toBe(true)
-    expect(res.body.intervals.length).toBeGreaterThan(0)
-    expect(res.body.intervals[0]).toMatchObject({ slug: expect.any(String), operation: expect.any(String) })
+    expect(Array.isArray(res.body.categories)).toBe(true)
+    expect(res.body.categories.length).toBeGreaterThan(0)
+    expect(res.body.categories[0].slug).toMatch(/^(engine|cooling|fuel|transmission|brakes|chassis|tires)$/)
+    expect(res.body.categories[0].intervals[0]).toMatchObject({ slug: expect.any(String), operation: expect.any(String) })
     expect(Array.isArray(res.body.torque_specs)).toBe(true)
     const sparkPlug = res.body.torque_specs.find((s: { slug: string }) => s.slug === 'spark-plug')
     expect(sparkPlug).toBeDefined()

@@ -104,7 +104,7 @@ router.post('/', validateBody(createSchema), (req, res) => {
   const effectiveSlug = isCustom ? 'generic-standard' : catalogSlug
   if (effectiveSlug) {
     const entry = loadCatalogEntry(effectiveSlug)
-    if (entry) seedCatalogTickets(userMoto.id, currentKm, effectiveSlug, entry.intervals)
+    if (entry) seedCatalogTickets(userMoto.id, currentKm, effectiveSlug, entry.categories.flatMap((c) => c.intervals))
   }
 
   if (isCustom) {
@@ -136,7 +136,8 @@ router.post('/:id/import-intervals', (req, res) => {
   }
 
   const entry = loadCatalogEntry(motorcycle.catalogSlug)
-  if (!entry || entry.intervals.length === 0) {
+  const allIntervals = entry ? entry.categories.flatMap((c) => c.intervals) : []
+  if (!entry || allIntervals.length === 0) {
     res.status(422).json({ error: 'No catalogue intervals for this motorcycle' })
     return
   }
@@ -151,10 +152,10 @@ router.post('/:id/import-intervals', (req, res) => {
       .map((t) => t.intervalSlug as string),
   )
 
-  const toCreate = entry.intervals.filter((i) => !coveredSlugs.has(i.slug))
+  const toCreate = allIntervals.filter((i) => !coveredSlugs.has(i.slug))
   seedCatalogTickets(id, userMoto.currentKm, motorcycle.catalogSlug, toCreate)
   logger.info(
-    { userMotorcycleId: id, created: toCreate.length, skipped: entry.intervals.length - toCreate.length },
+    { userMotorcycleId: id, created: toCreate.length, skipped: allIntervals.length - toCreate.length },
     'Intervals imported',
   )
   res.json({ created: toCreate.length })
