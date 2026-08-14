@@ -1,13 +1,16 @@
 import { test, takeSnapshot } from '@chromatic-com/playwright'
 
-// API calls are intercepted via page.route() — no MSW service worker needed.
-// This makes networkidle reliable: Playwright sees the mock responses as real network activity.
+// page.route() conflicts with @chromatic-com/playwright's CDP ResourceArchiver:
+// both call Fetch.enable() and whichever calls Fetch.continueRequest first wins,
+// bypassing the mock. We override window.fetch via addInitScript() instead —
+// this intercepts at the JS level before any network request is made, so CDP
+// never sees the API calls and networkidle works correctly.
 
-const MOTO = {
-  id: 1, currentKm: 15200, acquiredAt: '2021-03-15T00:00:00.000Z',
-  motorcycleId: 1, brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997,
-  isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
-}
+const MOTO = [
+  { id: 1, currentKm: 15200, acquiredAt: '2021-03-15T00:00:00.000Z',
+    motorcycleId: 1, brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997,
+    isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1995-1999' },
+]
 
 const TICKETS = [
   { id: 1, userMotorcycleId: 1, catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
@@ -50,19 +53,37 @@ const CATALOG_ENTRY = {
   ],
 }
 
-const CATALOG_SUMMARIES = [{ slug: CATALOG_ENTRY.slug, brand: CATALOG_ENTRY.brand, model: CATALOG_ENTRY.model, year_start: CATALOG_ENTRY.year_start, year_end: CATALOG_ENTRY.year_end }]
+const CATALOG_SUMMARIES = [
+  { slug: CATALOG_ENTRY.slug, brand: CATALOG_ENTRY.brand, model: CATALOG_ENTRY.model,
+    year_start: CATALOG_ENTRY.year_start, year_end: CATALOG_ENTRY.year_end },
+]
 
-test.beforeEach(async ({ page }) => {
-  await page.route('**/api/v1/user-motorcycles', route => route.fulfill({ json: [MOTO] }))
-  await page.route('**/api/v1/user-motorcycles/*/velocity', route => route.fulfill({ json: { kmPerDay: 6.99, dataPoints: 4, periodDays: 458.5 } }))
-  await page.route('**/api/v1/tickets*', route => route.fulfill({ json: TICKETS }))
-  await page.route('**/api/v1/catalog/suzuki-gsf600-bandit-1995-1999', route => route.fulfill({ json: CATALOG_ENTRY }))
-  await page.route('**/api/v1/catalog', route => route.fulfill({ json: CATALOG_SUMMARIES }))
-})
+const VELOCITY = { kmPerDay: 6.99, dataPoints: 4, periodDays: 458.5 }
+
+type FetchMocks = { moto: string; tickets: string; catalogEntry: string; catalogSummaries: string; velocity: string }
+
+function mockFetch(mocks: FetchMocks) {
+  const _fetch = window.fetch
+  window.fetch = (input, init) => {
+    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
+    const json = (data: string) => Promise.resolve(new Response(data, { status: 200, headers: { 'Content-Type': 'application/json' } }))
+    if (url.includes('/api/v1/user-motorcycles/') && url.includes('/velocity')) return json(mocks.velocity)
+    if (url.includes('/api/v1/user-motorcycles')) return json(mocks.moto)
+    if (url.includes('/api/v1/tickets')) return json(mocks.tickets)
+    if (url.includes('/api/v1/catalog/suzuki-gsf600-bandit-1995-1999')) return json(mocks.catalogEntry)
+    if (url.includes('/api/v1/catalog')) return json(mocks.catalogSummaries)
+    return _fetch(input, init)
+  }
+}
 
 // HomePage excluded: Three.js ASCII animation renders new frames every tick — no stable screenshot possible.
 
 test('Garage', async ({ page }, testInfo) => {
+  await page.addInitScript(mockFetch, {
+    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
+    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+    velocity: JSON.stringify(VELOCITY),
+  })
   await page.goto('/pitlog/garage')
   await page.waitForLoadState('networkidle')
   await testInfo.attach('garage.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
@@ -70,6 +91,11 @@ test('Garage', async ({ page }, testInfo) => {
 })
 
 test('Board', async ({ page }, testInfo) => {
+  await page.addInitScript(mockFetch, {
+    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
+    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+    velocity: JSON.stringify(VELOCITY),
+  })
   await page.goto('/pitlog/board/1')
   await page.waitForLoadState('networkidle')
   await testInfo.attach('board.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
@@ -77,6 +103,11 @@ test('Board', async ({ page }, testInfo) => {
 })
 
 test('History', async ({ page }, testInfo) => {
+  await page.addInitScript(mockFetch, {
+    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
+    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+    velocity: JSON.stringify(VELOCITY),
+  })
   await page.goto('/pitlog/board/1/history')
   await page.waitForLoadState('networkidle')
   await testInfo.attach('history.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
@@ -84,6 +115,11 @@ test('History', async ({ page }, testInfo) => {
 })
 
 test('Reference', async ({ page }, testInfo) => {
+  await page.addInitScript(mockFetch, {
+    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
+    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+    velocity: JSON.stringify(VELOCITY),
+  })
   await page.goto('/pitlog/board/1/reference')
   await page.waitForLoadState('networkidle')
   await testInfo.attach('reference.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
