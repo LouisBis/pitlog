@@ -173,13 +173,6 @@ jobs:
       - name: Capture snapshots (Playwright)
         run: npx playwright test e2e/visual.spec.ts
         working-directory: client
-      - name: Upload debug screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-screenshots
-          path: client/e2e/screenshots/
-          retention-days: 3
       - name: Upload to Chromatic
         # Auto-accept on dev/main (new baseline); exit 1 on feature branches to force review
         run: |
