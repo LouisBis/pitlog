@@ -1,17 +1,20 @@
 ## 🏍️ What's new
 
-Patch release — i18n fix, release automation, and CI improvements.
+Reference page redesign — catalog restructured into mechanical categories with collapsible sections, grouped torque specs, and category icons.
 
 ### ✨ Features
 
-- **Translated operation names** — catalog ticket cards and history page now display operation names in French (`Vidange huile moteur`, `Remplacement bougies`, etc.) instead of the raw English strings from the database. User-created tickets are unaffected.
+- **Mechanical categories** — catalog intervals are now organized into 7 categories: Engine, Cooling, Fuel, Transmission, Brakes, Chassis, Tires. All 4 catalog motorcycles migrated.
+- **Collapsible category sections** — reference page uses native `<details>/<summary>` accordion, open by default and toggleable. Zero JS overhead.
+- **Torque specs by category** — torque specifications are grouped under their respective mechanical category instead of a flat list.
+- **Category icons** — each section header displays a Phosphor icon (Engine, ThermometerSimple, GasCan, GearSix, Disc, Motorcycle, Tire).
 
 ### 🔧 DX & CI
 
-- Release automation: GitHub release created automatically on every merge to `main`
-- Dependabot redirected to `dev` instead of `main`
-- Fix two TS type errors blocking the deploy build
-- Fix smoke test asserting on the now-translated operation label
+- Visual regression testing with Chromatic — Playwright snapshots uploaded on every PR, auto-accepted on `dev`/`main`
+- CI now triggers on push to `dev`/`main` in addition to pull requests (Chromatic baseline bootstrap)
+- `validate-catalog` updated for the new categories schema
+- Dependabot PRs grouped by ecosystem (react, vite, testing, types, server-deps)
+- Dependabot security alerts enabled on the repository
 
 ---
-

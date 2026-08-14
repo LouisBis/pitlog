@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { WrenchIcon } from '@phosphor-icons/react'
 import type { CategorySlug, TorqueSpec } from '@/types'
 import styles from './TorqueSection.module.css'
 
@@ -28,13 +29,7 @@ export default function TorqueSection({ specs }: Props) {
   return (
     <details open className={styles.details}>
       <summary className={styles.summary}>
-        <span style={{ display: 'inline-flex', width: 56, height: 56, color: 'var(--color-text-muted)', flexShrink: 0 }}>
-          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M44 12 C50 18 50 28 44 34 L24 54 C21 57 17 57 14 54 C11 51 11 47 14 44 L34 24 C40 18 50 18 44 12Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round"/>
-            <circle cx="18" cy="50" r="3" fill="currentColor"/>
-            <line x1="44" y1="12" x2="36" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-          </svg>
-        </span>
+        <WrenchIcon size={56} color="var(--color-text-muted)" />
         <div className={styles.headerMeta}>
           <span className={styles.sectionLabel}>{t('reference.torque.label')}</span>
           <span className={styles.sectionName}>{t('reference.torque.title')}</span>
