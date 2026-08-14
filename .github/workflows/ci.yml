@@ -165,8 +165,6 @@ jobs:
       - name: Build for visual tests
         run: npm run build -- --base /pitlog/
         working-directory: client
-        env:
-          VITE_USE_MOCKS: 'true'
       - name: Install Playwright chromium
         run: npx playwright install --with-deps chromium
         working-directory: client

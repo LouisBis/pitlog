@@ -1,30 +1,87 @@
 import { test, takeSnapshot } from '@chromatic-com/playwright'
 
-// HomePage excluded: Three.js ASCII animation renders new frames every tick — no stable screenshot possible
+// API calls are intercepted via page.route() — no MSW service worker needed.
+// This makes networkidle reliable: Playwright sees the mock responses as real network activity.
 
-// MSW intercepts API calls via service worker — Playwright's networkidle fires before data arrives.
-// Each test waits for a data-dependent element instead.
+const MOTO = {
+  id: 1, currentKm: 15200, acquiredAt: '2021-03-15T00:00:00.000Z',
+  motorcycleId: 1, brand: 'Suzuki', model: 'GSF 600 Bandit', year: 1997,
+  isCustom: false, catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+}
+
+const TICKETS = [
+  { id: 1, userMotorcycleId: 1, catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+    intervalSlug: 'oil-change', customIntervalId: null, operation: 'Vidange moteur',
+    status: 'todo', targetKm: 15000, targetDate: null, doneKm: null, doneAt: null,
+    customKm: null, customDays: null },
+  { id: 2, userMotorcycleId: 1, catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+    intervalSlug: 'air-filter-inspection', customIntervalId: null, operation: 'Filtre à air',
+    status: 'todo', targetKm: 15350, targetDate: null, doneKm: null, doneAt: null,
+    customKm: null, customDays: null },
+  { id: 3, userMotorcycleId: 1, catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+    intervalSlug: 'spark-plugs-replacement', customIntervalId: null, operation: 'Bougies',
+    status: 'in_progress', targetKm: 15650, targetDate: null, doneKm: null, doneAt: null,
+    customKm: null, customDays: null },
+  { id: 4, userMotorcycleId: 1, catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+    intervalSlug: 'brake-fluid-replacement', customIntervalId: null, operation: 'Liquide de frein',
+    status: 'done', targetKm: 14000, targetDate: null, doneKm: 14050, doneAt: '2025-11-20T00:00:00.000Z',
+    customKm: null, customDays: null },
+]
+
+const CATALOG_ENTRY = {
+  slug: 'suzuki-gsf600-bandit-1995-1999',
+  brand: 'Suzuki', model: 'GSF 600 Bandit', year_start: 1995, year_end: 1999,
+  categories: [
+    { slug: 'engine', intervals: [
+      { slug: 'oil-change', operation: 'Engine oil change', km: 6000, days: 365 },
+      { slug: 'oil-filter', operation: 'Engine oil filter', km: 12000, days: 730 },
+      { slug: 'air-filter-inspection', operation: 'Air filter inspection', km: 6000, days: 365 },
+      { slug: 'spark-plugs-replacement', operation: 'Spark plugs replacement', km: 12000, days: 730 },
+      { slug: 'valve-clearance-check', operation: 'Valve clearance check', km: 48000, days: null },
+    ]},
+    { slug: 'brakes', intervals: [
+      { slug: 'brake-fluid-replacement', operation: 'Brake fluid replacement', km: null, days: 730 },
+    ]},
+  ],
+  torque_specs: [
+    { slug: 'spark-plug', category: 'engine', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
+    { slug: 'oil-drain-bolt', category: 'engine', component: 'Oil drain bolt', nm: 35, note: null, related_intervals: ['oil-change', 'oil-filter'] },
+    { slug: 'front-axle', category: 'chassis', component: 'Front wheel axle', nm: 65, note: null, related_intervals: [] },
+  ],
+}
+
+const CATALOG_SUMMARIES = [{ slug: CATALOG_ENTRY.slug, brand: CATALOG_ENTRY.brand, model: CATALOG_ENTRY.model, year_start: CATALOG_ENTRY.year_start, year_end: CATALOG_ENTRY.year_end }]
+
+test.beforeEach(async ({ page }) => {
+  await page.route('**/api/v1/user-motorcycles', route => route.fulfill({ json: [MOTO] }))
+  await page.route('**/api/v1/user-motorcycles/*/velocity', route => route.fulfill({ json: { kmPerDay: 6.99, dataPoints: 4, periodDays: 458.5 } }))
+  await page.route('**/api/v1/tickets*', route => route.fulfill({ json: TICKETS }))
+  await page.route('**/api/v1/catalog/suzuki-gsf600-bandit-1995-1999', route => route.fulfill({ json: CATALOG_ENTRY }))
+  await page.route('**/api/v1/catalog', route => route.fulfill({ json: CATALOG_SUMMARIES }))
+})
+
+// HomePage excluded: Three.js ASCII animation renders new frames every tick — no stable screenshot possible.
 
 test('Garage', async ({ page }, testInfo) => {
   await page.goto('/pitlog/garage')
-  await page.waitForSelector('[class*="card"]')
+  await page.waitForLoadState('networkidle')
   await takeSnapshot(page, 'Garage', testInfo)
 })
 
 test('Board', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1')
-  await page.waitForSelector('[class*="column"]')
+  await page.waitForLoadState('networkidle')
   await takeSnapshot(page, 'Board', testInfo)
 })
 
 test('History', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1/history')
-  await page.waitForSelector('[class*="row"], [class*="empty"]')
+  await page.waitForLoadState('networkidle')
   await takeSnapshot(page, 'History', testInfo)
 })
 
 test('Reference', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1/reference')
-  await page.waitForSelector('[class*="details"]')
+  await page.waitForLoadState('networkidle')
   await takeSnapshot(page, 'Reference', testInfo)
 })
