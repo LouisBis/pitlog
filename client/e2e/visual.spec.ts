@@ -65,23 +65,27 @@ test.beforeEach(async ({ page }) => {
 test('Garage', async ({ page }, testInfo) => {
   await page.goto('/pitlog/garage')
   await page.waitForLoadState('networkidle')
+  await testInfo.attach('garage.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
   await takeSnapshot(page, 'Garage', testInfo)
 })
 
 test('Board', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1')
   await page.waitForLoadState('networkidle')
+  await testInfo.attach('board.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
   await takeSnapshot(page, 'Board', testInfo)
 })
 
 test('History', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1/history')
   await page.waitForLoadState('networkidle')
+  await testInfo.attach('history.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
   await takeSnapshot(page, 'History', testInfo)
 })
 
 test('Reference', async ({ page }, testInfo) => {
   await page.goto('/pitlog/board/1/reference')
   await page.waitForLoadState('networkidle')
+  await testInfo.attach('reference.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
   await takeSnapshot(page, 'Reference', testInfo)
 })
