@@ -66,12 +66,16 @@ function mockFetch(mocks: FetchMocks) {
   const _fetch = window.fetch
   window.fetch = (input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
-    const json = (data: string) => Promise.resolve(new Response(data, { status: 200, headers: { 'Content-Type': 'application/json' } }))
+    const json = (data: string) => {
+      console.log('[mock] intercepted:', url)
+      return Promise.resolve(new Response(data, { status: 200, headers: { 'Content-Type': 'application/json' } }))
+    }
     if (url.includes('/api/v1/user-motorcycles/') && url.includes('/velocity')) return json(mocks.velocity)
     if (url.includes('/api/v1/user-motorcycles')) return json(mocks.moto)
     if (url.includes('/api/v1/tickets')) return json(mocks.tickets)
     if (url.includes('/api/v1/catalog/suzuki-gsf600-bandit-1995-1999')) return json(mocks.catalogEntry)
     if (url.includes('/api/v1/catalog')) return json(mocks.catalogSummaries)
+    console.log('[mock] passthrough:', url)
     return _fetch(input, init)
   }
 }
@@ -115,6 +119,10 @@ test('History', async ({ page }, testInfo) => {
 })
 
 test('Reference', async ({ page }, testInfo) => {
+  const consoleLogs: string[] = []
+  page.on('console', (msg) => consoleLogs.push(`[${msg.type()}] ${msg.text()}`))
+  page.on('pageerror', (err) => consoleLogs.push(`[pageerror] ${err.message}`))
+
   await page.addInitScript(mockFetch, {
     moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
     catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
@@ -122,10 +130,15 @@ test('Reference', async ({ page }, testInfo) => {
   })
   await page.goto('/pitlog/board/1/reference')
   await page.waitForLoadState('networkidle')
+
+  // Capture state right after networkidle for CI debugging
+  await testInfo.attach('reference-after-networkidle.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
+  await testInfo.attach('console.txt', { body: consoleLogs.join('\n'), contentType: 'text/plain' })
+
   // useCatalogEntry depends on moto?.catalogSlug which loads after useUserMotorcycles —
   // two sequential async rounds means networkidle fires before the second render completes.
   // Wait for <details> (CategorySection) which only appears once the catalog entry is loaded.
-  await page.waitForSelector('details', { state: 'visible', timeout: 5000 })
+  await page.waitForSelector('details', { state: 'visible', timeout: 10000 })
   await testInfo.attach('reference.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
   await takeSnapshot(page, 'Reference', testInfo)
 })
