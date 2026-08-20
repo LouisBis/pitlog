@@ -12,6 +12,7 @@ Reference page redesign — catalog restructured into mechanical categories with
 ### 🔧 DX & CI
 
 - Visual regression testing with Chromatic — Playwright snapshots uploaded on every PR, auto-accepted on `dev`/`main`
+- Chromatic job marked `continue-on-error` — no longer blocks Dependabot or feature PRs
 - CI now triggers on push to `dev`/`main` in addition to pull requests (Chromatic baseline bootstrap)
 - `validate-catalog` updated for the new categories schema
 - Dependabot PRs grouped by ecosystem (react, vite, testing, types, server-deps)
