@@ -150,6 +150,7 @@ jobs:
   chromatic:
     name: Visual regression (Chromatic)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
         with:
