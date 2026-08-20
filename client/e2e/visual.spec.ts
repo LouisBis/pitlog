@@ -122,6 +122,10 @@ test('Reference', async ({ page }, testInfo) => {
   })
   await page.goto('/pitlog/board/1/reference')
   await page.waitForLoadState('networkidle')
+  // useCatalogEntry depends on moto?.catalogSlug which loads after useUserMotorcycles —
+  // two sequential async rounds means networkidle fires before the second render completes.
+  // Wait for <details> (CategorySection) which only appears once the catalog entry is loaded.
+  await page.waitForSelector('details', { state: 'visible', timeout: 5000 })
   await testInfo.attach('reference.png', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' })
   await takeSnapshot(page, 'Reference', testInfo)
 })
