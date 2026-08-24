@@ -4,6 +4,9 @@ import { test, expect } from '@playwright/test'
 // if worker.start() never resolves, React never mounts and the page stays blank.
 // We override window.fetch via addInitScript instead: same JS-level interception
 // used by visual.spec.ts, no service worker involved.
+//
+// All API endpoints called by the tested pages must be mocked — including catalog,
+// which SelectMotoPage fetches (useCatalogSummaries) even for the garage route.
 
 const MOTO = [
   { id: 1, currentKm: 15200, acquiredAt: '2021-03-15T00:00:00.000Z',
@@ -18,26 +21,37 @@ const TICKETS = [
     customKm: null, customDays: null },
 ]
 
-function mockFetch(mocks: { moto: string; tickets: string }) {
+const CATALOG_SUMMARIES = [
+  { slug: 'suzuki-gsf600-bandit-1995-1999', brand: 'Suzuki', model: 'GSF 600 Bandit', year_start: 1995, year_end: 1999 },
+]
+
+function mockFetch(mocks: { moto: string; tickets: string; catalogSummaries: string }) {
   const _fetch = window.fetch
   window.fetch = (input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     const json = (data: string) => Promise.resolve(new Response(data, { status: 200, headers: { 'Content-Type': 'application/json' } }))
     if (url.includes('/api/v1/user-motorcycles')) return json(mocks.moto)
     if (url.includes('/api/v1/tickets')) return json(mocks.tickets)
+    if (url.includes('/api/v1/catalog')) return json(mocks.catalogSummaries)
     return _fetch(input, init)
   }
 }
 
 test('garage page loads with mock motorcycle', async ({ page }) => {
-  await page.addInitScript(mockFetch, { moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS) })
+  await page.addInitScript(mockFetch, {
+    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
+    catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+  })
   await page.goto('/pitlog/garage')
   await page.waitForLoadState('networkidle')
   await expect(page.getByText('GSF 600 Bandit')).toBeVisible()
 })
 
 test('board page loads with mock tickets', async ({ page }) => {
-  await page.addInitScript(mockFetch, { moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS) })
+  await page.addInitScript(mockFetch, {
+    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
+    catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+  })
   await page.goto('/pitlog/board/1')
   await page.waitForLoadState('networkidle')
   await expect(page.getByText('Vidange huile moteur')).toBeVisible()
