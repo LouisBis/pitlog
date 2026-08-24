@@ -59,6 +59,23 @@ export const handlers = [
     return new HttpResponse(null, { status: 204 })
   }),
 
+  http.post('*/api/v1/user-motorcycles', async ({ request }) => {
+    const body = (await request.json()) as { brand: string; model: string; year: number; currentKm: number }
+    const moto = {
+      id: nextId(),
+      currentKm: body.currentKm,
+      acquiredAt: new Date().toISOString(),
+      motorcycleId: nextId(),
+      brand: body.brand,
+      model: body.model,
+      year: body.year,
+      isCustom: true,
+      catalogSlug: null,
+    }
+    mockUserMotorcycles.push(moto)
+    return HttpResponse.json(moto, { status: 201 })
+  }),
+
   http.post('*/api/v1/user-motorcycles/:id/import-intervals', ({ params }) => {
     const id = Number(params.id)
     if (!mockUserMotorcycles.find((m) => m.id === id)) {
@@ -145,6 +162,7 @@ export const handlers = [
     if (!ticket) return new HttpResponse(null, { status: 404 })
     ticket.customKm = body.customKm ?? null
     ticket.customDays = body.customDays ?? null
+    if (body.operation !== undefined) ticket.operation = body.operation
     return HttpResponse.json(ticket)
   }),
 
