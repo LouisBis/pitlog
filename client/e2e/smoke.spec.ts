@@ -5,8 +5,9 @@ import { test, expect } from '@playwright/test'
 // We override window.fetch via addInitScript instead: same JS-level interception
 // used by visual.spec.ts, no service worker involved.
 //
-// All API endpoints called by the tested pages must be mocked — including catalog,
-// which SelectMotoPage fetches (useCatalogSummaries) even for the garage route.
+// URL checks must go from most-specific to least-specific — /api/v1/catalog/:slug
+// must be checked before /api/v1/catalog or the entry endpoint gets the summaries
+// array, making TorquePanel crash on entry.torque_specs.filter().
 
 const MOTO = [
   { id: 1, currentKm: 15200, acquiredAt: '2021-03-15T00:00:00.000Z',
@@ -21,17 +22,26 @@ const TICKETS = [
     customKm: null, customDays: null },
 ]
 
+const CATALOG_ENTRY = {
+  slug: 'suzuki-gsf600-bandit-1995-1999',
+  brand: 'Suzuki', model: 'GSF 600 Bandit', year_start: 1995, year_end: 1999,
+  categories: [], torque_specs: [],
+}
+
 const CATALOG_SUMMARIES = [
-  { slug: 'suzuki-gsf600-bandit-1995-1999', brand: 'Suzuki', model: 'GSF 600 Bandit', year_start: 1995, year_end: 1999 },
+  { slug: CATALOG_ENTRY.slug, brand: CATALOG_ENTRY.brand, model: CATALOG_ENTRY.model,
+    year_start: CATALOG_ENTRY.year_start, year_end: CATALOG_ENTRY.year_end },
 ]
 
-function mockFetch(mocks: { moto: string; tickets: string; catalogSummaries: string }) {
+function mockFetch(mocks: { moto: string; tickets: string; catalogEntry: string; catalogSummaries: string }) {
   const _fetch = window.fetch
   window.fetch = (input, init) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     const json = (data: string) => Promise.resolve(new Response(data, { status: 200, headers: { 'Content-Type': 'application/json' } }))
+    if (url.includes('/api/v1/user-motorcycles/') && url.includes('/velocity')) return json('{"kmPerDay":null,"dataPoints":0,"periodDays":0}')
     if (url.includes('/api/v1/user-motorcycles')) return json(mocks.moto)
     if (url.includes('/api/v1/tickets')) return json(mocks.tickets)
+    if (url.includes('/api/v1/catalog/')) return json(mocks.catalogEntry)
     if (url.includes('/api/v1/catalog')) return json(mocks.catalogSummaries)
     return _fetch(input, init)
   }
@@ -40,7 +50,7 @@ function mockFetch(mocks: { moto: string; tickets: string; catalogSummaries: str
 test('garage page loads with mock motorcycle', async ({ page }) => {
   await page.addInitScript(mockFetch, {
     moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
-    catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
   })
   await page.goto('/pitlog/garage')
   await page.waitForLoadState('networkidle')
@@ -50,7 +60,7 @@ test('garage page loads with mock motorcycle', async ({ page }) => {
 test('board page loads with mock tickets', async ({ page }) => {
   await page.addInitScript(mockFetch, {
     moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
-    catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
+    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
   })
   await page.goto('/pitlog/board/1')
   await page.waitForLoadState('networkidle')
