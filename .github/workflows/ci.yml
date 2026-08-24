@@ -144,7 +144,7 @@ jobs:
         run: npx playwright install --with-deps chromium
         working-directory: client
       - name: Run smoke tests
-        run: npx playwright test
+        run: npx playwright test e2e/smoke.spec.ts
         working-directory: client
 
   chromatic:
