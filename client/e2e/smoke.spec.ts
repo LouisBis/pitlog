@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { test } from '@playwright/test'
 
 // MSW service worker registration can hang in CI headless chromium —
 // if worker.start() never resolves, React never mounts and the page stays blank.
@@ -53,8 +53,9 @@ test('garage page loads with mock motorcycle', async ({ page }) => {
     catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
   })
   await page.goto('/pitlog/garage')
-  await page.waitForLoadState('networkidle')
-  await expect(page.getByText('GSF 600 Bandit')).toBeVisible()
+  // waitForSelector polls the DOM directly with a generous timeout — more reliable
+  // in CI than networkidle + toBeVisible() when all fetches are mocked (no network).
+  await page.waitForSelector('text=GSF 600 Bandit', { state: 'visible', timeout: 15000 })
 })
 
 test('board page loads with mock tickets', async ({ page }) => {
@@ -63,6 +64,5 @@ test('board page loads with mock tickets', async ({ page }) => {
     catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
   })
   await page.goto('/pitlog/board/1')
-  await page.waitForLoadState('networkidle')
-  await expect(page.getByText('Vidange huile moteur')).toBeVisible()
+  await page.waitForSelector('text=Vidange huile moteur', { state: 'visible', timeout: 15000 })
 })
