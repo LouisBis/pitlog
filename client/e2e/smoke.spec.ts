@@ -1,13 +1,13 @@
-import { test } from '@playwright/test'
+import { test, type Page } from '@playwright/test'
 
-// MSW service worker registration can hang in CI headless chromium —
-// if worker.start() never resolves, React never mounts and the page stays blank.
-// We override window.fetch via addInitScript instead: same JS-level interception
-// used by visual.spec.ts, no service worker involved.
+// page.route() intercepts at the Playwright/CDP level — more reliable in CI
+// headless Chromium than addInitScript window.fetch override, which can silently
+// fail to intercept fetch calls in some headless environments.
 //
-// URL checks must go from most-specific to least-specific — /api/v1/catalog/:slug
-// must be checked before /api/v1/catalog or the entry endpoint gets the summaries
-// array, making TorquePanel crash on entry.torque_specs.filter().
+// URL checks must go from most specific to least specific, because Playwright
+// matches routes in LIFO order (last registered = tried first):
+// - /user-motorcycles/*/velocity before /user-motorcycles
+// - /catalog/** before /catalog
 
 const MOTO = [
   { id: 1, currentKm: 15200, acquiredAt: '2021-03-15T00:00:00.000Z',
@@ -33,36 +33,26 @@ const CATALOG_SUMMARIES = [
     year_start: CATALOG_ENTRY.year_start, year_end: CATALOG_ENTRY.year_end },
 ]
 
-function mockFetch(mocks: { moto: string; tickets: string; catalogEntry: string; catalogSummaries: string }) {
-  const _fetch = window.fetch
-  window.fetch = (input, init) => {
-    const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
-    const json = (data: string) => Promise.resolve(new Response(data, { status: 200, headers: { 'Content-Type': 'application/json' } }))
-    if (url.includes('/api/v1/user-motorcycles/') && url.includes('/velocity')) return json('{"kmPerDay":null,"dataPoints":0,"periodDays":0}')
-    if (url.includes('/api/v1/user-motorcycles')) return json(mocks.moto)
-    if (url.includes('/api/v1/tickets')) return json(mocks.tickets)
-    if (url.includes('/api/v1/catalog/')) return json(mocks.catalogEntry)
-    if (url.includes('/api/v1/catalog')) return json(mocks.catalogSummaries)
-    return _fetch(input, init)
-  }
+async function setupMocks(page: Page) {
+  // Least specific first — LIFO means last registered is tried first
+  await page.route('**/api/v1/catalog', (route) => route.fulfill({ json: CATALOG_SUMMARIES }))
+  await page.route('**/api/v1/catalog/**', (route) => route.fulfill({ json: CATALOG_ENTRY }))
+  await page.route('**/api/v1/tickets**', (route) => route.fulfill({ json: TICKETS }))
+  await page.route('**/api/v1/user-motorcycles', (route) => route.fulfill({ json: MOTO }))
+  await page.route('**/api/v1/user-motorcycles/*/velocity', (route) =>
+    route.fulfill({ json: { kmPerDay: null, dataPoints: 0, periodDays: 0 } })
+  )
 }
 
 test('garage page loads with mock motorcycle', async ({ page }) => {
-  await page.addInitScript(mockFetch, {
-    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
-    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
-  })
+  await setupMocks(page)
   await page.goto('/pitlog/garage')
-  // waitForSelector polls the DOM directly with a generous timeout — more reliable
-  // in CI than networkidle + toBeVisible() when all fetches are mocked (no network).
   await page.waitForSelector('text=GSF 600 Bandit', { state: 'visible', timeout: 15000 })
 })
 
 test('board page loads with mock tickets', async ({ page }) => {
-  await page.addInitScript(mockFetch, {
-    moto: JSON.stringify(MOTO), tickets: JSON.stringify(TICKETS),
-    catalogEntry: JSON.stringify(CATALOG_ENTRY), catalogSummaries: JSON.stringify(CATALOG_SUMMARIES),
-  })
+  await setupMocks(page)
   await page.goto('/pitlog/board/1')
+  // getOperationLabel resolves intervalSlug 'oil-change' → fr.json → 'Vidange huile moteur'
   await page.waitForSelector('text=Vidange huile moteur', { state: 'visible', timeout: 15000 })
 })

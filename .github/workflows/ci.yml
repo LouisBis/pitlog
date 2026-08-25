@@ -147,6 +147,7 @@ jobs:
 
   chromatic:
     name: Visual regression (Chromatic)
+    if: false # disabled until Reference page black screen in CI headless Chromium is resolved
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
