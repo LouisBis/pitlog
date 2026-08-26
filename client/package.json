@@ -21,7 +21,7 @@
     "@tanstack/react-query": "^5.102.0",
     "@types/three": "^0.184.1",
     "framer-motion": "^13.0.0",
-    "i18next": "^26.3.6",
+    "i18next": "^26.4.0",
     "loglevel": "^1.9.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
