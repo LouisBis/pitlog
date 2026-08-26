@@ -173,7 +173,7 @@ jobs:
         working-directory: client
       - name: Upload PNG screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-screenshots
           path: client/playwright-report/
