@@ -10,5 +10,5 @@ export default defineConfig({
     url: 'http://localhost:4173/pitlog/',
     reuseExistingServer: !process.env.CI,
   },
-  projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
+  projects: [{ name: 'chromium', use: { browserName: 'chromium', colorScheme: 'light', reducedMotion: 'reduce' } }],
 })

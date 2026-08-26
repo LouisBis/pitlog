@@ -8,11 +8,11 @@ const entry: CatalogEntry = {
   model: 'GSF 600 Bandit',
   year_start: 1997,
   year_end: 1997,
-  intervals: [],
+  categories: [],
   torque_specs: [
-    { slug: 'spark-plug', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
-    { slug: 'oil-drain-bolt', component: 'Oil drain bolt', nm: 35, note: null, related_intervals: ['oil-change', 'oil-filter'] },
-    { slug: 'front-axle', component: 'Front wheel axle', nm: 65, note: null, related_intervals: [] },
+    { slug: 'spark-plug', category: 'engine', component: 'Spark plug', nm: 20, note: null, related_intervals: ['spark-plugs-replacement'] },
+    { slug: 'oil-drain-bolt', category: 'engine', component: 'Oil drain bolt', nm: 35, note: null, related_intervals: ['oil-change', 'oil-filter'] },
+    { slug: 'front-axle', category: 'chassis', component: 'Front wheel axle', nm: 65, note: null, related_intervals: [] },
   ],
 }
 
@@ -29,7 +29,7 @@ describe('getRelevantTorqueSpecs', () => {
       ...entry,
       torque_specs: [
         ...entry.torque_specs,
-        { slug: 'drain-gasket', component: 'Drain gasket', nm: 5, note: null, related_intervals: ['oil-change'] },
+        { slug: 'drain-gasket', category: 'engine' as const, component: 'Drain gasket', nm: 5, note: null, related_intervals: ['oil-change'] },
       ],
     }
     const specs = getRelevantTorqueSpecs(entry2, 'oil-change')

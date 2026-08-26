@@ -9,20 +9,31 @@ export interface CatalogInterval {
 /** Torque specification from a catalog entry. */
 export interface TorqueSpec {
   slug: string
+  /** Mechanical category this spec belongs to — used for grouping on the reference page. */
+  category: CategorySlug
   component: string
   nm: number
   note: string | null
   related_intervals: string[]
 }
 
-/** Full catalog entry (brand + model + intervals + torque specs). */
+/** One of the fixed mechanical categories in the catalog. */
+export type CategorySlug = 'engine' | 'cooling' | 'fuel' | 'transmission' | 'brakes' | 'chassis' | 'tires'
+
+/** A group of intervals sharing the same mechanical category. */
+export interface CatalogCategory {
+  slug: CategorySlug
+  intervals: CatalogInterval[]
+}
+
+/** Full catalog entry (brand + model + categories + torque specs). */
 export interface CatalogEntry {
   slug: string
   brand: string
   model: string
   year_start: number
   year_end: number | null
-  intervals: CatalogInterval[]
+  categories: CatalogCategory[]
   torque_specs: TorqueSpec[]
 }
 

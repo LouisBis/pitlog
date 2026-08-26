@@ -25,3 +25,6 @@ dist-ssr
 
 # Lingui compiled catalogs
 src/locales/*.js
+
+# Playwright / Chromatic test artifacts
+test-results/

@@ -4,513 +4,124 @@
   "model": "GSF 600 Bandit",
   "year_start": 1995,
   "year_end": 1999,
-  "intervals": [
-    { "slug": "oil-change", "operation": "Engine oil change", "km": 6000, "days": 365 },
-    { "slug": "oil-filter", "operation": "Engine oil filter", "km": 12000, "days": 730 },
-    { "slug": "air-filter-inspection", "operation": "Air filter inspection", "km": 6000, "days": 365 },
-    { "slug": "air-filter-replacement", "operation": "Air filter replacement", "km": 18000, "days": 1095 },
-    { "slug": "spark-plugs-replacement", "operation": "Spark plugs replacement", "km": 12000, "days": 730 },
-    { "slug": "chain-lubrication", "operation": "Drive chain lubrication", "km": 1000, "days": null },
-    { "slug": "valve-clearance-check", "operation": "Valve clearance check", "km": 48000, "days": null },
-    { "slug": "brake-fluid-replacement", "operation": "Brake fluid replacement", "km": null, "days": 730 },
-    { "slug": "brake-hose-replacement", "operation": "Brake hose replacement", "km": null, "days": 1460 },
-    { "slug": "fuel-line-replacement", "operation": "Fuel line replacement", "km": null, "days": 1460 },
+  "categories": [
     {
-      "slug": "chassis-bolts-check",
-      "operation": "Chassis bolts and nuts check",
-      "km": 6000,
-      "days": 365,
-      "note": "Initial tighten at 1 000 km"
+      "slug": "engine",
+      "intervals": [
+        { "slug": "oil-change", "operation": "Engine oil change", "km": 6000, "days": 365 },
+        { "slug": "oil-filter", "operation": "Engine oil filter", "km": 12000, "days": 730 },
+        { "slug": "air-filter-inspection", "operation": "Air filter inspection", "km": 6000, "days": 365 },
+        { "slug": "air-filter-replacement", "operation": "Air filter replacement", "km": 18000, "days": 1095 },
+        { "slug": "spark-plugs-replacement", "operation": "Spark plugs replacement", "km": 12000, "days": 730 },
+        { "slug": "valve-clearance-check", "operation": "Valve clearance check", "km": 48000, "days": null }
+      ]
+    },
+    {
+      "slug": "fuel",
+      "intervals": [
+        { "slug": "fuel-line-replacement", "operation": "Fuel line replacement", "km": null, "days": 1460 }
+      ]
+    },
+    {
+      "slug": "transmission",
+      "intervals": [
+        { "slug": "chain-lubrication", "operation": "Drive chain lubrication", "km": 1000, "days": null }
+      ]
+    },
+    {
+      "slug": "brakes",
+      "intervals": [
+        { "slug": "brake-fluid-replacement", "operation": "Brake fluid replacement", "km": null, "days": 730 },
+        { "slug": "brake-hose-replacement", "operation": "Brake hose replacement", "km": null, "days": 1460 }
+      ]
+    },
+    {
+      "slug": "chassis",
+      "intervals": [
+        {
+          "slug": "chassis-bolts-check",
+          "operation": "Chassis bolts and nuts check",
+          "km": 6000,
+          "days": 365,
+          "note": "Initial tighten at 1 000 km"
+        }
+      ]
     }
   ],
   "torque_specs": [
-    {
-      "slug": "spark-plug",
-      "component": "Spark plug",
-      "nm": 11,
-      "note": null,
-      "related_intervals": ["spark-plugs-replacement"]
-    },
-    {
-      "slug": "cylinder-head-cover-bolt",
-      "component": "Cylinder head cover bolt",
-      "nm": 14,
-      "note": "10 pcs",
-      "related_intervals": []
-    },
-    {
-      "slug": "cylinder-head-cover-plug",
-      "component": "Cylinder head cover plug",
-      "nm": 15,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "cylinder-head-cover-union-bolt",
-      "component": "Cylinder head cover union bolt",
-      "nm": 16,
-      "note": null,
-      "related_intervals": []
-    },
-    { "slug": "cylinder-head-nut", "component": "Cylinder head nut", "nm": 38, "note": "M10", "related_intervals": [] },
-    {
-      "slug": "cylinder-head-bolt",
-      "component": "Cylinder head bolt",
-      "nm": 10,
-      "note": "M6",
-      "related_intervals": []
-    },
-    {
-      "slug": "cylinder-head-plug",
-      "component": "Cylinder head plug",
-      "nm": 28,
-      "note": null,
-      "related_intervals": []
-    },
-    { "slug": "cylinder-base-nut", "component": "Cylinder base nut", "nm": 9, "note": null, "related_intervals": [] },
-    {
-      "slug": "cylinder-stud-bolt",
-      "component": "Cylinder stud bolt",
-      "nm": 15,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "valve-clearance-adjuster-locknut",
-      "component": "Valve clearance adjuster locknut",
-      "nm": 10,
-      "note": null,
-      "related_intervals": ["valve-clearance-check"]
-    },
-    {
-      "slug": "rocker-arm-shaft-set-bolt",
-      "component": "Rocker arm shaft set bolt",
-      "nm": 9,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "camshaft-journal-holder-bolt",
-      "component": "Camshaft journal holder bolt",
-      "nm": 10,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "camshaft-sprocket-bolt",
-      "component": "Cam sprocket bolt",
-      "nm": 25,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "oil-cooler-hose-union-bolt",
-      "component": "Oil cooler hose union bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "oil-hose-mounting-bolt",
-      "component": "Oil hose mounting bolt",
-      "nm": 10,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "cam-chain-tensioner-mounting-bolt",
-      "component": "Cam chain tensioner mounting bolt",
-      "nm": 7,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "spring-holder-bolt",
-      "component": "Cam chain tensioner spring holder bolt",
-      "nm": 35,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "conrod-cap-nut",
-      "component": "Conrod cap nut",
-      "nm": 35,
-      "note": "Initial: 20 N·m, Final: 35 N·m",
-      "related_intervals": []
-    },
-    {
-      "slug": "starter-clutch-mounting-bolt",
-      "component": "Starter clutch mounting bolt",
-      "nm": 150,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "signal-generator-rotor-bolt",
-      "component": "Signal generator rotor bolt",
-      "nm": 25,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "crankcase-bolt-m6",
-      "component": "Crankcase bolt/nut (M6)",
-      "nm": 11,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "crankcase-bolt-m8",
-      "component": "Crankcase bolt/nut (M8)",
-      "nm": 23,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "main-oil-gallery-plug",
-      "component": "Main oil gallery plug",
-      "nm": 40,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "oil-pump-mounting-bolt",
-      "component": "Oil pump mounting bolt",
-      "nm": 10,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "oil-drain-bolt",
-      "component": "Oil drain plug",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["oil-change", "oil-filter"]
-    },
-    { "slug": "oil-pan-bolt", "component": "Oil pan bolt", "nm": 14, "note": null, "related_intervals": [] },
-    {
-      "slug": "speed-sensor-rotor-bolt",
-      "component": "Speed sensor rotor bolt",
-      "nm": 13,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "clutch-sleeve-hub-nut",
-      "component": "Clutch sleeve hub nut",
-      "nm": 95,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "clutch-spring-set-bolt",
-      "component": "Clutch spring set bolt",
-      "nm": 12,
-      "note": null,
-      "related_intervals": []
-    },
-    { "slug": "exhaust-pipe-bolt", "component": "Exhaust pipe bolt", "nm": 23, "note": null, "related_intervals": [] },
-    {
-      "slug": "muffler-mounting-bolt",
-      "component": "Muffler mounting bolt",
-      "nm": 29,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "engine-sprocket-nut",
-      "component": "Engine sprocket nut",
-      "nm": 115,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "engine-mounting-bolt-short",
-      "component": "Engine mounting bolt",
-      "nm": 55,
-      "note": "L: 50 and 55 mm",
-      "related_intervals": []
-    },
-    {
-      "slug": "engine-mounting-bolt-long",
-      "component": "Engine mounting bolt",
-      "nm": 75,
-      "note": "L: 130 and 175 mm",
-      "related_intervals": []
-    },
-    {
-      "slug": "generator-driven-gear-nut",
-      "component": "Generator driven gear nut",
-      "nm": 55,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "generator-mounting-bolt",
-      "component": "Generator mounting bolt",
-      "nm": 25,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "oil-cooler-mounting-bolt",
-      "component": "Oil cooler mounting bolt",
-      "nm": 10,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "oil-pressure-regulator",
-      "component": "Oil pressure regulator",
-      "nm": 28,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "oil-pressure-switch",
-      "component": "Oil pressure switch",
-      "nm": 14,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "starter-motor-mounting-bolt",
-      "component": "Starter motor mounting bolt",
-      "nm": 6,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "starter-motor-terminal-bolt",
-      "component": "Starter motor terminal bolt",
-      "nm": 3,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "signal-generator-stator-mounting-screw",
-      "component": "Signal generator stator mounting screw",
-      "nm": 3,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "starter-relay-terminal-nut",
-      "component": "Starter relay terminal nut",
-      "nm": 5,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "cam-chain-guide-mounting-bolt",
-      "component": "Cam chain guide mounting bolt",
-      "nm": 10,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "pair-valve-pipe-mounting-nut",
-      "component": "PAIR valve pipe mounting nut",
-      "nm": 10,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "pair-valve-mounting-bolt",
-      "component": "PAIR valve mounting bolt",
-      "nm": 10,
-      "note": null,
-      "related_intervals": []
-    },
-    {
-      "slug": "steering-stem-head-nut",
-      "component": "Steering stem head nut",
-      "nm": 65,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-fork-upper-clamp-bolt",
-      "component": "Front fork upper pinch bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-fork-lower-clamp-bolt",
-      "component": "Front fork lower pinch bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-fork-cap-bolt",
-      "component": "Front fork cap bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-fork-cylinder-bolt",
-      "component": "Front fork cylinder bolt",
-      "nm": 30,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-axle",
-      "component": "Front axle",
-      "nm": 65,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-axle-pinch-bolt",
-      "component": "Front axle pinch bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "handlebars-clamp-bolt",
-      "component": "Handlebar holder bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-brake-master-cylinder-mounting-bolt",
-      "component": "Front brake master cylinder holder bolt",
-      "nm": 10,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-brake-caliper-mounting-bolt",
-      "component": "Front brake caliper mounting bolt",
-      "nm": 39,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-brake-caliper-pad-mounting-bolt",
-      "component": "Front brake caliper pad mounting bolt",
-      "nm": 18,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "brake-hose-union-bolt",
-      "component": "Brake hose union bolt",
-      "nm": 23,
-      "note": "Front & Rear",
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "air-bleeder-valve",
-      "component": "Air bleeder valve",
-      "nm": 8,
-      "note": "Front & Rear",
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "brake-disc-bolt",
-      "component": "Brake disc bolt",
-      "nm": 23,
-      "note": "Front & Rear",
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-footrest-nut",
-      "component": "Front footrest bolt",
-      "nm": 39,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "front-footrest-bracket-mounting-bolt",
-      "component": "Front footrest bracket mounting bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "swingarm-pivot-nut",
-      "component": "Swingarm pivot nut",
-      "nm": 100,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-shock-absorber-mounting-nut",
-      "component": "Rear shock absorber mounting nut",
-      "nm": 50,
-      "note": "Upper & Lower",
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "cushion-lever-mounting-nut",
-      "component": "Cushion lever mounting nut",
-      "nm": 78,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "cushion-lever-rod-mounting-nut",
-      "component": "Cushion lever rod mounting nut",
-      "nm": 78,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-brake-caliper-mounting-bolt",
-      "component": "Rear brake caliper mounting bolt",
-      "nm": 25,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-brake-caliper-housing-bolt",
-      "component": "Rear brake caliper housing bolt",
-      "nm": 30,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-brake-master-cylinder-mounting-bolt",
-      "component": "Rear brake master cylinder mounting bolt",
-      "nm": 23,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-brake-master-cylinder-rod-lock-nut",
-      "component": "Rear brake master cylinder rod locknut",
-      "nm": 18,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-axle-nut",
-      "component": "Rear axle nut",
-      "nm": 100,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-sprocket-nut",
-      "component": "Rear sprocket nut",
-      "nm": 50,
-      "note": null,
-      "related_intervals": ["chassis-bolts-check"]
-    },
-    {
-      "slug": "rear-torque-link-nut",
-      "component": "Rear torque link nut",
-      "nm": 35,
-      "note": "Front & Rear",
-      "related_intervals": ["chassis-bolts-check"]
-    }
+    { "slug": "spark-plug", "category": "engine", "component": "Spark plug", "nm": 11, "note": null, "related_intervals": ["spark-plugs-replacement"] },
+    { "slug": "cylinder-head-cover-bolt", "category": "engine", "component": "Cylinder head cover bolt", "nm": 14, "note": "10 pcs", "related_intervals": [] },
+    { "slug": "cylinder-head-cover-plug", "category": "engine", "component": "Cylinder head cover plug", "nm": 15, "note": null, "related_intervals": [] },
+    { "slug": "cylinder-head-cover-union-bolt", "category": "engine", "component": "Cylinder head cover union bolt", "nm": 16, "note": null, "related_intervals": [] },
+    { "slug": "cylinder-head-nut", "category": "engine", "component": "Cylinder head nut", "nm": 38, "note": "M10", "related_intervals": [] },
+    { "slug": "cylinder-head-bolt", "category": "engine", "component": "Cylinder head bolt", "nm": 10, "note": "M6", "related_intervals": [] },
+    { "slug": "cylinder-head-plug", "category": "engine", "component": "Cylinder head plug", "nm": 28, "note": null, "related_intervals": [] },
+    { "slug": "cylinder-base-nut", "category": "engine", "component": "Cylinder base nut", "nm": 9, "note": null, "related_intervals": [] },
+    { "slug": "cylinder-stud-bolt", "category": "engine", "component": "Cylinder stud bolt", "nm": 15, "note": null, "related_intervals": [] },
+    { "slug": "valve-clearance-adjuster-locknut", "category": "engine", "component": "Valve clearance adjuster locknut", "nm": 10, "note": null, "related_intervals": ["valve-clearance-check"] },
+    { "slug": "rocker-arm-shaft-set-bolt", "category": "engine", "component": "Rocker arm shaft set bolt", "nm": 9, "note": null, "related_intervals": [] },
+    { "slug": "camshaft-journal-holder-bolt", "category": "engine", "component": "Camshaft journal holder bolt", "nm": 10, "note": null, "related_intervals": [] },
+    { "slug": "camshaft-sprocket-bolt", "category": "engine", "component": "Cam sprocket bolt", "nm": 25, "note": null, "related_intervals": [] },
+    { "slug": "oil-cooler-hose-union-bolt", "category": "engine", "component": "Oil cooler hose union bolt", "nm": 23, "note": null, "related_intervals": [] },
+    { "slug": "oil-hose-mounting-bolt", "category": "engine", "component": "Oil hose mounting bolt", "nm": 10, "note": null, "related_intervals": [] },
+    { "slug": "cam-chain-tensioner-mounting-bolt", "category": "engine", "component": "Cam chain tensioner mounting bolt", "nm": 7, "note": null, "related_intervals": [] },
+    { "slug": "spring-holder-bolt", "category": "engine", "component": "Cam chain tensioner spring holder bolt", "nm": 35, "note": null, "related_intervals": [] },
+    { "slug": "conrod-cap-nut", "category": "engine", "component": "Conrod cap nut", "nm": 35, "note": "Initial: 20 N·m, Final: 35 N·m", "related_intervals": [] },
+    { "slug": "starter-clutch-mounting-bolt", "category": "engine", "component": "Starter clutch mounting bolt", "nm": 150, "note": null, "related_intervals": [] },
+    { "slug": "signal-generator-rotor-bolt", "category": "engine", "component": "Signal generator rotor bolt", "nm": 25, "note": null, "related_intervals": [] },
+    { "slug": "crankcase-bolt-m6", "category": "engine", "component": "Crankcase bolt/nut (M6)", "nm": 11, "note": null, "related_intervals": [] },
+    { "slug": "crankcase-bolt-m8", "category": "engine", "component": "Crankcase bolt/nut (M8)", "nm": 23, "note": null, "related_intervals": [] },
+    { "slug": "main-oil-gallery-plug", "category": "engine", "component": "Main oil gallery plug", "nm": 40, "note": null, "related_intervals": [] },
+    { "slug": "oil-pump-mounting-bolt", "category": "engine", "component": "Oil pump mounting bolt", "nm": 10, "note": null, "related_intervals": [] },
+    { "slug": "oil-drain-bolt", "category": "engine", "component": "Oil drain plug", "nm": 23, "note": null, "related_intervals": ["oil-change", "oil-filter"] },
+    { "slug": "oil-pan-bolt", "category": "engine", "component": "Oil pan bolt", "nm": 14, "note": null, "related_intervals": [] },
+    { "slug": "speed-sensor-rotor-bolt", "category": "engine", "component": "Speed sensor rotor bolt", "nm": 13, "note": null, "related_intervals": [] },
+    { "slug": "oil-cooler-mounting-bolt", "category": "engine", "component": "Oil cooler mounting bolt", "nm": 10, "note": null, "related_intervals": [] },
+    { "slug": "oil-pressure-regulator", "category": "engine", "component": "Oil pressure regulator", "nm": 28, "note": null, "related_intervals": [] },
+    { "slug": "oil-pressure-switch", "category": "engine", "component": "Oil pressure switch", "nm": 14, "note": null, "related_intervals": [] },
+    { "slug": "starter-motor-mounting-bolt", "category": "engine", "component": "Starter motor mounting bolt", "nm": 6, "note": null, "related_intervals": [] },
+    { "slug": "starter-motor-terminal-bolt", "category": "engine", "component": "Starter motor terminal bolt", "nm": 3, "note": null, "related_intervals": [] },
+    { "slug": "signal-generator-stator-mounting-screw", "category": "engine", "component": "Signal generator stator mounting screw", "nm": 3, "note": null, "related_intervals": [] },
+    { "slug": "starter-relay-terminal-nut", "category": "engine", "component": "Starter relay terminal nut", "nm": 5, "note": null, "related_intervals": [] },
+    { "slug": "cam-chain-guide-mounting-bolt", "category": "engine", "component": "Cam chain guide mounting bolt", "nm": 10, "note": null, "related_intervals": [] },
+    { "slug": "pair-valve-pipe-mounting-nut", "category": "engine", "component": "PAIR valve pipe mounting nut", "nm": 10, "note": null, "related_intervals": [] },
+    { "slug": "pair-valve-mounting-bolt", "category": "engine", "component": "PAIR valve mounting bolt", "nm": 10, "note": null, "related_intervals": [] },
+    { "slug": "exhaust-pipe-bolt", "category": "engine", "component": "Exhaust pipe bolt", "nm": 23, "note": null, "related_intervals": [] },
+    { "slug": "muffler-mounting-bolt", "category": "engine", "component": "Muffler mounting bolt", "nm": 29, "note": null, "related_intervals": [] },
+    { "slug": "clutch-sleeve-hub-nut", "category": "transmission", "component": "Clutch sleeve hub nut", "nm": 95, "note": null, "related_intervals": [] },
+    { "slug": "clutch-spring-set-bolt", "category": "transmission", "component": "Clutch spring set bolt", "nm": 12, "note": null, "related_intervals": [] },
+    { "slug": "engine-sprocket-nut", "category": "transmission", "component": "Engine sprocket nut", "nm": 115, "note": null, "related_intervals": [] },
+    { "slug": "generator-driven-gear-nut", "category": "transmission", "component": "Generator driven gear nut", "nm": 55, "note": null, "related_intervals": [] },
+    { "slug": "generator-mounting-bolt", "category": "engine", "component": "Generator mounting bolt", "nm": 25, "note": null, "related_intervals": [] },
+    { "slug": "engine-mounting-bolt-short", "category": "chassis", "component": "Engine mounting bolt", "nm": 55, "note": "L: 50 and 55 mm", "related_intervals": [] },
+    { "slug": "engine-mounting-bolt-long", "category": "chassis", "component": "Engine mounting bolt", "nm": 75, "note": "L: 130 and 175 mm", "related_intervals": [] },
+    { "slug": "steering-stem-head-nut", "category": "chassis", "component": "Steering stem head nut", "nm": 65, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-fork-upper-clamp-bolt", "category": "chassis", "component": "Front fork upper pinch bolt", "nm": 23, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-fork-lower-clamp-bolt", "category": "chassis", "component": "Front fork lower pinch bolt", "nm": 23, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-fork-cap-bolt", "category": "chassis", "component": "Front fork cap bolt", "nm": 23, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-fork-cylinder-bolt", "category": "chassis", "component": "Front fork cylinder bolt", "nm": 30, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-axle", "category": "chassis", "component": "Front axle", "nm": 65, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-axle-pinch-bolt", "category": "chassis", "component": "Front axle pinch bolt", "nm": 23, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "handlebars-clamp-bolt", "category": "chassis", "component": "Handlebar holder bolt", "nm": 23, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-footrest-nut", "category": "chassis", "component": "Front footrest bolt", "nm": 39, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-footrest-bracket-mounting-bolt", "category": "chassis", "component": "Front footrest bracket mounting bolt", "nm": 23, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "swingarm-pivot-nut", "category": "chassis", "component": "Swingarm pivot nut", "nm": 100, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-shock-absorber-mounting-nut", "category": "chassis", "component": "Rear shock absorber mounting nut", "nm": 50, "note": "Upper & Lower", "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "cushion-lever-mounting-nut", "category": "chassis", "component": "Cushion lever mounting nut", "nm": 78, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "cushion-lever-rod-mounting-nut", "category": "chassis", "component": "Cushion lever rod mounting nut", "nm": 78, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-axle-nut", "category": "chassis", "component": "Rear axle nut", "nm": 100, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-sprocket-nut", "category": "transmission", "component": "Rear sprocket nut", "nm": 50, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-torque-link-nut", "category": "chassis", "component": "Rear torque link nut", "nm": 35, "note": "Front & Rear", "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-brake-master-cylinder-mounting-bolt", "category": "brakes", "component": "Front brake master cylinder holder bolt", "nm": 10, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-brake-caliper-mounting-bolt", "category": "brakes", "component": "Front brake caliper mounting bolt", "nm": 39, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "front-brake-caliper-pad-mounting-bolt", "category": "brakes", "component": "Front brake caliper pad mounting bolt", "nm": 18, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "brake-hose-union-bolt", "category": "brakes", "component": "Brake hose union bolt", "nm": 23, "note": "Front & Rear", "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "air-bleeder-valve", "category": "brakes", "component": "Air bleeder valve", "nm": 8, "note": "Front & Rear", "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "brake-disc-bolt", "category": "brakes", "component": "Brake disc bolt", "nm": 23, "note": "Front & Rear", "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-brake-caliper-mounting-bolt", "category": "brakes", "component": "Rear brake caliper mounting bolt", "nm": 25, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-brake-caliper-housing-bolt", "category": "brakes", "component": "Rear brake caliper housing bolt", "nm": 30, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-brake-master-cylinder-mounting-bolt", "category": "brakes", "component": "Rear brake master cylinder mounting bolt", "nm": 23, "note": null, "related_intervals": ["chassis-bolts-check"] },
+    { "slug": "rear-brake-master-cylinder-rod-lock-nut", "category": "brakes", "component": "Rear brake master cylinder rod locknut", "nm": 18, "note": null, "related_intervals": ["chassis-bolts-check"] }
   ],
   "bolt_torque_chart": [
     { "diameter_mm": 4, "conventional_nm": 1.5, "grade7_nm": 2 },
