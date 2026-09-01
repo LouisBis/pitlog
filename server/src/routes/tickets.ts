@@ -388,4 +388,49 @@ router.delete('/:id/parts/:partId', (req, res) => {
   res.status(204).send()
 })
 
+const updatePhotoSchema = z.object({
+  photoBase64: z.string().min(1),
+})
+
+router.put('/:id/photo', validateBody(updatePhotoSchema), (req, res) => {
+  const id = parseId(req.params.id, res)
+  if (id === null) return
+
+  const { photoBase64 } = res.locals.body as z.infer<typeof updatePhotoSchema>
+
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
+  if (!ticket) {
+    logger.warn({ ticketId: id }, 'Ticket not found for photo update')
+    res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  if (ticket.status !== 'done') {
+    logger.warn({ ticketId: id, status: ticket.status }, 'Photo rejected: ticket not done')
+    res.status(409).json({ error: 'Photo can only be added to a done ticket' })
+    return
+  }
+
+  const [updated] = db.update(tickets).set({ photoBase64 }).where(eq(tickets.id, id)).returning().all()
+
+  logger.info({ ticketId: id }, 'Ticket photo updated')
+  res.json(updated)
+})
+
+router.delete('/:id/photo', (req, res) => {
+  const id = parseId(req.params.id, res)
+  if (id === null) return
+
+  const ticket = db.select().from(tickets).where(eq(tickets.id, id)).get()
+  if (!ticket) {
+    logger.warn({ ticketId: id }, 'Ticket not found for photo deletion')
+    res.status(404).json({ error: 'Ticket not found' })
+    return
+  }
+
+  db.update(tickets).set({ photoBase64: null }).where(eq(tickets.id, id)).run()
+  logger.info({ ticketId: id }, 'Ticket photo deleted')
+  res.status(204).send()
+})
+
 export default router
