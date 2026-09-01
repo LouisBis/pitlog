@@ -1,21 +1,20 @@
-## 🏍️ What's new
+# 🔒 What's new
 
-Reference page redesign — catalog restructured into mechanical categories with collapsible sections, grouped torque specs, and category icons.
+Security and CI maintenance release — Chromatic visual regression fully operational, two high-severity server vulnerabilities patched.
 
-### ✨ Features
+## 🔒 Security
 
-- **Mechanical categories** — catalog intervals are now organized into 7 categories: Engine, Cooling, Fuel, Transmission, Brakes, Chassis, Tires. All 4 catalog motorcycles migrated.
-- **Collapsible category sections** — reference page uses native `<details>/<summary>` accordion, open by default and toggleable. Zero JS overhead.
-- **Torque specs by category** — torque specifications are grouped under their respective mechanical category instead of a flat list.
-- **Category icons** — each section header displays a Phosphor icon (Engine, ThermometerSimple, GasCan, GearSix, Disc, Motorcycle, Tire).
+- **drizzle-orm 0.45.2** — fixes SQL injection via improperly escaped SQL identifiers (GHSA-gpj5-g38j-94v9, high)
+- **form-data** — CRLF injection in multipart field names patched via `npm audit fix`
 
-### 🔧 DX & CI
+## 🔧 DX & CI
 
-- Visual regression testing with Chromatic — Playwright snapshots uploaded on every PR, auto-accepted on `dev`/`main`
-- Chromatic job marked `continue-on-error` — no longer blocks Dependabot or feature PRs
-- CI now triggers on push to `dev`/`main` in addition to pull requests (Chromatic baseline bootstrap)
-- `validate-catalog` updated for the new categories schema
-- Dependabot PRs grouped by ecosystem (react, vite, testing, types, server-deps)
-- Dependabot security alerts enabled on the repository
+- **Chromatic re-enabled** — root cause of the Reference page black screen identified (react/react-dom version mismatch in lockfile); visual regression is now fully operational
+- **Dependabot groups expanded** — new `linting` group (eslint, typescript-eslint, prettier) and `server-devdeps` group; `react-ecosystem` now includes framer-motion, i18next, @radix-ui
+- **vitest 4** in server — test runner upgraded from 3.x, 72 tests passing
+
+## 📦 Dependencies
+
+- @tanstack/react-query, framer-motion, react-i18next, i18next, @radix-ui/react-switch, vite group, testing group, types group, server-deps group — routine bumps
 
 ---
