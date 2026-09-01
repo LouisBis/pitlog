@@ -10,11 +10,13 @@ updates:
     open-pull-requests-limit: 10
     groups:
       react-ecosystem:
-        patterns: ["react", "react-dom", "@tanstack/*", "@dnd-kit/*"]
+        patterns: ["react", "react-dom", "react-*", "@tanstack/*", "@dnd-kit/*", "framer-motion", "i18next", "@radix-ui/*", "@phosphor-icons/*"]
       vite:
         patterns: ["vite", "@vitejs/*", "vite-*"]
       testing:
-        patterns: ["vitest", "msw", "@testing-library/*", "playwright", "@playwright/*"]
+        patterns: ["vitest", "msw", "@testing-library/*", "playwright", "@playwright/*", "chromatic", "@chromatic-com/*"]
+      linting:
+        patterns: ["eslint", "eslint-*", "typescript-eslint", "globals", "prettier"]
       types:
         patterns: ["@types/*"]
 
@@ -27,7 +29,9 @@ updates:
     open-pull-requests-limit: 5
     groups:
       server-deps:
-        patterns: ["express", "pino", "better-sqlite3", "zod", "supertest"]
+        patterns: ["express", "pino", "better-sqlite3", "zod", "supertest", "drizzle-*"]
+      server-devdeps:
+        patterns: ["@types/*", "vitest", "tsx", "nodemon", "prettier"]
 
   - package-ecosystem: github-actions
     directory: /
