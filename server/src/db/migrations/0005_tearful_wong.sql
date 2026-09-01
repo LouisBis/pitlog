@@ -1,0 +1,1 @@
+ALTER TABLE `tickets` ADD `photo_base64` text;

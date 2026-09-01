@@ -22,4 +22,5 @@ export const tickets = sqliteTable('tickets', {
   targetDate: integer('target_date', { mode: 'timestamp' }),
   doneKm: integer('done_km'),
   doneAt: integer('done_at', { mode: 'timestamp' }),
+  photoBase64: text('photo_base64'),
 })
