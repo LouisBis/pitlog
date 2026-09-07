@@ -58,6 +58,23 @@ describe('GET /api/v1/tickets', () => {
     expect(res.body[0].operation).toBe('Oil change')
   })
 
+  it('includes photoBase64', async () => {
+    db.insert(tickets)
+      .values({
+        userMotorcycleId: userMotoId,
+        operation: 'Oil change',
+        status: 'done',
+        doneKm: 8500,
+        doneAt: new Date(),
+        photoBase64: 'data:image/jpeg;base64,AAAA',
+      })
+      .run()
+
+    const res = await request(app).get(`/api/v1/tickets?userMotorcycleId=${userMotoId}`)
+    expect(res.status).toBe(200)
+    expect(res.body[0].photoBase64).toBe('data:image/jpeg;base64,AAAA')
+  })
+
   it('includes customKm and customDays from interval_overrides', async () => {
     db.insert(tickets)
       .values({

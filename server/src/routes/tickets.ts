@@ -101,6 +101,7 @@ router.get('/', (req, res) => {
       targetDate: tickets.targetDate,
       doneKm: tickets.doneKm,
       doneAt: tickets.doneAt,
+      photoBase64: tickets.photoBase64,
       customKm: intervalOverrides.customKm,
       customDays: intervalOverrides.customDays,
     })
