@@ -104,6 +104,10 @@
     },
     "done": {
       "at_km": "Fait à {{count, number}} km"
+    },
+    "photo": {
+      "view_alt": "Photo du ticket",
+      "close": "Fermer"
     }
   },
   "km_update": {
