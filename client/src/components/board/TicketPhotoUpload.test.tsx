@@ -53,4 +53,15 @@ describe('TicketPhotoUpload', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Supprimer la photo' }))
     await waitFor(() => expect(screen.getByText('Erreur lors de l\'envoi de la photo.')).toBeInTheDocument())
   })
+
+  it('shows an inline error when the selected file is not an image', async () => {
+    // accept="image/*" makes the real OS picker filter non-images; applyAccept: false
+    // bypasses that here to simulate a user picking one anyway (e.g. via "All Files").
+    const user = userEvent.setup({ applyAccept: false })
+    const { container } = renderWithClient(<TicketPhotoUpload ticket={doneTicket} />)
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
+    const notAnImage = new File(['not an image'], 'notes.txt', { type: 'text/plain' })
+    await user.upload(input, notAnImage)
+    await waitFor(() => expect(screen.getByText("Ce fichier n'est pas une image.")).toBeInTheDocument())
+  })
 })

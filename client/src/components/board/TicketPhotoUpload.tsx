@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CameraIcon, TrashIcon } from '@phosphor-icons/react'
 import type { Ticket } from '@/types'
@@ -17,6 +17,7 @@ export default function TicketPhotoUpload({ ticket }: Props) {
   const inputRef = useRef<HTMLInputElement>(null)
   const { mutate: updatePhoto, isPending: isUploading, isError: isUploadError } = useUpdateTicketPhoto(ticket.userMotorcycleId)
   const { mutate: deletePhoto, isPending: isDeleting, isError: isDeleteError } = useDeleteTicketPhoto(ticket.userMotorcycleId)
+  const [localError, setLocalError] = useState(false)
 
   if (ticket.status !== 'done') return null
 
@@ -24,12 +25,14 @@ export default function TicketPhotoUpload({ ticket }: Props) {
     const file = e.target.files?.[0]
     e.target.value = ''
     if (!file) return
+    setLocalError(false)
     try {
       const resized = await resizeImage(file)
       updatePhoto({ id: ticket.id, photoBase64: resized })
     } catch {
-      // resizeImage's own errors (invalid_file_type, decode failures) share the same
-      // inline error message as a failed upload — no separate state needed.
+      // resizeImage's own errors (invalid_file_type, decode failures) get their own
+      // inline message — they never reach the mutation, so isUploadError stays false.
+      setLocalError(true)
     }
   }
 
@@ -61,6 +64,7 @@ export default function TicketPhotoUpload({ ticket }: Props) {
         </button>
       )}
       {(isUploadError || isDeleteError) && <span className={styles.error}>{t('ticket.photo.error')}</span>}
+      {localError && <span className={styles.error}>{t('ticket.photo.invalid_type')}</span>}
     </div>
   )
 }
