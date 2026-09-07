@@ -1,0 +1,56 @@
+import '@/lib/i18n'
+import { describe, it, expect } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { http, HttpResponse } from 'msw'
+import { server } from '@/mocks/server'
+import TicketPhotoUpload from './TicketPhotoUpload'
+import type { Ticket } from '@/types'
+
+const doneTicket: Ticket = {
+  id: 1,
+  userMotorcycleId: 1,
+  catalogSlug: null,
+  intervalSlug: null,
+  customIntervalId: null,
+  operation: 'Oil change',
+  status: 'done',
+  targetKm: null,
+  targetDate: null,
+  doneKm: 8500,
+  doneAt: '2026-08-01T00:00:00.000Z',
+  customKm: null,
+  customDays: null,
+  photoBase64: null,
+}
+
+function renderWithClient(ui: React.ReactElement) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } })
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>)
+}
+
+describe('TicketPhotoUpload', () => {
+  it('renders nothing for a ticket that is not done', () => {
+    const { container } = renderWithClient(<TicketPhotoUpload ticket={{ ...doneTicket, status: 'todo' }} />)
+    expect(container).toBeEmptyDOMElement()
+  })
+
+  it('shows an add button when the done ticket has no photo', () => {
+    renderWithClient(<TicketPhotoUpload ticket={doneTicket} />)
+    expect(screen.getByRole('button', { name: 'Ajouter une photo' })).toBeInTheDocument()
+  })
+
+  it('shows the thumbnail and replace/delete actions when a photo exists', () => {
+    renderWithClient(<TicketPhotoUpload ticket={{ ...doneTicket, photoBase64: 'data:image/jpeg;base64,AAAA' }} />)
+    expect(screen.getByRole('button', { name: 'Remplacer' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Supprimer la photo' })).toBeInTheDocument()
+  })
+
+  it('shows an inline error when the delete mutation fails', async () => {
+    server.use(http.delete('*/api/v1/tickets/:id/photo', () => new HttpResponse(null, { status: 500 })))
+    renderWithClient(<TicketPhotoUpload ticket={{ ...doneTicket, photoBase64: 'data:image/jpeg;base64,AAAA' }} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Supprimer la photo' }))
+    await waitFor(() => expect(screen.getByText('Erreur lors de l\'envoi de la photo.')).toBeInTheDocument())
+  })
+})

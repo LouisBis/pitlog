@@ -107,7 +107,12 @@
     },
     "photo": {
       "view_alt": "Photo du ticket",
-      "close": "Fermer"
+      "close": "Fermer",
+      "add": "Ajouter une photo",
+      "replace": "Remplacer",
+      "delete": "Supprimer la photo",
+      "invalid_type": "Ce fichier n'est pas une image.",
+      "error": "Erreur lors de l'envoi de la photo."
     }
   },
   "km_update": {
