@@ -107,6 +107,7 @@ export const mockTickets: Ticket[] = [
     doneAt: null,
     customKm: null,
     customDays: null,
+    photoBase64: null,
   },
   // 🔴 150 km left
   {
@@ -123,6 +124,7 @@ export const mockTickets: Ticket[] = [
     doneAt: null,
     customKm: null,
     customDays: null,
+    photoBase64: null,
   },
   // 🟠 450 km left
   {
@@ -139,6 +141,7 @@ export const mockTickets: Ticket[] = [
     doneAt: null,
     customKm: null,
     customDays: null,
+    photoBase64: null,
   },
   // 🟢 part ordered, 2800 km left
   {
@@ -155,6 +158,7 @@ export const mockTickets: Ticket[] = [
     doneAt: null,
     customKm: null,
     customDays: null,
+    photoBase64: null,
   },
   // 🟢 in progress, no target
   {
@@ -171,6 +175,7 @@ export const mockTickets: Ticket[] = [
     doneAt: null,
     customKm: null,
     customDays: null,
+    photoBase64: null,
   },
   // done — brake fluid, will regenerate on next demo drag to done
   {
@@ -187,6 +192,7 @@ export const mockTickets: Ticket[] = [
     doneAt: '2025-11-20T00:00:00.000Z',
     customKm: null,
     customDays: null,
+    photoBase64: null,
   },
 ]
 

@@ -220,4 +220,22 @@ export const handlers = [
     mockParts.splice(idx, 1)
     return new HttpResponse(null, { status: 204 })
   }),
+
+  http.put('*/api/v1/tickets/:id/photo', async ({ params, request }) => {
+    const id = Number(params.id)
+    const ticket = mockTickets.find((t) => t.id === id)
+    if (!ticket) return new HttpResponse(null, { status: 404 })
+    if (ticket.status !== 'done') return new HttpResponse(null, { status: 409 })
+    const body = (await request.json()) as { photoBase64: string }
+    ticket.photoBase64 = body.photoBase64
+    return HttpResponse.json(ticket)
+  }),
+
+  http.delete('*/api/v1/tickets/:id/photo', ({ params }) => {
+    const id = Number(params.id)
+    const ticket = mockTickets.find((t) => t.id === id)
+    if (!ticket) return new HttpResponse(null, { status: 404 })
+    ticket.photoBase64 = null
+    return new HttpResponse(null, { status: 204 })
+  }),
 ]
