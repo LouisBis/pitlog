@@ -106,6 +106,7 @@ export const handlers = [
       doneAt: null,
       customKm: null,
       customDays: null,
+      photoBase64: null,
     }
     mockTickets.push(ticket)
     return HttpResponse.json(ticket, { status: 201 })
@@ -147,6 +148,7 @@ export const handlers = [
             doneAt: null,
             customKm: null,
             customDays: null,
+            photoBase64: null,
           })
         }
       }
