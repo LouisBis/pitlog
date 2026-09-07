@@ -5,11 +5,10 @@ import { PencilSimpleIcon, TrashIcon } from '@phosphor-icons/react'
 import type { Ticket } from '@/types'
 import { getUrgency, getKmRemaining, getEstimatedDays } from '@/lib/urgency'
 import { getOperationLabel } from '@/lib/catalogI18n'
-import { Badge } from '@/components/ui/Badge'
 import { useDeleteTicket } from '@/queries/useTickets'
 import { useTicketParts } from '@/queries/useTicketParts'
 import TicketEditForm from './TicketEditForm'
-import TorquePanel from './TorquePanel'
+import TicketCardBody from './TicketCardBody'
 import styles from './TicketCard.module.css'
 
 interface Props {
@@ -135,47 +134,14 @@ export default function TicketCard({
       )}
 
       {!editing && (
-        <>
-          {ticket.status === 'done' && ticket.doneKm !== null ? (
-            <div className={styles.badges}>
-              <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>
-            </div>
-          ) : (
-            (kmLabel || daysLabel) && (
-              <div className={styles.badges}>
-                {kmLabel && <Badge variant={urgency}>{kmLabel}</Badge>}
-                {daysLabel && <Badge variant="neutral">{daysLabel}</Badge>}
-              </div>
-            )
-          )}
-          {ticket.catalogSlug && ticket.intervalSlug && ticket.status !== 'done' && (
-            <TorquePanel catalogSlug={ticket.catalogSlug} intervalSlug={ticket.intervalSlug} />
-          )}
-          {parts.length > 0 && (
-            <ul className={styles.partsReadList}>
-              {parts.map((part) => (
-                <li key={part.id} className={styles.partsReadItem}>
-                  {part.quantity > 1 && <span className={styles.partsQty}>{part.quantity}×</span>}
-                  {part.url ? (
-                    <a
-                      href={part.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={styles.partsLink}
-                      onPointerDown={(e) => e.stopPropagation()}
-                    >
-                      {part.name}
-                    </a>
-                  ) : (
-                    <span>{part.name}</span>
-                  )}
-                  {part.brand && <span className={styles.partsMeta}> · {part.brand}</span>}
-                  {part.reference && <span className={styles.partsMeta}> · {part.reference}</span>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
+        <TicketCardBody
+          ticket={ticket}
+          parts={parts}
+          urgency={urgency}
+          kmLabel={kmLabel}
+          daysLabel={daysLabel}
+          doneAtKmLabel={t('ticket.done.at_km', { count: ticket.doneKm ?? 0 })}
+        />
       )}
     </div>
   )
