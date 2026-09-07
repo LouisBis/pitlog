@@ -20,7 +20,7 @@ Runs on every pull request. All jobs run in parallel.
 ESLint on the React codebase. Fails on any rule violation.
 
 ### typecheck-client / typecheck-server
-`tsc --noEmit` on both packages. Catches type errors without producing output files.
+`tsc --noEmit` on both packages. Catches type errors without producing output files. The client's root `tsconfig.json` is a project-references shell (`"files": []`, only `references`) — a bare `tsc --noEmit` there checks nothing, so `typecheck-client` targets the app project directly: `tsc --noEmit -p tsconfig.app.json`.
 
 ### test-client / test-server
 Vitest test suites for the React client and Express server respectively.
