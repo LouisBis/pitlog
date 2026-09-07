@@ -5,6 +5,7 @@ import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
 import { useTickets } from '@/queries/useTickets'
 import { useTicketParts } from '@/queries/useTicketParts'
 import { Badge } from '@/components/ui/Badge'
+import TicketPhotoThumbnail from '@/components/board/TicketPhotoThumbnail'
 import type { Ticket } from '@/types'
 import { getOperationLabel } from '@/lib/catalogI18n'
 import styles from './HistoryPage.module.css'
@@ -27,6 +28,7 @@ function HistoryRow({ ticket }: { ticket: Ticket }) {
           {ticket.doneKm !== null && <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>}
           {ticket.doneAt && <span className={styles.date}>{DATE_FORMAT.format(new Date(ticket.doneAt))}</span>}
         </div>
+        {ticket.photoBase64 && <TicketPhotoThumbnail photoBase64={ticket.photoBase64} />}
       </div>
       {parts.length > 0 && (
         <div className={styles.partsList}>
