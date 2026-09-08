@@ -5,10 +5,12 @@ import styles from './TicketPhotoThumbnail.module.css'
 
 interface Props {
   photoBase64: string
+  /** Optional replace/delete controls, shown in the viewer below the image — omit for read-only display. */
+  actions?: React.ReactNode
 }
 
 /** Clickable thumbnail for a ticket's photo; opens the full-size viewer on click. */
-export default function TicketPhotoThumbnail({ photoBase64 }: Props) {
+export default function TicketPhotoThumbnail({ photoBase64, actions }: Props) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
 
@@ -29,6 +31,7 @@ export default function TicketPhotoThumbnail({ photoBase64 }: Props) {
         closeLabel={t('ticket.photo.close')}
         open={open}
         onOpenChange={setOpen}
+        actions={actions}
       />
     </>
   )

@@ -41,8 +41,13 @@ describe('TicketPhotoUpload', () => {
     expect(screen.getByRole('button', { name: 'Ajouter une photo' })).toBeInTheDocument()
   })
 
-  it('shows the thumbnail and replace/delete actions when a photo exists', () => {
+  it('shows the thumbnail; replace/delete actions appear once the viewer is open', async () => {
     renderWithClient(<TicketPhotoUpload ticket={{ ...doneTicket, photoBase64: 'data:image/jpeg;base64,AAAA' }} />)
+    expect(screen.queryByRole('button', { name: 'Remplacer' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Supprimer la photo' })).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'Photo du ticket' }))
+
     expect(screen.getByRole('button', { name: 'Remplacer' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Supprimer la photo' })).toBeInTheDocument()
   })
@@ -50,6 +55,7 @@ describe('TicketPhotoUpload', () => {
   it('shows an inline error when the delete mutation fails', async () => {
     server.use(http.delete('*/api/v1/tickets/:id/photo', () => new HttpResponse(null, { status: 500 })))
     renderWithClient(<TicketPhotoUpload ticket={{ ...doneTicket, photoBase64: 'data:image/jpeg;base64,AAAA' }} />)
+    await userEvent.click(screen.getByRole('button', { name: 'Photo du ticket' }))
     await userEvent.click(screen.getByRole('button', { name: 'Supprimer la photo' }))
     await waitFor(() => expect(screen.getByText('Erreur lors de l\'envoi de la photo.')).toBeInTheDocument())
   })

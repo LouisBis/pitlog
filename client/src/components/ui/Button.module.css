@@ -60,3 +60,12 @@
   background: var(--btn-ghost-bg-hover);
   color: var(--color-text-primary);
 }
+
+.danger {
+  color: var(--status-danger);
+  border: 1px solid var(--status-danger);
+}
+.danger:hover:not(:disabled) {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
+}

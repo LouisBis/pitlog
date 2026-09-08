@@ -56,6 +56,12 @@ export default function TicketPhotoUpload({ ticket }: Props) {
     deletePhoto(ticket.id)
   }
 
+  const error =
+    (isUploadError || isDeleteError) ? t('ticket.photo.error')
+    : localError === 'invalid_file_type' ? t('ticket.photo.invalid_type')
+    : localError ? t('ticket.photo.error')
+    : null
+
   return (
     <div className={styles.container} onPointerDown={(e) => e.stopPropagation()}>
       <input
@@ -66,28 +72,28 @@ export default function TicketPhotoUpload({ ticket }: Props) {
         onChange={handleFileChange}
       />
       {ticket.photoBase64 ? (
-        <div className={styles.existing}>
-          <TicketPhotoThumbnail photoBase64={ticket.photoBase64} />
-          <Button type="button" variant="ghost" size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
-            {t('ticket.photo.replace')}
-          </Button>
-          <Button type="button" variant="ghost" size="sm" onClick={handleDeleteClick} disabled={isDeleting}>
-            <TrashIcon size={14} weight="fill" />
-            {t('ticket.photo.delete')}
-          </Button>
-        </div>
+        <TicketPhotoThumbnail
+          photoBase64={ticket.photoBase64}
+          actions={
+            <>
+              <Button type="button" variant="ghost" size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
+                {t('ticket.photo.replace')}
+              </Button>
+              <Button type="button" variant="danger" size="sm" onClick={handleDeleteClick} disabled={isDeleting}>
+                <TrashIcon size={14} weight="fill" />
+                {t('ticket.photo.delete')}
+              </Button>
+              {error && <span className={styles.error}>{error}</span>}
+            </>
+          }
+        />
       ) : (
         <Button type="button" variant="ghost" size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
           <CameraIcon size={14} weight="fill" />
           {t('ticket.photo.add')}
         </Button>
       )}
-      {(isUploadError || isDeleteError) && <span className={styles.error}>{t('ticket.photo.error')}</span>}
-      {localError && (
-        <span className={styles.error}>
-          {localError === 'invalid_file_type' ? t('ticket.photo.invalid_type') : t('ticket.photo.error')}
-        </span>
-      )}
+      {!ticket.photoBase64 && error && <span className={styles.error}>{error}</span>}
     </div>
   )
 }
