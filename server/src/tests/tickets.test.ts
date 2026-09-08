@@ -669,6 +669,17 @@ describe('PUT /api/v1/tickets/:id/photo', () => {
     expect(res.status).toBe(400)
   })
 
+  it('returns 400 for a malformed photoBase64', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'done', doneKm: 8500, doneAt: new Date() })
+      .returning()
+      .all()
+
+    const res = await request(app).put(`/api/v1/tickets/${ticket.id}/photo`).send({ photoBase64: 'data:text/plain;base64,AAAA' })
+    expect(res.status).toBe(400)
+  })
+
   it('returns a JSON 413 when the body exceeds the size limit', async () => {
     const [ticket] = db
       .insert(tickets)

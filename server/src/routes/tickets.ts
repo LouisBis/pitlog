@@ -390,7 +390,7 @@ router.delete('/:id/parts/:partId', (req, res) => {
 })
 
 const updatePhotoSchema = z.object({
-  photoBase64: z.string().min(1),
+  photoBase64: z.string().regex(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/),
 })
 
 router.put('/:id/photo', validateBody(updatePhotoSchema), (req, res) => {
