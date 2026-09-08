@@ -4,6 +4,7 @@ import { CameraIcon, TrashIcon } from '@phosphor-icons/react'
 import type { Ticket } from '@/types'
 import { resizeImage } from '@/lib/imagePhoto'
 import { useUpdateTicketPhoto, useDeleteTicketPhoto } from '@/queries/useTicketPhoto'
+import { Button } from '@/components/ui/Button'
 import TicketPhotoThumbnail from './TicketPhotoThumbnail'
 import styles from './TicketPhotoUpload.module.css'
 
@@ -67,19 +68,19 @@ export default function TicketPhotoUpload({ ticket }: Props) {
       {ticket.photoBase64 ? (
         <div className={styles.existing}>
           <TicketPhotoThumbnail photoBase64={ticket.photoBase64} />
-          <button type="button" onClick={() => inputRef.current?.click()} disabled={isUploading}>
+          <Button type="button" variant="ghost" size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
             {t('ticket.photo.replace')}
-          </button>
-          <button type="button" onClick={handleDeleteClick} disabled={isDeleting}>
+          </Button>
+          <Button type="button" variant="ghost" size="sm" onClick={handleDeleteClick} disabled={isDeleting}>
             <TrashIcon size={14} weight="fill" />
             {t('ticket.photo.delete')}
-          </button>
+          </Button>
         </div>
       ) : (
-        <button type="button" className={styles.addBtn} onClick={() => inputRef.current?.click()} disabled={isUploading}>
+        <Button type="button" variant="ghost" size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
           <CameraIcon size={14} weight="fill" />
           {t('ticket.photo.add')}
-        </button>
+        </Button>
       )}
       {(isUploadError || isDeleteError) && <span className={styles.error}>{t('ticket.photo.error')}</span>}
       {localError && (
