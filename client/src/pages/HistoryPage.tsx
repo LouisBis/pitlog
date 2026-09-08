@@ -27,8 +27,8 @@ function HistoryRow({ ticket }: { ticket: Ticket }) {
         <div className={styles.meta}>
           {ticket.doneKm !== null && <Badge variant="done">{t('ticket.done.at_km', { count: ticket.doneKm })}</Badge>}
           {ticket.doneAt && <span className={styles.date}>{DATE_FORMAT.format(new Date(ticket.doneAt))}</span>}
+          {ticket.photoBase64 && <TicketPhotoThumbnail photoBase64={ticket.photoBase64} />}
         </div>
-        {ticket.photoBase64 && <TicketPhotoThumbnail photoBase64={ticket.photoBase64} />}
       </div>
       {parts.length > 0 && (
         <div className={styles.partsList}>
