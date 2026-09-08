@@ -15,25 +15,44 @@ interface Props {
 export default function TicketPhotoUpload({ ticket }: Props) {
   const { t } = useTranslation()
   const inputRef = useRef<HTMLInputElement>(null)
-  const { mutate: updatePhoto, isPending: isUploading, isError: isUploadError } = useUpdateTicketPhoto(ticket.userMotorcycleId)
-  const { mutate: deletePhoto, isPending: isDeleting, isError: isDeleteError } = useDeleteTicketPhoto(ticket.userMotorcycleId)
-  const [localError, setLocalError] = useState(false)
+  const {
+    mutate: updatePhoto,
+    isPending: isUploading,
+    isError: isUploadError,
+    reset: resetUpdate,
+  } = useUpdateTicketPhoto(ticket.userMotorcycleId)
+  const {
+    mutate: deletePhoto,
+    isPending: isDeleting,
+    isError: isDeleteError,
+    reset: resetDelete,
+  } = useDeleteTicketPhoto(ticket.userMotorcycleId)
+  const [localError, setLocalError] = useState<string | null>(null)
 
   if (ticket.status !== 'done') return null
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     e.target.value = ''
+    resetUpdate()
+    resetDelete()
+    setLocalError(null)
     if (!file) return
-    setLocalError(false)
     try {
       const resized = await resizeImage(file)
       updatePhoto({ id: ticket.id, photoBase64: resized })
-    } catch {
+    } catch (err) {
       // resizeImage's own errors (invalid_file_type, decode failures) get their own
       // inline message — they never reach the mutation, so isUploadError stays false.
-      setLocalError(true)
+      setLocalError(err instanceof Error ? err.message : 'image_decode_failed')
     }
+  }
+
+  const handleDeleteClick = () => {
+    resetUpdate()
+    resetDelete()
+    setLocalError(null)
+    deletePhoto(ticket.id)
   }
 
   return (
@@ -42,7 +61,6 @@ export default function TicketPhotoUpload({ ticket }: Props) {
         ref={inputRef}
         type="file"
         accept="image/*"
-        capture="environment"
         className={styles.hiddenInput}
         onChange={handleFileChange}
       />
@@ -52,7 +70,7 @@ export default function TicketPhotoUpload({ ticket }: Props) {
           <button type="button" onClick={() => inputRef.current?.click()} disabled={isUploading}>
             {t('ticket.photo.replace')}
           </button>
-          <button type="button" onClick={() => deletePhoto(ticket.id)} disabled={isDeleting}>
+          <button type="button" onClick={handleDeleteClick} disabled={isDeleting}>
             <TrashIcon size={14} weight="fill" />
             {t('ticket.photo.delete')}
           </button>
@@ -64,7 +82,11 @@ export default function TicketPhotoUpload({ ticket }: Props) {
         </button>
       )}
       {(isUploadError || isDeleteError) && <span className={styles.error}>{t('ticket.photo.error')}</span>}
-      {localError && <span className={styles.error}>{t('ticket.photo.invalid_type')}</span>}
+      {localError && (
+        <span className={styles.error}>
+          {localError === 'invalid_file_type' ? t('ticket.photo.invalid_type') : t('ticket.photo.error')}
+        </span>
+      )}
     </div>
   )
 }
