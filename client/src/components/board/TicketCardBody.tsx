@@ -21,6 +21,7 @@ export default function TicketCardBody({ ticket, parts, urgency, kmLabel, daysLa
       {ticket.status === 'done' && ticket.doneKm !== null ? (
         <div className={styles.badges}>
           <Badge variant="done">{doneAtKmLabel}</Badge>
+          <TicketPhotoUpload ticket={ticket} />
         </div>
       ) : (
         (kmLabel || daysLabel) && (
@@ -57,7 +58,6 @@ export default function TicketCardBody({ ticket, parts, urgency, kmLabel, daysLa
           ))}
         </ul>
       )}
-      <TicketPhotoUpload ticket={ticket} />
     </>
   )
 }

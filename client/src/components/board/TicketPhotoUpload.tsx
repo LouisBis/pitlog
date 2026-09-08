@@ -74,6 +74,7 @@ export default function TicketPhotoUpload({ ticket }: Props) {
       {ticket.photoBase64 ? (
         <TicketPhotoThumbnail
           photoBase64={ticket.photoBase64}
+          variant="icon"
           actions={
             <>
               <Button type="button" variant="ghost" size="sm" onClick={() => inputRef.current?.click()} disabled={isUploading}>
