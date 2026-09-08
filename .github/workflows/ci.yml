@@ -39,7 +39,7 @@ jobs:
         run: npm ci --legacy-peer-deps
         working-directory: client
       - name: Run tsc
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit -p tsconfig.app.json
         working-directory: client
 
   typecheck-server:

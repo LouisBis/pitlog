@@ -90,6 +90,8 @@ export interface Ticket {
   customKm: number | null
   /** User-overridden recurrence in days (supersedes catalogue interval). */
   customDays: number | null
+  /** Base64 data URI of the photo attached to a done ticket, or null. */
+  photoBase64: string | null
 }
 
 /** Predictive velocity derived from the user's odometer history. */

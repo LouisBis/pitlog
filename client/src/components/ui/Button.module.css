@@ -2,6 +2,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: var(--space-1);
   border-radius: var(--radius-sm);
   font-family: inherit;
   font-weight: var(--weight-semibold);
@@ -58,4 +59,13 @@
 .text:hover:not(:disabled) {
   background: var(--btn-ghost-bg-hover);
   color: var(--color-text-primary);
+}
+
+.danger {
+  color: var(--status-danger);
+  border: 1px solid var(--status-danger);
+}
+.danger:hover:not(:disabled) {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
 }

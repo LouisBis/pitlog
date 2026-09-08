@@ -1,0 +1,2 @@
+DROP INDEX `interval_overrides_unique`;--> statement-breakpoint
+CREATE UNIQUE INDEX `interval_overrides_user_motorcycle_id_catalog_slug_interval_slug_unique` ON `interval_overrides` (`user_motorcycle_id`,`catalog_slug`,`interval_slug`);

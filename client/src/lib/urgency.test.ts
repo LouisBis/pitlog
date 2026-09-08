@@ -17,6 +17,7 @@ function makeTicket(overrides: Partial<Ticket> = {}): Ticket {
     doneAt: null,
     customKm: null,
     customDays: null,
+    photoBase64: null,
     ...overrides,
   }
 }
