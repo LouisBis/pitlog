@@ -106,6 +106,7 @@ export const handlers = [
       doneAt: null,
       customKm: null,
       customDays: null,
+      photoBase64: null,
     }
     mockTickets.push(ticket)
     return HttpResponse.json(ticket, { status: 201 })
@@ -147,6 +148,7 @@ export const handlers = [
             doneAt: null,
             customKm: null,
             customDays: null,
+            photoBase64: null,
           })
         }
       }
@@ -218,6 +220,24 @@ export const handlers = [
     const idx = mockParts.findIndex((p) => p.id === partId && p.ticketId === ticketId)
     if (idx === -1) return new HttpResponse(null, { status: 404 })
     mockParts.splice(idx, 1)
+    return new HttpResponse(null, { status: 204 })
+  }),
+
+  http.put('*/api/v1/tickets/:id/photo', async ({ params, request }) => {
+    const id = Number(params.id)
+    const ticket = mockTickets.find((t) => t.id === id)
+    if (!ticket) return new HttpResponse(null, { status: 404 })
+    if (ticket.status !== 'done') return new HttpResponse(null, { status: 409 })
+    const body = (await request.json()) as { photoBase64: string }
+    ticket.photoBase64 = body.photoBase64
+    return HttpResponse.json(ticket)
+  }),
+
+  http.delete('*/api/v1/tickets/:id/photo', ({ params }) => {
+    const id = Number(params.id)
+    const ticket = mockTickets.find((t) => t.id === id)
+    if (!ticket) return new HttpResponse(null, { status: 404 })
+    ticket.photoBase64 = null
     return new HttpResponse(null, { status: 204 })
   }),
 ]

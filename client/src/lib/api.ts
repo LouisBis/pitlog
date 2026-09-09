@@ -124,6 +124,14 @@ export const api = {
       method: 'DELETE',
     }),
 
+  updateTicketPhoto: (id: number, photoBase64: string) =>
+    request<Ticket>(`/api/v1/tickets/${id}/photo`, {
+      method: 'PUT',
+      body: JSON.stringify({ photoBase64 }),
+    }),
+
+  deleteTicketPhoto: (id: number) => request<void>(`/api/v1/tickets/${id}/photo`, { method: 'DELETE' }),
+
   getCatalogSummaries: () => request<CatalogSummary[]>('/api/v1/catalog'),
 
   getCatalogEntry: (slug: string) => request<CatalogEntry>(`/api/v1/catalog/${slug}`),

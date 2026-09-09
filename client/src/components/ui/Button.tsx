@@ -1,6 +1,6 @@
 import styles from './Button.module.css'
 
-type Variant = 'primary' | 'ghost' | 'text'
+type Variant = 'primary' | 'ghost' | 'text' | 'danger'
 type Size = 'sm' | 'md'
 
 interface Props extends React.ButtonHTMLAttributes<HTMLButtonElement> {

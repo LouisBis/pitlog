@@ -17,15 +17,6 @@ Recover an existing maintenance history from CSV or JSON (migration from paper /
 
 ---
 
-### Photos on tickets
-
-Attach photos to a ticket: worn part, receipt, odometer reading.
-
-- Storage: base64 in SQLite to start (MVP), S3 for multi-user V2
-- Thumbnail display in the parts journal and history
-
----
-
 ### Themes per motorcycle
 
 Each motorcycle has an accent color. The kanban changes tint when switching bikes.

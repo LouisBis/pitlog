@@ -39,7 +39,7 @@ jobs:
         run: npm ci --legacy-peer-deps
         working-directory: client
       - name: Run tsc
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit -p tsconfig.app.json
         working-directory: client
 
   typecheck-server:
@@ -148,6 +148,9 @@ jobs:
   chromatic:
     name: Visual regression (Chromatic)
     runs-on: ubuntu-latest
+    # GitHub withholds repo secrets from workflow runs triggered by Dependabot PRs
+    # (even same-repo ones) — CHROMATIC_PROJECT_TOKEN would never be available here.
+    if: github.actor != 'dependabot[bot]'
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4

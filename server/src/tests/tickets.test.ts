@@ -58,6 +58,23 @@ describe('GET /api/v1/tickets', () => {
     expect(res.body[0].operation).toBe('Oil change')
   })
 
+  it('includes photoBase64', async () => {
+    db.insert(tickets)
+      .values({
+        userMotorcycleId: userMotoId,
+        operation: 'Oil change',
+        status: 'done',
+        doneKm: 8500,
+        doneAt: new Date(),
+        photoBase64: 'data:image/jpeg;base64,AAAA',
+      })
+      .run()
+
+    const res = await request(app).get(`/api/v1/tickets?userMotorcycleId=${userMotoId}`)
+    expect(res.status).toBe(200)
+    expect(res.body[0].photoBase64).toBe('data:image/jpeg;base64,AAAA')
+  })
+
   it('includes customKm and customDays from interval_overrides', async () => {
     db.insert(tickets)
       .values({
@@ -602,6 +619,106 @@ describe('DELETE /api/v1/tickets/:id/parts/:partId', () => {
     const [part] = db.insert(ticketParts).values({ ticketId: ticket2.id, name: 'Brake pad', quantity: 2 }).returning().all()
 
     const res = await request(app).delete(`/api/v1/tickets/${ticket1.id}/parts/${part.id}`)
+    expect(res.status).toBe(404)
+  })
+})
+
+describe('PUT /api/v1/tickets/:id/photo', () => {
+  it('sets the photo on a done ticket', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'done', doneKm: 8500, doneAt: new Date() })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .put(`/api/v1/tickets/${ticket.id}/photo`)
+      .send({ photoBase64: 'data:image/jpeg;base64,AAAA' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.photoBase64).toBe('data:image/jpeg;base64,AAAA')
+  })
+
+  it('returns 404 for a missing ticket', async () => {
+    const res = await request(app).put('/api/v1/tickets/999999/photo').send({ photoBase64: 'data:image/jpeg;base64,AAAA' })
+    expect(res.status).toBe(404)
+  })
+
+  it('returns 409 when the ticket is not done', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'todo' })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .put(`/api/v1/tickets/${ticket.id}/photo`)
+      .send({ photoBase64: 'data:image/jpeg;base64,AAAA' })
+
+    expect(res.status).toBe(409)
+  })
+
+  it('returns 400 for an empty photoBase64', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'done', doneKm: 8500, doneAt: new Date() })
+      .returning()
+      .all()
+
+    const res = await request(app).put(`/api/v1/tickets/${ticket.id}/photo`).send({ photoBase64: '' })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 for a malformed photoBase64', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'done', doneKm: 8500, doneAt: new Date() })
+      .returning()
+      .all()
+
+    const res = await request(app).put(`/api/v1/tickets/${ticket.id}/photo`).send({ photoBase64: 'data:text/plain;base64,AAAA' })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns a JSON 413 when the body exceeds the size limit', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({ userMotorcycleId: userMotoId, operation: 'Oil change', status: 'done', doneKm: 8500, doneAt: new Date() })
+      .returning()
+      .all()
+
+    const oversized = 'A'.repeat(5 * 1024 * 1024)
+    const res = await request(app).put(`/api/v1/tickets/${ticket.id}/photo`).send({ photoBase64: oversized })
+
+    expect(res.status).toBe(413)
+    expect(res.body.error).toBeDefined()
+  })
+})
+
+describe('DELETE /api/v1/tickets/:id/photo', () => {
+  it('clears the photo', async () => {
+    const [ticket] = db
+      .insert(tickets)
+      .values({
+        userMotorcycleId: userMotoId,
+        operation: 'Oil change',
+        status: 'done',
+        doneKm: 8500,
+        doneAt: new Date(),
+        photoBase64: 'data:image/jpeg;base64,AAAA',
+      })
+      .returning()
+      .all()
+
+    const res = await request(app).delete(`/api/v1/tickets/${ticket.id}/photo`)
+    expect(res.status).toBe(204)
+
+    const updated = db.select().from(tickets).where(eq(tickets.id, ticket.id)).get()
+    expect(updated?.photoBase64).toBeNull()
+  })
+
+  it('returns 404 for a missing ticket', async () => {
+    const res = await request(app).delete('/api/v1/tickets/999999/photo')
     expect(res.status).toBe(404)
   })
 })
