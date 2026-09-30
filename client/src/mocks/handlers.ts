@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw'
-import type { CreatePartPayload, CreateTicketPayload, TicketStatus, UpdateTicketIntervalPayload } from '@/types'
+import type { CreatePartPayload, CreateTicketPayload, TicketStatus, UpdateTicketIntervalPayload, HistoryImportEntry } from '@/types'
 import {
   mockCatalogEntries,
   mockCatalogSummaries,
@@ -82,6 +82,36 @@ export const handlers = [
       return new HttpResponse(null, { status: 404 })
     }
     return HttpResponse.json({ created: 0 })
+  }),
+
+  http.post('*/api/v1/user-motorcycles/:id/history/import', async ({ params, request }) => {
+    const id = Number(params.id)
+    if (!mockUserMotorcycles.find((m) => m.id === id)) {
+      return new HttpResponse(null, { status: 404 })
+    }
+    const body = (await request.json()) as { entries: HistoryImportEntry[] }
+    if (body.entries.length === 0) {
+      return new HttpResponse(null, { status: 400 })
+    }
+    for (const e of body.entries) {
+      mockTickets.push({
+        id: nextId(),
+        userMotorcycleId: id,
+        catalogSlug: e.catalogSlug ?? null,
+        intervalSlug: e.intervalSlug ?? null,
+        customIntervalId: e.customIntervalId ?? null,
+        operation: e.operation,
+        status: 'done',
+        targetKm: null,
+        targetDate: null,
+        doneKm: e.doneKm,
+        doneAt: e.doneAt,
+        customKm: null,
+        customDays: null,
+        photoBase64: e.photoBase64 ?? null,
+      })
+    }
+    return HttpResponse.json({ created: body.entries.length, regenerated: 0 }, { status: 201 })
   }),
 
   http.get('*/api/v1/tickets', ({ request }) => {
