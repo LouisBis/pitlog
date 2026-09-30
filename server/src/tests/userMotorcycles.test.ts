@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import request from 'supertest'
-import { eq } from 'drizzle-orm'
+import { and, eq } from 'drizzle-orm'
 import { app } from '../app.js'
 import { db } from '../db/index.js'
 import { kmHistory, motorcycles, tickets, userMotorcycles } from '../db/schema/index.js'
@@ -231,5 +231,111 @@ describe('DELETE /api/v1/user-motorcycles/:id', () => {
   it('returns 404 for unknown user motorcycle', async () => {
     const res = await request(app).delete('/api/v1/user-motorcycles/999')
     expect(res.status).toBe(404)
+  })
+})
+
+describe('POST /api/v1/user-motorcycles/:id/history/import', () => {
+  let userMotoId: number
+
+  beforeEach(() => {
+    const [userMoto] = db
+      .insert(userMotorcycles)
+      .values({ motorcycleId: catalogueMotoId, currentKm: 12000, acquiredAt: new Date('2022-01-01') })
+      .returning()
+      .all()
+    userMotoId = userMoto.id
+  })
+
+  it('creates a done ticket per entry', async () => {
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({
+        entries: [
+          { operation: 'Vidange moteur', doneAt: '2024-01-15', doneKm: 8000 },
+          { operation: 'Changement pneus', doneAt: '2024-06-01', doneKm: 10000 },
+        ],
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.created).toBe(2)
+
+    const created = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
+    expect(created).toHaveLength(2)
+    expect(created.every((t) => t.status === 'done')).toBe(true)
+  })
+
+  it('regenerates exactly one todo ticket from the latest occurrence of a repeated catalog interval', async () => {
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({
+        entries: [
+          {
+            operation: 'Engine oil change',
+            doneAt: '2023-01-01',
+            doneKm: 4000,
+            catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+            intervalSlug: 'oil-change',
+          },
+          {
+            operation: 'Engine oil change',
+            doneAt: '2024-06-01',
+            doneKm: 10000,
+            catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+            intervalSlug: 'oil-change',
+          },
+        ],
+      })
+
+    expect(res.status).toBe(201)
+    expect(res.body.created).toBe(2)
+    expect(res.body.regenerated).toBe(1)
+
+    const todos = db
+      .select()
+      .from(tickets)
+      .where(and(eq(tickets.userMotorcycleId, userMotoId), eq(tickets.status, 'todo')))
+      .all()
+    expect(todos).toHaveLength(1)
+    // next due km is computed from the LATEST occurrence (10000 + interval), not the earliest
+    expect(todos[0].targetKm).toBeGreaterThan(10000)
+  })
+
+  it('does not regenerate anything for one-off entries with no interval link', async () => {
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({ entries: [{ operation: 'Remplacement rétroviseur', doneAt: '2024-01-01', doneKm: 9000 }] })
+
+    expect(res.status).toBe(201)
+    expect(res.body.regenerated).toBe(0)
+  })
+
+  it('returns 404 for an unknown user motorcycle', async () => {
+    const res = await request(app)
+      .post('/api/v1/user-motorcycles/999999/history/import')
+      .send({ entries: [{ operation: 'Test', doneAt: '2024-01-01', doneKm: 1000 }] })
+    expect(res.status).toBe(404)
+  })
+
+  it('returns 400 for an empty entries array', async () => {
+    const res = await request(app).post(`/api/v1/user-motorcycles/${userMotoId}/history/import`).send({ entries: [] })
+    expect(res.status).toBe(400)
+  })
+
+  it('returns 400 when an entry has both a catalog interval and a custom interval', async () => {
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({
+        entries: [
+          {
+            operation: 'Test',
+            doneAt: '2024-01-01',
+            doneKm: 1000,
+            catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+            intervalSlug: 'oil-change',
+            customIntervalId: 1,
+          },
+        ],
+      })
+    expect(res.status).toBe(400)
   })
 })
