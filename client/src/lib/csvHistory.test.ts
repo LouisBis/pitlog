@@ -39,6 +39,18 @@ describe('parseFrenchOrIsoDate', () => {
   it('returns null for unparseable input', () => {
     expect(parseFrenchOrIsoDate('not a date')).toBeNull()
   })
+
+  it('rejects a day that overflows the month (French)', () => {
+    expect(parseFrenchOrIsoDate('31/02/2024')).toBeNull()
+  })
+
+  it('rejects a day that overflows the month (ISO)', () => {
+    expect(parseFrenchOrIsoDate('2024-02-30')).toBeNull()
+  })
+
+  it('rejects a month that overflows the year (French)', () => {
+    expect(parseFrenchOrIsoDate('32/13/2024')).toBeNull()
+  })
 })
 
 describe('parseKm', () => {
@@ -77,6 +89,11 @@ describe('mapRows', () => {
     const result = mapRows([{ Date: '2024-01-15', Op: '  ', Km: '8000' }], mapping)
     expect(result[0].error).toBe('missing_operation')
   })
+
+  it('prioritizes missing_operation over an also-invalid date', () => {
+    const result = mapRows([{ Date: 'nope', Op: '  ', Km: '8000' }], mapping)
+    expect(result[0].error).toBe('missing_operation')
+  })
 })
 
 describe('normalizeForMatch', () => {
@@ -113,6 +130,16 @@ describe('jsonImportSchema', () => {
 
   it('rejects a non-array', () => {
     const result = jsonImportSchema.safeParse({ not: 'an array' })
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a non-integer doneKm', () => {
+    const result = jsonImportSchema.safeParse([{ operation: 'Vidange', doneAt: '2024-01-01T00:00:00.000Z', doneKm: 8000.5 }])
+    expect(result.success).toBe(false)
+  })
+
+  it('rejects a negative doneKm', () => {
+    const result = jsonImportSchema.safeParse([{ operation: 'Vidange', doneAt: '2024-01-01T00:00:00.000Z', doneKm: -100 }])
     expect(result.success).toBe(false)
   })
 })

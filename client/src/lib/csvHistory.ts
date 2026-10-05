@@ -29,15 +29,21 @@ export function parseFrenchOrIsoDate(raw: string): string | null {
 
   const iso = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (iso) {
+    const [, yyyy, mm, dd] = iso
     const d = new Date(`${trimmed}T00:00:00.000Z`)
-    return Number.isNaN(d.getTime()) ? null : d.toISOString()
+    if (Number.isNaN(d.getTime())) return null
+    // JS Date overflows an out-of-range day into the next month instead of rejecting it — verify it round-trips.
+    if (d.getUTCFullYear() !== Number(yyyy) || d.getUTCMonth() + 1 !== Number(mm) || d.getUTCDate() !== Number(dd)) return null
+    return d.toISOString()
   }
 
   const fr = trimmed.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/)
   if (fr) {
     const [, dd, mm, yyyy] = fr
     const d = new Date(`${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}T00:00:00.000Z`)
-    return Number.isNaN(d.getTime()) ? null : d.toISOString()
+    if (Number.isNaN(d.getTime())) return null
+    if (d.getUTCFullYear() !== Number(yyyy) || d.getUTCMonth() + 1 !== Number(mm) || d.getUTCDate() !== Number(dd)) return null
+    return d.toISOString()
   }
 
   return null
@@ -45,7 +51,7 @@ export function parseFrenchOrIsoDate(raw: string): string | null {
 
 /** Parses a km value, tolerating spaces used as thousand separators. Returns null if non-numeric. */
 export function parseKm(raw: string): number | null {
-  const cleaned = raw.replace(/[\s ]/g, '')
+  const cleaned = raw.replace(/\s/g, '')
   return /^\d+$/.test(cleaned) ? Number(cleaned) : null
 }
 
