@@ -6,6 +6,7 @@ import { useTickets } from '@/queries/useTickets'
 import { useTicketParts } from '@/queries/useTicketParts'
 import { Badge } from '@/components/ui/Badge'
 import TicketPhotoThumbnail from '@/components/board/TicketPhotoThumbnail'
+import HistoryActions from '@/components/history/HistoryActions'
 import type { Ticket } from '@/types'
 import { getOperationLabel } from '@/lib/catalogI18n'
 import styles from './HistoryPage.module.css'
@@ -99,6 +100,7 @@ export default function HistoryPage() {
             )}
           </div>
         </div>
+        {moto && <HistoryActions moto={moto} doneTickets={done} />}
       </header>
 
       <main className={styles.main}>
