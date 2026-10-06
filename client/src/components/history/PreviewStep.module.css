@@ -1,0 +1,42 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.title {
+  font-weight: var(--weight-semibold);
+}
+
+.summary {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.list,
+.skippedList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-height: 12rem;
+  overflow-y: auto;
+  font-size: var(--text-sm);
+}
+
+.skippedRow {
+  color: var(--status-danger);
+}
+
+.error {
+  color: var(--status-danger);
+  font-size: var(--text-sm);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
