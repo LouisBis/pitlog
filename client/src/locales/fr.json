@@ -15,7 +15,33 @@
   "history": {
     "title": "Historique",
     "empty": "Aucune action réalisée pour l'instant.",
-    "parts_used": "Pièces utilisées"
+    "parts_used": "Pièces utilisées",
+    "import": {
+      "action": "Importer",
+      "upload_prompt": "Sélectionne un fichier CSV ou JSON",
+      "upload_error": "Fichier illisible ou format non reconnu.",
+      "too_many_rows": "Trop de lignes dans le fichier (maximum 2000).",
+      "close": "Fermer",
+      "mapping_title": "Associe les colonnes",
+      "mapping_date": "Date",
+      "mapping_operation": "Opération",
+      "mapping_km": "Kilométrage",
+      "matching_title": "Associe chaque ligne à un intervalle",
+      "matching_none": "Aucun — ponctuel",
+      "preview_title": "Aperçu avant import",
+      "preview_summary": "{{valid, number}} lignes seront importées, {{invalid, number}} ignorées",
+      "row_error_invalid_date": "Date illisible",
+      "row_error_invalid_km": "Kilométrage invalide",
+      "row_error_missing_operation": "Opération manquante",
+      "confirm": "Importer",
+      "cancel": "Annuler",
+      "error": "Erreur lors de l'import."
+    },
+    "export": {
+      "action": "Exporter",
+      "csv": "Exporter en CSV",
+      "json": "Exporter en JSON"
+    }
   },
   "home": {
     "cta": "Ouvrir l'app",

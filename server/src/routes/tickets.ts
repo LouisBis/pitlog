@@ -13,7 +13,7 @@ import {
   type TicketStatus,
 } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
-import { loadCatalogEntry } from '../lib/catalog.js'
+import { regenerateIfDue } from '../lib/ticketRegeneration.js'
 import logger from '../lib/logger.js'
 import { parseId } from '../lib/parseId.js'
 
@@ -48,40 +48,6 @@ const VALID_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
   part_ordered: ['todo', 'in_progress'],
   in_progress: ['todo', 'part_ordered', 'done'],
   done: [],
-}
-
-/** Returns effective km/days for a ticket, applying intervalOverrides or customIntervals. */
-function resolveInterval(userMotorcycleId: number, ticket: typeof tickets.$inferSelect) {
-  if (ticket.catalogSlug && ticket.intervalSlug) {
-    const entry = loadCatalogEntry(ticket.catalogSlug)
-    const catalogInterval = entry?.categories.flatMap((c) => c.intervals).find((i) => i.slug === ticket.intervalSlug)
-    if (!catalogInterval) return null
-
-    const override = db
-      .select()
-      .from(intervalOverrides)
-      .where(
-        and(
-          eq(intervalOverrides.userMotorcycleId, userMotorcycleId),
-          eq(intervalOverrides.catalogSlug, ticket.catalogSlug),
-          eq(intervalOverrides.intervalSlug, ticket.intervalSlug),
-        ),
-      )
-      .get()
-
-    return {
-      intervalKm: override?.customKm ?? catalogInterval.km,
-      intervalDays: override?.customDays ?? catalogInterval.days,
-    }
-  }
-
-  if (ticket.customIntervalId) {
-    const custom = db.select().from(customIntervals).where(eq(customIntervals.id, ticket.customIntervalId)).get()
-    if (!custom) return null
-    return { intervalKm: custom.intervalKm, intervalDays: custom.intervalDays }
-  }
-
-  return null
 }
 
 router.get('/', (req, res) => {
@@ -170,31 +136,8 @@ router.patch('/:id/status', validateBody(updateStatusSchema), (req, res) => {
 
   const [updated] = db.update(tickets).set(updates).where(eq(tickets.id, id)).returning().all()
 
-  const hasInterval = ticket.catalogSlug || ticket.customIntervalId
-  if (status === 'done' && hasInterval && updated.doneKm !== null && updated.doneAt !== null) {
-    const effective = resolveInterval(ticket.userMotorcycleId, ticket)
-    if (effective) {
-      const nextTargetKm = effective.intervalKm !== null ? updated.doneKm + effective.intervalKm : null
-      const nextTargetDate =
-        effective.intervalDays !== null
-          ? new Date(updated.doneAt.getTime() + effective.intervalDays * 24 * 60 * 60 * 1000)
-          : null
-
-      db.insert(tickets)
-        .values({
-          userMotorcycleId: ticket.userMotorcycleId,
-          catalogSlug: ticket.catalogSlug,
-          intervalSlug: ticket.intervalSlug,
-          customIntervalId: ticket.customIntervalId,
-          operation: ticket.operation,
-          status: 'todo',
-          targetKm: nextTargetKm,
-          targetDate: nextTargetDate,
-        })
-        .run()
-
-      logger.info({ ticketId: updated.id, operation: ticket.operation, nextTargetKm }, 'Ticket regenerated')
-    }
+  if (status === 'done') {
+    regenerateIfDue(ticket.userMotorcycleId, updated)
   }
 
   res.json(updated)

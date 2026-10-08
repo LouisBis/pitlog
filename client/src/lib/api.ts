@@ -11,6 +11,7 @@ import type {
   UserMotorcycle,
   VelocityResult,
   CreatePartPayload,
+  HistoryImportEntry,
 } from '@/types'
 
 export interface UpdateTicketPayload {
@@ -109,6 +110,12 @@ export const api = {
   deleteMotorcycle: (userMotorcycleId: number) =>
     request<void>(`/api/v1/user-motorcycles/${userMotorcycleId}`, {
       method: 'DELETE',
+    }),
+
+  importHistory: (userMotorcycleId: number, entries: HistoryImportEntry[]) =>
+    request<{ created: number; regenerated: number }>(`/api/v1/user-motorcycles/${userMotorcycleId}/history/import`, {
+      method: 'POST',
+      body: JSON.stringify({ entries }),
     }),
 
   getTicketParts: (ticketId: number) => request<TicketPart[]>(`/api/v1/tickets/${ticketId}/parts`),
