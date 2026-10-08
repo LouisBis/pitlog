@@ -26,7 +26,7 @@ This is a single-user local app. There is no onboarding flow, no tutorial, no gu
 
 ## Migration path
 
-The generic template is a V1 stopgap. In V1.2, the `motorcycle_intervals` table will allow per-motorcycle interval customisation. Once that is in place, the generic template becomes the default starting point that the user overrides — rather than a permanent constraint.
+The generic template is a V1 stopgap. In V1.2, `interval_overrides` and `custom_intervals` ([ADR-011](011-motorcycle-intervals-override.md)) now allow per-motorcycle interval customisation. The generic template is the default starting point that the user overrides — rather than a permanent constraint.
 
 ## Consequences
 

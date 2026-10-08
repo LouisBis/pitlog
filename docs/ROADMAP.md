@@ -7,13 +7,15 @@
 
 ## V1.2 — Depth (medium term)
 
-### Import history
+### Import/export maintenance history
 
-Recover an existing maintenance history from CSV or JSON (migration from paper / Excel / another app).
+Recover an existing maintenance history from CSV or JSON (migration from paper / Excel / another app), and export it back out.
 
-- Configurable column mapping: date, operation, km, cost
+- Configurable column mapping: date, operation, km (cost is out of scope — no cost tracking exists in the data model yet, see the cost/analytics backlog idea below)
+- Flexible auto-matching of imported rows to a motorcycle's recurring intervals, with manual override
 - Zod validation before insert
 - Preview before import (summary table + detected errors)
+- CSV and JSON export of a motorcycle's done history (JSON round-trips natively through the same import)
 
 ---
 
@@ -46,6 +48,7 @@ NLP chat for diagnostic assistance. Runs on the existing single-user architectur
 - **Admin reminders** — MOT, insurance, tax disc (not just mechanical)
 - **Public API** — for future integrations (OBD2 readers, dealer systems)
 - **Dark / light mode** — theme toggle (DS tokens already structured for this)
+- **Cost tracking** — a cross-cutting cost concept on tickets, with spending graphs over time. Raised and deliberately deferred during the import/export history brainstorm — no cost field exists anywhere in the data model today. Needs its own brainstorm: how cost attaches to a ticket/part, how it aggregates for a graph, and separately whether invoice-scanning (OCR a receipt into a draft ticket) is in scope or a distinct idea — scanning creates tickets, which is a different kind of feature than recording a cost on one that already exists.
 
 ---
 
