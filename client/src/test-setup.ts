@@ -3,7 +3,7 @@ import { cleanup } from '@testing-library/react'
 import { afterAll, afterEach, beforeAll } from 'vitest'
 import { server } from './mocks/server'
 
-beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+beforeAll(() => server.listen({ onUnhandledFrame: 'error' }))
 afterEach(() => {
   // RTL's auto-cleanup only self-registers when a global `afterEach` exists
   // (vitest.config.ts doesn't set test.globals, so it doesn't) — call it explicitly.
