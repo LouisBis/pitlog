@@ -8,12 +8,15 @@ interface Props {
   onError: (message: string) => void
 }
 
+const MAX_ROWS = 2000
+
 /** File-picker step: routes a .csv file to column mapping, a .json file straight to preview. */
 export default function UploadStep({ onCsvParsed, onJsonParsed, onError }: Props) {
   const { t } = useTranslation()
 
   const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
+    const input = e.target
+    const file = input.files?.[0]
     if (!file) return
 
     try {
@@ -24,14 +27,26 @@ export default function UploadStep({ onCsvParsed, onJsonParsed, onError }: Props
           onError(t('history.import.upload_error'))
           return
         }
+        if (result.data.length > MAX_ROWS) {
+          onError(t('history.import.too_many_rows'))
+          return
+        }
         onJsonParsed(result.data)
         return
       }
 
       const { headers, rows } = await parseCsvFile(file)
+      if (rows.length > MAX_ROWS) {
+        onError(t('history.import.too_many_rows'))
+        return
+      }
       onCsvParsed(headers, rows)
     } catch {
       onError(t('history.import.upload_error'))
+    } finally {
+      // Without this, picking the same file twice in a row (e.g. after an error) never fires
+      // another `change` event, because the input's value hasn't changed.
+      input.value = ''
     }
   }
 

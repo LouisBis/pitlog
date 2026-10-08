@@ -63,7 +63,7 @@ export default function ImportHistoryDialog({ open, onOpenChange, moto, existing
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleClose} closeLabel={t('history.import.cancel')} label={t('history.import.action')}>
+    <Dialog open={open} onOpenChange={handleClose} closeLabel={t('history.import.close')} label={t('history.import.action')}>
       <div className={styles.container}>
         {step.name === 'upload' && (
           <UploadStep

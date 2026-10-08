@@ -20,6 +20,8 @@
       "action": "Importer",
       "upload_prompt": "Sélectionne un fichier CSV ou JSON",
       "upload_error": "Fichier illisible ou format non reconnu.",
+      "too_many_rows": "Trop de lignes dans le fichier (maximum 2000).",
+      "close": "Fermer",
       "mapping_title": "Associe les colonnes",
       "mapping_date": "Date",
       "mapping_operation": "Opération",
@@ -33,7 +35,6 @@
       "row_error_missing_operation": "Opération manquante",
       "confirm": "Importer",
       "cancel": "Annuler",
-      "success": "{{count, number}} entrées importées",
       "error": "Erreur lors de l'import."
     },
     "export": {

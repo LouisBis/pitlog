@@ -3,13 +3,14 @@ import request from 'supertest'
 import { and, eq } from 'drizzle-orm'
 import { app } from '../app.js'
 import { db } from '../db/index.js'
-import { kmHistory, motorcycles, tickets, userMotorcycles } from '../db/schema/index.js'
+import { customIntervals, kmHistory, motorcycles, tickets, userMotorcycles } from '../db/schema/index.js'
 
 let catalogueMotoId: number
 
 beforeEach(() => {
   db.delete(tickets).run()
   db.delete(kmHistory).run()
+  db.delete(customIntervals).run()
   db.delete(userMotorcycles).run()
   db.delete(motorcycles).run()
 
@@ -336,6 +337,69 @@ describe('POST /api/v1/user-motorcycles/:id/history/import', () => {
           },
         ],
       })
+    expect(res.status).toBe(400)
+  })
+
+  it('rejects a catalogSlug that does not belong to this motorcycle', async () => {
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({
+        entries: [
+          {
+            operation: 'Test',
+            doneAt: '2024-01-01',
+            doneKm: 1000,
+            catalogSlug: 'honda-cb500-1994-2001',
+            intervalSlug: 'oil-filter',
+          },
+        ],
+      })
+    expect(res.status).toBe(400)
+
+    const created = db.select().from(tickets).where(eq(tickets.userMotorcycleId, userMotoId)).all()
+    expect(created).toHaveLength(0)
+  })
+
+  it('rejects a customIntervalId that belongs to a different motorcycle', async () => {
+    const [otherMoto] = db
+      .insert(motorcycles)
+      .values({ brand: 'Honda', model: 'CB500', year: 1998, isCustom: true, catalogSlug: null })
+      .returning()
+      .all()
+    const [otherInterval] = db
+      .insert(customIntervals)
+      .values({ motorcycleId: otherMoto.id, operation: 'Autre entretien', intervalKm: 2000, intervalDays: null })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({
+        entries: [{ operation: 'Test', doneAt: '2024-01-01', doneKm: 1000, customIntervalId: otherInterval.id }],
+      })
+    expect(res.status).toBe(400)
+  })
+
+  it('rejects a catalogSlug provided without an intervalSlug', async () => {
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({
+        entries: [
+          { operation: 'Test', doneAt: '2024-01-01', doneKm: 1000, catalogSlug: 'suzuki-gsf600-bandit-1995-1999' },
+        ],
+      })
+    expect(res.status).toBe(400)
+  })
+
+  it('rejects more than 2000 entries', async () => {
+    const entries = Array.from({ length: 2001 }, (_, i) => ({
+      operation: 'Test',
+      doneAt: '2024-01-01',
+      doneKm: 1000 + i,
+    }))
+    const res = await request(app)
+      .post(`/api/v1/user-motorcycles/${userMotoId}/history/import`)
+      .send({ entries })
     expect(res.status).toBe(400)
   })
 })

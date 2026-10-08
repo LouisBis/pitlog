@@ -2,7 +2,7 @@ import { Router } from 'express'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { userMotorcycles, motorcycles, kmHistory, tickets, ticketParts } from '../db/schema/index.js'
+import { userMotorcycles, motorcycles, kmHistory, tickets, ticketParts, customIntervals } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
 import { loadCatalogEntry, loadAllCatalogEntries } from '../lib/catalog.js'
@@ -56,14 +56,20 @@ const historyEntrySchema = z
     catalogSlug: z.string().optional(),
     intervalSlug: z.string().optional(),
     customIntervalId: z.number().int().positive().optional(),
-    photoBase64: z.string().optional(),
+    photoBase64: z
+      .string()
+      .regex(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/)
+      .optional(),
   })
   .refine((e) => !(e.customIntervalId && (e.catalogSlug || e.intervalSlug)), {
     message: 'catalogSlug/intervalSlug and customIntervalId are mutually exclusive',
   })
+  .refine((e) => Boolean(e.catalogSlug) === Boolean(e.intervalSlug), {
+    message: 'catalogSlug and intervalSlug must be provided together',
+  })
 
 const importHistorySchema = z.object({
-  entries: z.array(historyEntrySchema).min(1),
+  entries: z.array(historyEntrySchema).min(1).max(2000),
 })
 
 /** Groups done tickets by their recurring-interval key (catalog slug+interval, or custom interval id).
@@ -211,6 +217,30 @@ router.post('/:id/history/import', validateBody(importHistorySchema), (req, res)
     logger.warn({ userMotorcycleId: id }, 'User motorcycle not found for history import')
     res.status(404).json({ error: 'User motorcycle not found' })
     return
+  }
+
+  const motorcycle = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()
+
+  for (const e of entries) {
+    if (e.catalogSlug && e.catalogSlug !== motorcycle?.catalogSlug) {
+      logger.warn(
+        { userMotorcycleId: id, catalogSlug: e.catalogSlug },
+        'History import rejected: catalogSlug does not belong to this motorcycle',
+      )
+      res.status(400).json({ error: 'catalogSlug does not belong to this motorcycle' })
+      return
+    }
+    if (e.customIntervalId) {
+      const custom = db.select().from(customIntervals).where(eq(customIntervals.id, e.customIntervalId)).get()
+      if (!custom || custom.motorcycleId !== userMoto.motorcycleId) {
+        logger.warn(
+          { userMotorcycleId: id, customIntervalId: e.customIntervalId },
+          'History import rejected: customIntervalId does not belong to this motorcycle',
+        )
+        res.status(400).json({ error: 'customIntervalId does not belong to this motorcycle' })
+        return
+      }
+    }
   }
 
   const created = db

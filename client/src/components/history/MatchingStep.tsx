@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Select } from '@/components/ui/Select'
 import { Button } from '@/components/ui/Button'
@@ -21,7 +21,7 @@ function candidateKey(c: IntervalCandidate): string {
 /** For each valid row, shows the auto-matched recurring interval (or none) with a manual override. */
 export default function MatchingStep({ rows, candidates, onContinue }: Props) {
   const { t } = useTranslation()
-  const validRows = rows.filter((r) => r.error === null)
+  const validRows = useMemo(() => rows.filter((r) => r.error === null), [rows])
 
   const [selections, setSelections] = useState<Record<number, string>>(() => {
     const initial: Record<number, string> = {}

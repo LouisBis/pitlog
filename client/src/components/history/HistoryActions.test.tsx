@@ -26,14 +26,14 @@ function renderWithClient(ui: React.ReactElement) {
 
 describe('HistoryActions', () => {
   it('shows Import and Export buttons', () => {
-    renderWithClient(<HistoryActions moto={moto} doneTickets={[] as Ticket[]} />)
+    renderWithClient(<HistoryActions moto={moto} doneTickets={[] as Ticket[]} existingTickets={[] as Ticket[]} />)
     expect(screen.getByRole('button', { name: 'Importer' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Exporter' })).toBeInTheDocument()
   })
 
   it('triggers a CSV download when "Exporter en CSV" is chosen', async () => {
     const downloadSpy = vi.spyOn(historyExport, 'downloadFile').mockImplementation(() => {})
-    renderWithClient(<HistoryActions moto={moto} doneTickets={[] as Ticket[]} />)
+    renderWithClient(<HistoryActions moto={moto} doneTickets={[] as Ticket[]} existingTickets={[] as Ticket[]} />)
 
     await userEvent.click(screen.getByRole('button', { name: 'Exporter' }))
     await userEvent.click(await screen.findByRole('menuitem', { name: 'Exporter en CSV' }))
@@ -42,7 +42,7 @@ describe('HistoryActions', () => {
   })
 
   it('opens the import dialog when "Importer" is clicked', async () => {
-    renderWithClient(<HistoryActions moto={moto} doneTickets={[] as Ticket[]} />)
+    renderWithClient(<HistoryActions moto={moto} doneTickets={[] as Ticket[]} existingTickets={[] as Ticket[]} />)
     await userEvent.click(screen.getByRole('button', { name: 'Importer' }))
     expect(await screen.findByText('Sélectionne un fichier CSV ou JSON')).toBeInTheDocument()
   })

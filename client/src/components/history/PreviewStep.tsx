@@ -31,7 +31,7 @@ export default function PreviewStep({ entries, skipped, isPending, isError, onCo
       </p>
       <ul className={styles.list}>
         {entries.map((e, i) => (
-          <li key={i} className={styles.row}>
+          <li key={i}>
             {e.doneAt.slice(0, 10)} — {e.operation} — {e.doneKm} km
           </li>
         ))}

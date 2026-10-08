@@ -46,6 +46,7 @@ export function resolveInterval(
 export function regenerateIfDue(
   userMotorcycleId: number,
   doneTicket: {
+    id: number
     catalogSlug: string | null
     intervalSlug: string | null
     customIntervalId: number | null
@@ -79,6 +80,6 @@ export function regenerateIfDue(
     })
     .run()
 
-  logger.info({ userMotorcycleId, operation: doneTicket.operation, nextTargetKm }, 'Ticket regenerated')
+  logger.info({ userMotorcycleId, ticketId: doneTicket.id, operation: doneTicket.operation, nextTargetKm }, 'Ticket regenerated')
   return true
 }

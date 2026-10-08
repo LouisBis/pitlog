@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
@@ -75,11 +75,16 @@ export default function HistoryPage() {
     if (motos && !moto) navigate('/', { replace: true })
   }, [motos, moto, navigate])
 
-  if (!isValidId) return null
+  const allTickets = useMemo(() => tickets ?? [], [tickets])
+  const done = useMemo(
+    () =>
+      allTickets
+        .filter((tk) => tk.status === 'done' && tk.doneAt !== null)
+        .sort((a, b) => new Date(b.doneAt!).getTime() - new Date(a.doneAt!).getTime()),
+    [allTickets],
+  )
 
-  const done = (tickets ?? [])
-    .filter((tk) => tk.status === 'done' && tk.doneAt !== null)
-    .sort((a, b) => new Date(b.doneAt!).getTime() - new Date(a.doneAt!).getTime())
+  if (!isValidId) return null
 
   return (
     <div className={styles.page}>
@@ -100,7 +105,7 @@ export default function HistoryPage() {
             )}
           </div>
         </div>
-        {moto && <HistoryActions moto={moto} doneTickets={done} />}
+        {moto && <HistoryActions moto={moto} doneTickets={done} existingTickets={allTickets} />}
       </header>
 
       <main className={styles.main}>

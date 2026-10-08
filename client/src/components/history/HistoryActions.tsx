@@ -9,10 +9,11 @@ import styles from './HistoryActions.module.css'
 interface Props {
   moto: UserMotorcycle
   doneTickets: Ticket[]
+  existingTickets: Ticket[]
 }
 
 /** Import/export controls for a motorcycle's history page. */
-export default function HistoryActions({ moto, doneTickets }: Props) {
+export default function HistoryActions({ moto, doneTickets, existingTickets }: Props) {
   const { t } = useTranslation()
   const [importOpen, setImportOpen] = useState(false)
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
@@ -49,7 +50,7 @@ export default function HistoryActions({ moto, doneTickets }: Props) {
           </div>
         )}
       </div>
-      <ImportHistoryDialog open={importOpen} onOpenChange={setImportOpen} moto={moto} existingTickets={doneTickets} />
+      <ImportHistoryDialog open={importOpen} onOpenChange={setImportOpen} moto={moto} existingTickets={existingTickets} />
     </div>
   )
 }
