@@ -27,17 +27,23 @@ If the brand directory does not exist yet, create it (lowercase, no spaces: `hon
   "model": "Model Name",
   "year_start": 1995,
   "year_end": 1999,
-  "intervals": [
+  "categories": [
     {
-      "slug": "oil-change",
-      "operation": "Engine oil change",
-      "km": 6000,
-      "days": 365
+      "slug": "engine",
+      "intervals": [
+        {
+          "slug": "oil-change",
+          "operation": "Engine oil change",
+          "km": 6000,
+          "days": 365
+        }
+      ]
     }
   ],
   "torque_specs": [
     {
       "slug": "spark-plug",
+      "category": "engine",
       "component": "Spark plug",
       "nm": 11,
       "note": null,
@@ -61,11 +67,18 @@ If the brand directory does not exist yet, create it (lowercase, no spaces: `hon
 | `model` | `string` | Display model name (e.g. `"GSF 600 Bandit"`) |
 | `year_start` | `number` | First production year covered by this file |
 | `year_end` | `number \| null` | Last production year (`null` if still in production) |
-| `intervals` | `array` | Service intervals (see below) |
+| `categories` | `array` | Service intervals, grouped by category (see below) |
 | `torque_specs` | `array` | Torque specifications (see below) |
 | `bolt_torque_chart` | `array` | Optional generic torque reference table by bolt diameter |
 
-#### `intervals` items
+#### `categories` items
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `slug` | `string` | One of `engine`, `cooling`, `fuel`, `transmission`, `brakes`, `chassis`, `tires`. Unique within the file |
+| `intervals` | `array` | Service intervals for this category (see below) |
+
+#### `categories[].intervals` items
 
 | Field | Type | Description |
 | --- | --- | --- |
@@ -79,10 +92,11 @@ If the brand directory does not exist yet, create it (lowercase, no spaces: `hon
 | Field | Type | Description |
 | --- | --- | --- |
 | `slug` | `string` | Unique within the file. Use kebab-case |
+| `category` | `string` | One of the same category slugs as `categories[].slug` |
 | `component` | `string` | English component name from the service manual |
 | `nm` | `number` | Torque value in N·m. Use final value for multi-step tightening |
 | `note` | `string \| null` | Optional clarification (e.g. `"Front & Rear"`, `"M10"`, `"Initial: 20 N·m, Final: 35 N·m"`) |
-| `related_intervals` | `string[]` | Slugs of intervals this torque spec applies to |
+| `related_intervals` | `string[]` | Slugs of intervals (from any category) this torque spec applies to |
 
 #### `bolt_torque_chart` items (optional)
 

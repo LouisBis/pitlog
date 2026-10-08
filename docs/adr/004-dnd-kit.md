@@ -20,5 +20,5 @@ Use **dnd-kit** (`@dnd-kit/core` + `@dnd-kit/sortable`) for all drag & drop inte
 
 - Touch and mouse events handled uniformly — swipe to change column works on mobile
 - Accessibility (keyboard navigation) supported out of the box
-- Integrates with the optimistic update pattern: drag triggers Zustand update immediately, API patch follows asynchronously
+- Integrates with the optimistic update pattern: drag triggers an immediate TanStack Query cache update (`onMutate`), the API patch follows asynchronously, with automatic rollback on error ([ADR-003](003-state-management.md))
 - Slightly more verbose API than react-beautiful-dnd but fully documented and actively maintained
