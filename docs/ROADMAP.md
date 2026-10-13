@@ -7,18 +7,6 @@
 
 ## V1.2 — Depth (medium term)
 
-### Import/export maintenance history
-
-Recover an existing maintenance history from CSV or JSON (migration from paper / Excel / another app), and export it back out.
-
-- Configurable column mapping: date, operation, km (cost is out of scope — no cost tracking exists in the data model yet, see the cost/analytics backlog idea below)
-- Flexible auto-matching of imported rows to a motorcycle's recurring intervals, with manual override
-- Zod validation before insert
-- Preview before import (summary table + detected errors)
-- CSV and JSON export of a motorcycle's done history (JSON round-trips natively through the same import)
-
----
-
 ### Themes per motorcycle
 
 Each motorcycle has an accent color. The kanban changes tint when switching bikes.
