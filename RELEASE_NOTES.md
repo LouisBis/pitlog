@@ -1,17 +1,18 @@
 # 🏍️ What's new
 
-Photos on tickets — attach a photo to a completed ticket, view it full-size, replace or delete it.
+Import/export maintenance history — recover an existing maintenance log from CSV or JSON, and export it back out.
 
 ## ✨ Features
 
-- **Photo on done tickets** — once a ticket is marked done, attach a photo (worn part, receipt, odometer reading). Resized and compressed on-device before upload.
-- **Full-size viewer** — click the photo indicator on the card to view it full-size, with replace/delete actions right there.
-- **Shown in maintenance history too** — photos also appear next to their ticket on the history page.
+- **Import from CSV or JSON** — upload a spreadsheet export (date, operation, km) or a Pitlog JSON backup; flexible column mapping with auto-detected headers.
+- **Auto-matching to recurring intervals** — imported rows are automatically matched to a motorcycle's known catalog or custom intervals by operation name, with manual override before committing.
+- **Smart regeneration** — importing several past occurrences of the same recurring interval regenerates exactly one upcoming ticket, computed from the most recent occurrence.
+- **Export to CSV or JSON** — download a motorcycle's full maintenance history; the JSON export round-trips natively back through the same import, no mapping needed.
+- **Preview before import** — a summary table shows what will be imported and flags any row that couldn't be parsed, before anything is written.
 
 ## 🔧 DX & CI
 
-- **Client typecheck job fixed** — `typecheck-client` was silently a no-op (`tsc --noEmit` never actually checked anything against this client's project-references config); it now catches real type errors.
-- **First component-testing infrastructure in the client** — Testing Library + jsdom, wired into the existing MSW setup.
-- **Chromatic skipped on Dependabot PRs** — GitHub withholds repo secrets from Dependabot-triggered workflow runs, so `CHROMATIC_PROJECT_TOKEN` was never available there; every Dependabot PR failed the visual regression job unconditionally. Now skipped for that actor, other checks still gate the PR.
+- **Dependabot security updates now land on `dev`** — they were silently targeting `main` directly (GitHub always routes security-alert PRs to the repo's default branch, ignoring `dependabot.yml`'s `target-branch`), bypassing the usual review pipeline. Switched the repo's default branch to `dev` so they now follow the same path as everything else.
+- **Docs audit** — README, CONTRIBUTING, the CI docs, and a couple of ADRs had drifted from what the code actually does (stale table names, an outdated catalog schema, undocumented CI jobs); brought back in sync.
 
 ---
