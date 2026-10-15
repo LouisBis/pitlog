@@ -1,0 +1,11 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 20rem;
+}
+
+.error {
+  color: var(--status-danger);
+  font-size: var(--text-sm);
+}

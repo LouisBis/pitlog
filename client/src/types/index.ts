@@ -136,3 +136,14 @@ export interface CreatePartPayload {
   quantity?: number
   url?: string
 }
+
+/** One row of imported maintenance history, normalized from CSV or JSON before POSTing. */
+export interface HistoryImportEntry {
+  operation: string
+  doneAt: string
+  doneKm: number
+  catalogSlug?: string
+  intervalSlug?: string
+  customIntervalId?: number
+  photoBase64?: string
+}

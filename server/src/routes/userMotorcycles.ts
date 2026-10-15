@@ -2,13 +2,14 @@ import { Router } from 'express'
 import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { db } from '../db/index.js'
-import { userMotorcycles, motorcycles, kmHistory, tickets, ticketParts } from '../db/schema/index.js'
+import { userMotorcycles, motorcycles, kmHistory, tickets, ticketParts, customIntervals } from '../db/schema/index.js'
 import { validateBody } from '../middleware/validate.js'
 import { computeVelocity } from '../lib/velocity.js'
 import { loadCatalogEntry, loadAllCatalogEntries } from '../lib/catalog.js'
 import type { CatalogInterval } from '../lib/catalog.js'
 import logger from '../lib/logger.js'
 import { parseId } from '../lib/parseId.js'
+import { regenerateIfDue } from '../lib/ticketRegeneration.js'
 
 const router = Router()
 
@@ -46,6 +47,50 @@ const createSchema = z.object({
 const updateKmSchema = z.object({
   km: z.number().int().positive(),
 })
+
+const historyEntrySchema = z
+  .object({
+    operation: z.string().min(1),
+    doneAt: z.coerce.date(),
+    doneKm: z.number().int().min(0),
+    catalogSlug: z.string().optional(),
+    intervalSlug: z.string().optional(),
+    customIntervalId: z.number().int().positive().optional(),
+    photoBase64: z
+      .string()
+      .regex(/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/]+=*$/)
+      .optional(),
+  })
+  .refine((e) => !(e.customIntervalId && (e.catalogSlug || e.intervalSlug)), {
+    message: 'catalogSlug/intervalSlug and customIntervalId are mutually exclusive',
+  })
+  .refine((e) => Boolean(e.catalogSlug) === Boolean(e.intervalSlug), {
+    message: 'catalogSlug and intervalSlug must be provided together',
+  })
+
+const importHistorySchema = z.object({
+  entries: z.array(historyEntrySchema).min(1).max(2000),
+})
+
+/** Groups done tickets by their recurring-interval key (catalog slug+interval, or custom interval id).
+ *  Entries with no interval link are excluded — they're one-off, nothing to regenerate. */
+function groupByLatestPerInterval(created: (typeof tickets.$inferSelect)[]): (typeof tickets.$inferSelect)[] {
+  const groups = new Map<string, (typeof tickets.$inferSelect)>()
+  for (const t of created) {
+    const key = t.catalogSlug && t.intervalSlug ? `catalog:${t.catalogSlug}:${t.intervalSlug}` : t.customIntervalId ? `custom:${t.customIntervalId}` : null
+    if (!key || t.doneAt === null || t.doneKm === null) continue
+
+    const current = groups.get(key)
+    const isLater =
+      !current ||
+      current.doneAt === null ||
+      current.doneKm === null ||
+      t.doneAt.getTime() > current.doneAt.getTime() ||
+      (t.doneAt.getTime() === current.doneAt.getTime() && t.doneKm > current.doneKm)
+    if (isLater) groups.set(key, t)
+  }
+  return [...groups.values()]
+}
 
 router.get('/', (_req, res) => {
   const result = db
@@ -159,6 +204,70 @@ router.post('/:id/import-intervals', (req, res) => {
     'Intervals imported',
   )
   res.json({ created: toCreate.length })
+})
+
+router.post('/:id/history/import', validateBody(importHistorySchema), (req, res) => {
+  const id = parseId(req.params.id, res)
+  if (id === null) return
+
+  const { entries } = res.locals.body as z.infer<typeof importHistorySchema>
+
+  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, id)).get()
+  if (!userMoto) {
+    logger.warn({ userMotorcycleId: id }, 'User motorcycle not found for history import')
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+
+  const motorcycle = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()
+
+  for (const e of entries) {
+    if (e.catalogSlug && e.catalogSlug !== motorcycle?.catalogSlug) {
+      logger.warn(
+        { userMotorcycleId: id, catalogSlug: e.catalogSlug },
+        'History import rejected: catalogSlug does not belong to this motorcycle',
+      )
+      res.status(400).json({ error: 'catalogSlug does not belong to this motorcycle' })
+      return
+    }
+    if (e.customIntervalId) {
+      const custom = db.select().from(customIntervals).where(eq(customIntervals.id, e.customIntervalId)).get()
+      if (!custom || custom.motorcycleId !== userMoto.motorcycleId) {
+        logger.warn(
+          { userMotorcycleId: id, customIntervalId: e.customIntervalId },
+          'History import rejected: customIntervalId does not belong to this motorcycle',
+        )
+        res.status(400).json({ error: 'customIntervalId does not belong to this motorcycle' })
+        return
+      }
+    }
+  }
+
+  const created = db
+    .insert(tickets)
+    .values(
+      entries.map((e) => ({
+        userMotorcycleId: id,
+        operation: e.operation,
+        status: 'done' as const,
+        doneAt: e.doneAt,
+        doneKm: e.doneKm,
+        catalogSlug: e.catalogSlug ?? null,
+        intervalSlug: e.intervalSlug ?? null,
+        customIntervalId: e.customIntervalId ?? null,
+        photoBase64: e.photoBase64 ?? null,
+      })),
+    )
+    .returning()
+    .all()
+
+  let regenerated = 0
+  for (const latest of groupByLatestPerInterval(created)) {
+    if (regenerateIfDue(id, latest)) regenerated++
+  }
+
+  logger.info({ userMotorcycleId: id, created: created.length, regenerated }, 'History imported')
+  res.status(201).json({ created: created.length, regenerated })
 })
 
 router.get('/:id/velocity', (req, res) => {

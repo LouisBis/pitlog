@@ -33,6 +33,11 @@ Service intervals and torque specs for recognised models are stored in versioned
 - Drag & drop between columns
 - **Reference page** (`/board/:id/reference`): catalog intervals and torque specs for the current motorcycle
 - **Contextual torque hints**: relevant torque values shown inline on ticket cards
+- **Ticket photos**: attach a photo to a done ticket (e.g. a worn part, a receipt) — viewable, replaceable, deletable
+
+### **Module 2 — Maintenance history** (`/board/:id/history`)
+
+- Chronological list of done tickets with parts used and attached photos
 
 ## Data model
 
@@ -85,6 +90,7 @@ erDiagram
         int target_date
         int done_km
         int done_at
+        text photo_base64
     }
     ticket_parts {
         int id PK
@@ -119,7 +125,7 @@ A few deliberate choices worth noting:
 - **Versioned JSON catalog** — service intervals and torque specs live in `catalog/` as plain JSON files, versioned with the code. Adding a new model is a PR, not a database migration. The server loads them at startup via `CATALOG_PATH`; user overrides are stored in `interval_overrides`.
 - **MSW for the demo** — no backend on GitHub Pages. MSW intercepts fetch calls at the service worker level and returns realistic stateful mock data. [docs/adr/](docs/adr/)
 
-Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-012)
+Full decision log: [docs/adr/](docs/adr/) (ADR-001 to ADR-013)
 
 ## Stack
 
@@ -148,7 +154,7 @@ pitlog/
   client/     # React + TypeScript
   server/     # Express + Node.js
   docs/
-    adr/      # Architecture Decision Records (ADR-001 to ADR-012)
+    adr/      # Architecture Decision Records (ADR-001 to ADR-013)
 ```
 
 ## Getting started
