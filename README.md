@@ -16,7 +16,7 @@
 
 ## Concept
 
-Pitlog is a mobile-first PWA that turns your maintenance schedule into an actionable kanban board. Tickets are color-coded by urgency based on mileage and time, regenerate automatically when completed, and predict when your next service is due based on your riding velocity.
+Pitlog is a kanban-board app for motorcycle maintenance tracking, usable on desktop and mobile. Tickets are color-coded by urgency based on mileage and time, regenerate automatically when completed, and predict when your next service is due based on your riding velocity.
 
 Service intervals and torque specs for recognised models are stored in versioned JSON files under `catalog/` — no hardcoded data in the database.
 
