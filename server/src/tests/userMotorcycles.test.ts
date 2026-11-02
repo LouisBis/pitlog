@@ -210,6 +210,92 @@ describe('PATCH /api/v1/user-motorcycles/:id/km', () => {
   })
 })
 
+describe('PATCH /api/v1/user-motorcycles/:id/accent-color', () => {
+  it('sets the accent color on a custom motorcycle', async () => {
+    const [customMoto] = db
+      .insert(motorcycles)
+      .values({ brand: 'Franken', model: 'Bike', year: 2020, isCustom: true, catalogSlug: null })
+      .returning()
+      .all()
+    const [userMoto] = db
+      .insert(userMotorcycles)
+      .values({ motorcycleId: customMoto.id, currentKm: 1000, acquiredAt: new Date('2022-01-01') })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/user-motorcycles/${userMoto.id}/accent-color`)
+      .send({ accentColor: 'blue' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.accentColor).toBe('blue')
+
+    const updated = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, userMoto.id)).get()
+    expect(updated?.accentColor).toBe('blue')
+  })
+
+  it('clears the accent color when set to null', async () => {
+    const [customMoto] = db
+      .insert(motorcycles)
+      .values({ brand: 'Franken', model: 'Bike', year: 2020, isCustom: true, catalogSlug: null })
+      .returning()
+      .all()
+    const [userMoto] = db
+      .insert(userMotorcycles)
+      .values({ motorcycleId: customMoto.id, currentKm: 1000, acquiredAt: new Date('2022-01-01'), accentColor: 'pink' })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/user-motorcycles/${userMoto.id}/accent-color`)
+      .send({ accentColor: null })
+
+    expect(res.status).toBe(200)
+    expect(res.body.accentColor).toBeNull()
+  })
+
+  it('returns 422 for a catalog motorcycle (fixed, non-customizable accent)', async () => {
+    const [userMoto] = db
+      .insert(userMotorcycles)
+      .values({ motorcycleId: catalogueMotoId, currentKm: 1000, acquiredAt: new Date('2022-01-01') })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/user-motorcycles/${userMoto.id}/accent-color`)
+      .send({ accentColor: 'blue' })
+
+    expect(res.status).toBe(422)
+
+    const unchanged = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, userMoto.id)).get()
+    expect(unchanged?.accentColor).toBeNull()
+  })
+
+  it('returns 404 for an unknown user motorcycle', async () => {
+    const res = await request(app).patch('/api/v1/user-motorcycles/999/accent-color').send({ accentColor: 'blue' })
+    expect(res.status).toBe(404)
+  })
+
+  it('returns 400 for an invalid swatch key', async () => {
+    const [customMoto] = db
+      .insert(motorcycles)
+      .values({ brand: 'Franken', model: 'Bike', year: 2020, isCustom: true, catalogSlug: null })
+      .returning()
+      .all()
+    const [userMoto] = db
+      .insert(userMotorcycles)
+      .values({ motorcycleId: customMoto.id, currentKm: 1000, acquiredAt: new Date('2022-01-01') })
+      .returning()
+      .all()
+
+    const res = await request(app)
+      .patch(`/api/v1/user-motorcycles/${userMoto.id}/accent-color`)
+      .send({ accentColor: 'chartreuse' })
+
+    expect(res.status).toBe(400)
+  })
+})
+
 describe('DELETE /api/v1/user-motorcycles/:id', () => {
   it('deletes the user motorcycle and its associated tickets and km history', async () => {
     const [userMoto] = db
