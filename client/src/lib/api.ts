@@ -1,5 +1,6 @@
 import log from './logger'
 import type {
+  AccentSwatch,
   AddMotorcyclePayload,
   CatalogEntry,
   CatalogSummary,
@@ -92,6 +93,12 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ km }),
     }),
+
+  setAccentColor: (userMotorcycleId: number, accentColor: AccentSwatch | null) =>
+    request<{ id: number; accentColor: AccentSwatch | null }>(
+      `/api/v1/user-motorcycles/${userMotorcycleId}/accent-color`,
+      { method: 'PATCH', body: JSON.stringify({ accentColor }) },
+    ),
 
   patchTicketInterval: (id: number, data: UpdateTicketIntervalPayload) =>
     request<Ticket>(`/api/v1/tickets/${id}/interval`, {

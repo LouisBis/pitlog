@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useUserMotorcycles, useDeleteMotorcycle } from '@/queries/useUserMotorcycles'
 import { useCatalogSummaries } from '@/queries/useCatalog'
 import AddMotoForm from '@/components/AddMotoForm'
+import AccentColorPicker from '@/components/AccentColorPicker'
 import { Button } from '@/components/ui/Button'
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { UserMotorcycle } from '@/types'
@@ -54,6 +55,9 @@ function MotoCard({ moto, onSelect }: { moto: UserMotorcycle; onSelect: () => vo
           <div className={styles.badges}>
             <span className={styles.badgeYear}>{moto.year}</span>
             <span className={styles.badgeKm}>{t('common.km', { count: moto.currentKm })}</span>
+          </div>
+          <div className={styles.accentRow}>
+            <AccentColorPicker moto={moto} />
           </div>
         </div>
         <span className={styles.arrow}>→</span>

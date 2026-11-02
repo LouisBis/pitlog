@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useUserMotorcycles, useVelocity } from '@/queries/useUserMotorcycles'
 import KanbanBoard from '@/components/board/KanbanBoard'
 import KmUpdateForm from '@/components/board/KmUpdateForm'
+import { getAccentStyle } from '@/lib/accentColors'
 import styles from './BoardPage.module.css'
 
 export default function BoardPage() {
@@ -29,7 +30,7 @@ export default function BoardPage() {
   if (!isValidId) return null
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={moto ? getAccentStyle(moto) : undefined}>
       <header className={styles.header}>
         <div className={styles.identity}>
           <span className={styles.logo}>Pitlog</span>

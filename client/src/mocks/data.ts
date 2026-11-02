@@ -88,6 +88,7 @@ export const mockUserMotorcycles: UserMotorcycle[] = [
     year: 1997,
     isCustom: false,
     catalogSlug: 'suzuki-gsf600-bandit-1995-1999',
+    accentColor: null,
   },
 ]
 

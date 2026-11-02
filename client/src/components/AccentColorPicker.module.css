@@ -1,0 +1,29 @@
+.dot {
+  display: inline-block;
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.swatches {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.swatch,
+.swatchSelected {
+  width: var(--space-4);
+  height: var(--space-4);
+  border-radius: var(--radius-full);
+  border: 0.125rem solid transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color var(--duration-fast) var(--easing-default);
+}
+
+.swatchSelected {
+  border-color: var(--color-text-primary);
+}

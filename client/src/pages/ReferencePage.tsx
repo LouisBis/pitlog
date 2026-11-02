@@ -5,6 +5,7 @@ import { useUserMotorcycles } from '@/queries/useUserMotorcycles'
 import { useCatalogEntry } from '@/queries/useCatalog'
 import CategorySection from '@/components/reference/CategorySection'
 import TorqueSection from '@/components/reference/TorqueSection'
+import { getAccentStyle } from '@/lib/accentColors'
 import styles from './ReferencePage.module.css'
 
 /** Technical reference page — catalog intervals grouped by category + torque specs. */
@@ -35,7 +36,7 @@ export default function ReferencePage() {
   if (!isValidId) return null
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={moto ? getAccentStyle(moto) : undefined}>
       <header className={styles.header}>
         <div className={styles.identity}>
           <span className={styles.logo}>Pitlog</span>

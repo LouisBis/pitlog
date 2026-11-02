@@ -1,5 +1,12 @@
 import { http, HttpResponse } from 'msw'
-import type { CreatePartPayload, CreateTicketPayload, TicketStatus, UpdateTicketIntervalPayload, HistoryImportEntry } from '@/types'
+import type {
+  CreatePartPayload,
+  CreateTicketPayload,
+  TicketStatus,
+  UpdateTicketIntervalPayload,
+  HistoryImportEntry,
+  UserMotorcycle,
+} from '@/types'
 import {
   mockCatalogEntries,
   mockCatalogSummaries,
@@ -45,6 +52,16 @@ export const handlers = [
     return HttpResponse.json({ id: moto.id, currentKm: moto.currentKm })
   }),
 
+  http.patch('*/api/v1/user-motorcycles/:id/accent-color', async ({ params, request }) => {
+    const id = Number(params.id)
+    const moto = mockUserMotorcycles.find((m) => m.id === id)
+    if (!moto) return new HttpResponse(null, { status: 404 })
+    if (!moto.isCustom) return new HttpResponse(null, { status: 422 })
+    const body = (await request.json()) as { accentColor: UserMotorcycle['accentColor'] }
+    moto.accentColor = body.accentColor
+    return HttpResponse.json({ id: moto.id, accentColor: moto.accentColor })
+  }),
+
   http.delete('*/api/v1/user-motorcycles/:id', ({ params }) => {
     const id = Number(params.id)
     const idx = mockUserMotorcycles.findIndex((m) => m.id === id)
@@ -71,6 +88,7 @@ export const handlers = [
       year: body.year,
       isCustom: true,
       catalogSlug: null,
+      accentColor: null,
     }
     mockUserMotorcycles.push(moto)
     return HttpResponse.json(moto, { status: 201 })

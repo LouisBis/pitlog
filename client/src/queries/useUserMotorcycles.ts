@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import type { AddMotorcyclePayload } from '@/types'
+import log from '@/lib/logger'
+import type { AccentSwatch, AddMotorcyclePayload, UserMotorcycle } from '@/types'
 
 /** Fetches the current user's garage (all owned motorcycles). */
 export const useUserMotorcycles = () =>
@@ -38,6 +39,33 @@ export const useUpdateKm = (userMotorcycleId: number) => {
       queryClient.invalidateQueries({
         queryKey: ['velocity', userMotorcycleId],
       })
+    },
+  })
+}
+
+/** Sets a custom motorcycle's accent swatch with an optimistic update.
+ *  Rolls back the cache if the server request fails (e.g. the motorcycle turns out to be catalog-backed). */
+export const useSetAccentColor = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ userMotorcycleId, accentColor }: { userMotorcycleId: number; accentColor: AccentSwatch | null }) =>
+      api.setAccentColor(userMotorcycleId, accentColor),
+
+    onMutate: async ({ userMotorcycleId, accentColor }) => {
+      await queryClient.cancelQueries({ queryKey: ['user-motorcycles'] })
+      const previous = queryClient.getQueryData<UserMotorcycle[]>(['user-motorcycles'])
+      if (!previous) return
+      queryClient.setQueryData<UserMotorcycle[]>(['user-motorcycles'], (old) =>
+        old?.map((m) => (m.id === userMotorcycleId ? { ...m, accentColor } : m)),
+      )
+      return { previous }
+    },
+    onError: (err, _vars, context) => {
+      queryClient.setQueryData(['user-motorcycles'], context?.previous)
+      log.error('[useSetAccentColor] failed, rolling back optimistic update', err)
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-motorcycles'] })
     },
   })
 }

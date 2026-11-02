@@ -1,0 +1,1 @@
+ALTER TABLE `user_motorcycles` ADD `accent_color` text;

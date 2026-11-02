@@ -57,6 +57,9 @@ export const TICKET_STATUSES = ['todo', 'part_ordered', 'in_progress', 'done'] a
 export type TicketStatus = (typeof TICKET_STATUSES)[number]
 
 /** Motorcycle owned by the user, joined with catalogue data for display. */
+/** Swatch key for a custom motorcycle's accent color. Catalog motorcycles use a fixed brand lookup instead. */
+export type AccentSwatch = 'red' | 'blue' | 'green' | 'lime' | 'teal' | 'purple' | 'orange' | 'pink'
+
 export interface UserMotorcycle {
   id: number
   currentKm: number
@@ -67,6 +70,8 @@ export interface UserMotorcycle {
   year: number
   isCustom: boolean
   catalogSlug: string | null
+  /** User-chosen swatch key, custom motorcycles only. Null = default brass accent. */
+  accentColor: AccentSwatch | null
 }
 
 /** Maintenance ticket on the kanban board. */

@@ -48,6 +48,14 @@ const updateKmSchema = z.object({
   km: z.number().int().positive(),
 })
 
+/** Swatch keys the client can render as a color dot — kept in sync with
+ *  client/src/lib/accentColors.ts's CUSTOM_SWATCHES map. */
+export const ACCENT_SWATCH_KEYS = ['red', 'blue', 'green', 'lime', 'teal', 'purple', 'orange', 'pink'] as const
+
+const setAccentColorSchema = z.object({
+  accentColor: z.enum(ACCENT_SWATCH_KEYS).nullable(),
+})
+
 const historyEntrySchema = z
   .object({
     operation: z.string().min(1),
@@ -98,6 +106,7 @@ router.get('/', (_req, res) => {
       id: userMotorcycles.id,
       currentKm: userMotorcycles.currentKm,
       acquiredAt: userMotorcycles.acquiredAt,
+      accentColor: userMotorcycles.accentColor,
       motorcycleId: motorcycles.id,
       brand: motorcycles.brand,
       model: motorcycles.model,
@@ -314,6 +323,30 @@ router.patch('/:id/km', validateBody(updateKmSchema), (req, res) => {
   db.insert(kmHistory).values({ userMotorcycleId: id, km, recordedAt: new Date() }).run()
 
   res.json({ id, currentKm: km })
+})
+
+router.patch('/:id/accent-color', validateBody(setAccentColorSchema), (req, res) => {
+  const id = parseId(req.params.id, res)
+  if (id === null) return
+
+  const { accentColor } = res.locals.body as z.infer<typeof setAccentColorSchema>
+
+  const userMoto = db.select().from(userMotorcycles).where(eq(userMotorcycles.id, id)).get()
+  if (!userMoto) {
+    res.status(404).json({ error: 'User motorcycle not found' })
+    return
+  }
+
+  const motorcycle = db.select().from(motorcycles).where(eq(motorcycles.id, userMoto.motorcycleId)).get()
+  if (!motorcycle?.isCustom) {
+    logger.warn({ userMotorcycleId: id }, 'Accent color rejected: motorcycle is not custom')
+    res.status(422).json({ error: 'Only custom motorcycles can have a custom accent color' })
+    return
+  }
+
+  db.update(userMotorcycles).set({ accentColor }).where(eq(userMotorcycles.id, id)).run()
+
+  res.json({ id, accentColor })
 })
 
 router.delete('/:id', (req, res) => {
