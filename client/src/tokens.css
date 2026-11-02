@@ -8,6 +8,22 @@
   --text-display: 5rem;
   --size-icon-xl: 8rem;
 
+  /* Motorcycle accent hues (not yet in @louisbis/pitlog-tokens) — used only via
+     client/src/lib/accentColors.ts to override --brand-accent per motorcycle.
+     Red and green reuse the package's own primitives instead of duplicating them. */
+  --moto-blue-500: #3f7fc4;
+  --moto-blue-300: #7fb0e0;
+  --moto-lime-500: #7cb518;
+  --moto-lime-300: #a8d860;
+  --moto-teal-500: #2ba89a;
+  --moto-teal-300: #6fd4c7;
+  --moto-purple-500: #8b6cc9;
+  --moto-purple-300: #b89fe3;
+  --moto-orange-500: #d9822e;
+  --moto-orange-300: #f0ad66;
+  --moto-pink-500: #d1608f;
+  --moto-pink-300: #e99cb8;
+
   /* Button — primary (brass fill) */
   --btn-primary-bg: var(--brand-accent);
   --btn-primary-bg-hover: var(--brand-accent-hover);

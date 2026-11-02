@@ -60,7 +60,19 @@
     "delete": "Supprimer cette moto",
     "delete_confirm": "Supprimer définitivement ?",
     "delete_yes": "Oui, supprimer",
-    "delete_no": "Annuler"
+    "delete_no": "Annuler",
+    "accent_color": {
+      "select": "Couleur : {{color}}",
+      "red": "Rouge",
+      "blue": "Bleu",
+      "green": "Vert",
+      "lime": "Citron vert",
+      "teal": "Sarcelle",
+      "purple": "Violet",
+      "orange": "Orange",
+      "pink": "Rose",
+      "brand_fixed": "Couleur de la marque"
+    }
   },
   "add_moto": {
     "title": "Ajouter une moto",

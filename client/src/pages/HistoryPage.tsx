@@ -9,6 +9,7 @@ import TicketPhotoThumbnail from '@/components/board/TicketPhotoThumbnail'
 import HistoryActions from '@/components/history/HistoryActions'
 import type { Ticket } from '@/types'
 import { getOperationLabel } from '@/lib/catalogI18n'
+import { getAccentStyle } from '@/lib/accentColors'
 import styles from './HistoryPage.module.css'
 
 const DATE_FORMAT = new Intl.DateTimeFormat('fr-FR', {
@@ -87,7 +88,7 @@ export default function HistoryPage() {
   if (!isValidId) return null
 
   return (
-    <div className={styles.page}>
+    <div className={styles.page} style={moto ? getAccentStyle(moto) : undefined}>
       <header className={styles.header}>
         <div className={styles.identity}>
           <span className={styles.logo}>Pitlog</span>
